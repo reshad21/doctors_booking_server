@@ -7,3 +7,195 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum DoctorType {
+  INDIVIDUAL
+  ORGANIZATION_ASSIGNED
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum PatientStatus {
+  NEW
+  OLD
+  REPORT
+}
+
+model FeatureToggle {
+  id             String   @id @default(uuid())
+  featureId      String
+  doctorId       String? // Optional: for doctor-specific toggles
+  organizationId String? // Optional: for org-specific toggles
+  staffId        String? // Optional: for staff-specific toggles
+  enabled        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  feature      Feature       @relation(fields: [featureId], references: [id])
+  doctor       Doctor?       @relation(fields: [doctorId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  staff        Staff?        @relation(fields: [staffId], references: [id])
+
+  @@unique([featureId, doctorId])
+  @@unique([featureId, organizationId])
+  @@unique([featureId, staffId])
+}
+
+model Feature {
+  id        String   @id @default(uuid())
+  key       String   @unique // e.g. CREATE_PRESCRIPTION
+  name      String // Human-readable label
+  createdAt DateTime @default(now())
+
+  toggles FeatureToggle[]
+}
+
+model RouteAccess {
+  id             String   @id @default(uuid())
+  path           String // e.g. "/dashboard", "/patients", "/billing"
+  name           String // e.g. "Dashboard"
+  doctorId       String? // specific to doctor
+  organizationId String? // specific to organization
+  allowed        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  doctor       Doctor?       @relation(fields: [doctorId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@unique([path, doctorId])
+  @@unique([path, organizationId])
+}
+
+model Doctor {
+  id             String        @id @default(uuid())
+  name           String
+  email          String        @unique
+  phone          String
+  image          String?
+  type           DoctorType    @default(INDIVIDUAL)
+  status         Status        @default(ACTIVE)
+  organizationId String? // nullable for phase 1
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  staff         Staff[]
+  patients      Patient[]
+  Chamber       Chamber[]
+  Prescription  Prescription[]
+  FeatureToggle FeatureToggle[]
+  RouteAccess   RouteAccess[]
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String
+  logo      String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctors       Doctor[]
+  staff         Staff[]
+  FeatureToggle FeatureToggle[]
+  RouteAccess   RouteAccess[]
+}
+
+model Staff {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String
+  image     String?
+  password  String
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctorId String? // assigned to individual doctor
+  doctor   Doctor? @relation(fields: [doctorId], references: [id])
+
+  organizationId String? // assigned to organization
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  FeatureToggle  FeatureToggle[]
+}
+
+model Patient {
+  id           String         @id @default(uuid())
+  name         String
+  phoneNumber  String
+  email        String?
+  age          String
+  weight       String
+  status       PatientStatus
+  doctorId     String
+  doctor       Doctor         @relation(fields: [doctorId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Prescription Prescription[]
+}
+
+model Chamber {
+  id            String @id @default(uuid())
+  name          String
+  address       String
+  oldPatientFee String
+  newPatientFee String
+  reportFee     String
+  status        Status @default(ACTIVE)
+  doctorId      String
+  doctor        Doctor @relation(fields: [doctorId], references: [id])
+}
+
+model Prescription {
+  id        String   @id @default(uuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  advice    String
+  nextVisit String?
+  createdAt DateTime @default(now())
+
+  medicines Medicine[]
+  tests     Test[]
+}
+
+model Medicine {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  medicineName   String
+  dosage         String
+  day            String
+  time           String
+  comment        String?
+}
+
+model Test {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+}
+
+model PrescriptionUITable {
+  id          String @id @default(uuid())
+  headerImage String
+  footerImage String
+}
+
+model DisplayNoticeTable {
+  id          String @id @default(uuid())
+  description String
+  status      Status @default(ACTIVE)
+}
+
+model SmsNoticeTable {
+  id          String @id @default(uuid())
+  description String
+  status      Status @default(ACTIVE)
+}

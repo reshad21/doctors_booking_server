@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// import { UserRoutes } from '../modules/users/users.routes';
 import { TModuleRoute } from '../types/moduleRoute.type';
 
 const router = Router();
