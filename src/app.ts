@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import express, { Application } from 'express';
 import cors from 'cors';
 import config from './app/configs';
@@ -9,19 +10,18 @@ import { createDoctor } from './app/SeedUser/SeedUser';
 // Initialize the express application
 const app: Application = express();
 
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", 
+    credentials: true, 
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
+  })
+);
+
 // Middleware to parse JSON bodies
 app.use(express.json());
-app.use(cors());
-
-// Middleware to handle CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept',
-  );
-  next();
-});
 
 // Middleware to log requests
 app.use((req, res, next) => {
@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Welcome to the Backend in Onneshon!',
+    message: 'Welcome to the Backend in Doctors portal!',
   });
 });
 
