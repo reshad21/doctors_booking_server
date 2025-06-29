@@ -43,12 +43,11 @@ model FeatureToggle {
 }
 
 model Feature {
-  id        String   @id @default(uuid())
-  key       String   @unique // e.g. CREATE_PRESCRIPTION
+  id        String          @id @default(uuid())
+  key       String          @unique // e.g. CREATE_PRESCRIPTION
   name      String // Human-readable label
-  createdAt DateTime @default(now())
-
-  toggles FeatureToggle[]
+  createdAt DateTime        @default(now())
+  toggles   FeatureToggle[]
 }
 
 model RouteAccess {
@@ -86,6 +85,7 @@ model Doctor {
   Prescription  Prescription[]
   FeatureToggle FeatureToggle[]
   RouteAccess   RouteAccess[]
+  Visit         Visit[]
 }
 
 model Organization {
@@ -136,6 +136,19 @@ model Patient {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   Prescription Prescription[]
+  Visit        Visit[]
+}
+
+model Visit {
+  id        String   @id @default(uuid())
+  patientId String
+  doctorId  String
+  visitDate DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  // Relations
+  patient Patient @relation(fields: [patientId], references: [id])
+  doctor  Doctor  @relation(fields: [doctorId], references: [id])
 }
 
 model Chamber {
