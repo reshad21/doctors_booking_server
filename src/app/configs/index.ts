@@ -7,4 +7,6 @@ dotenv.config({
 
 export default {
   PORT: process.env.PORT,
+  jwtSecret: process.env.JWT_SECRET,
+  jwtExpiresIn: process.env.JWT_ExpiresIn,
 };
