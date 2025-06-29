@@ -4,6 +4,7 @@ import config from './app/configs';
 import router from './app/routes';
 import { globalErrorHandler } from './app/middlewares/globalErrorHandler';
 import notFoundErrorHandler from './app/middlewares/notFoundErrorHandler';
+import { createDoctor } from './app/SeedUser/SeedUser';
 
 // Initialize the express application
 const app: Application = express();
@@ -48,4 +49,5 @@ app.use(notFoundErrorHandler);
 // Running the server
 app.listen(config.PORT, () => {
   console.log(`Server is running on port ${config.PORT}`);
+  createDoctor()
 });
