@@ -72,6 +72,7 @@ model Doctor {
   email          String        @unique
   phone          String
   image          String?
+  password       String
   type           DoctorType    @default(INDIVIDUAL)
   status         Status        @default(ACTIVE)
   organizationId String? // nullable for phase 1
@@ -95,6 +96,7 @@ model Organization {
   phone     String
   logo      String?
   address   String?
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
