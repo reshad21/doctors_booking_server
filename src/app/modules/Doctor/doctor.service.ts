@@ -5,10 +5,9 @@ import configs from '../../configs';
 import { Status } from '@prisma/client';
 import { generateToken } from '../../utils/tokenGenerator';
 import { TLogin } from '../../types/auth.type';
+import { UserType } from '../../context/userType';
 
-
-
-const loginIntoDB = async (payload:TLogin) => {
+const loginIntoDB = async (payload: TLogin) => {
   const existingAdmin = await prisma.doctor.findFirst({
     where: {
       email: payload.email,
@@ -38,6 +37,7 @@ const loginIntoDB = async (payload:TLogin) => {
     name: existingAdmin.name,
     status: existingAdmin.status,
     profilePhoto: existingAdmin.image,
+    type: UserType.DOCTOR,
   };
 
   const accessToken = generateToken(
