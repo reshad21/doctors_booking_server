@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { TModuleRoute } from '../types/moduleRoute.type';
 import { AuthRoutes } from '../modules/Doctor/doctor.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
+import { WatchVideoRoutes } from '../modules/watchVideo/watchVideo.routes';
 
 const router = Router();
 
@@ -14,6 +15,10 @@ const moduleRoutes: TModuleRoute[] = [
     path: '/auth',
     route: AuthRoutes,
   },
+  {
+    path: '/watch-video',
+    route: WatchVideoRoutes,
+  }
 ];
 
 moduleRoutes.forEach((route) => {

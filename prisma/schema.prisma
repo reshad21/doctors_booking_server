@@ -190,6 +190,14 @@ model Medicine {
   comment        String?
 }
 
+model WatchVideo {
+  id        String   @id @default(uuid())
+  videoFile String?
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Test {
   id             String       @id @default(uuid())
   prescriptionId String
