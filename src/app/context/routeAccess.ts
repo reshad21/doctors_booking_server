@@ -8,5 +8,6 @@ export const routeAccess = [
   { path: '/staff', name: 'Staff Management', allowed: true },
   { path: '/service', name: 'Service Details', allowed: true },
   { path: '/pre-management', name: 'Pre Management', allowed: true },
-  { path: '/watch-video', name: 'Update Password', allowed: true },
+  { path: '/watch-video', name: 'Watch Video', allowed: true },
+  { path: '/update-password', name: 'Update Password', allowed: true },
 ];
