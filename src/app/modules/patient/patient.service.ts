@@ -1,7 +1,7 @@
 import { Patient } from '@prisma/client';
 import prisma from '../../../db/db.config';
 
-// doctorId is not used in this function; patient uniqueness is based on name, phoneNumber, age, gender only
+
 const createPatientIntoDB = async (patientData: Patient) => {
   const {
     phoneNumber,
