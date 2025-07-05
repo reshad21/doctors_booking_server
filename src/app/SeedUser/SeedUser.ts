@@ -18,7 +18,7 @@ export const createDoctor = async () => {
         password,
         phone: 'N/A',
         image: 'N/A',
-        RouteAccess: {
+        routeAccess: {
           create: routeAccess,
         },
       },

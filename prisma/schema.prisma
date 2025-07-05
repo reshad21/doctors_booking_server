@@ -82,11 +82,11 @@ model Doctor {
 
   staff         Staff[]
   patients      Patient[]
-  Chamber       Chamber[]
-  Prescription  Prescription[]
-  FeatureToggle FeatureToggle[]
-  RouteAccess   RouteAccess[]
-  Visit         Visit[]
+  chamber       Chamber[]
+  prescription  Prescription[]
+  featureToggle FeatureToggle[]
+  routeAccess   RouteAccess[]
+  visit         Visit[]
 }
 
 model Organization {
@@ -102,8 +102,8 @@ model Organization {
 
   doctors       Doctor[]
   staff         Staff[]
-  FeatureToggle FeatureToggle[]
-  RouteAccess   RouteAccess[]
+  featureToggle FeatureToggle[]
+  routeAccess   RouteAccess[]
 }
 
 model Staff {
@@ -122,7 +122,12 @@ model Staff {
 
   organizationId String? // assigned to organization
   organization   Organization?   @relation(fields: [organizationId], references: [id])
-  FeatureToggle  FeatureToggle[]
+  featureToggle  FeatureToggle[]
+}
+
+enum VisitStatus {
+  VISITED
+  NOT_VISITED
 }
 
 model Patient {
@@ -131,14 +136,17 @@ model Patient {
   phoneNumber  String
   email        String?
   age          String
+  gender       String
   weight       String
   status       PatientStatus
+  visitStatus  VisitStatus    @default(NOT_VISITED)
+  visitedAt    DateTime?
   doctorId     String
   doctor       Doctor         @relation(fields: [doctorId], references: [id])
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  Prescription Prescription[]
-  Visit        Visit[]
+  prescription Prescription[]
+  visit        Visit[]
 }
 
 model Visit {
