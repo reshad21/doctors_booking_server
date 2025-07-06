@@ -61,6 +61,8 @@ model RouteAccess {
 
   doctor       Doctor?       @relation(fields: [doctorId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
+  Staff        Staff?        @relation(fields: [staffId], references: [id])
+  staffId      String?
 
   @@unique([path, doctorId])
   @@unique([path, organizationId])
@@ -123,6 +125,7 @@ model Staff {
   organizationId String? // assigned to organization
   organization   Organization?   @relation(fields: [organizationId], references: [id])
   featureToggle  FeatureToggle[]
+  routeAccess    RouteAccess[]
 }
 
 enum VisitStatus {

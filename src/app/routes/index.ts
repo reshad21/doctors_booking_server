@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { TModuleRoute } from '../types/moduleRoute.type';
 
 import { AuthRoutes } from '../modules/Doctor/doctor.routes';
+import { StaffRoutes } from '../modules/Staff/staff.route';
 import { AdminRoutes } from '../modules/admin/admin.routes';
 import { PatientRoutes } from '../modules/patient/patient.routes';
 
@@ -19,7 +20,11 @@ const moduleRoutes: TModuleRoute[] = [
   },
   {
     path: '/patients',
-    route: PatientRoutes,
+    route: PatientRoutes
+  },
+  {
+    path: '/staff',
+    route: StaffRoutes,
   },
 ];
 
