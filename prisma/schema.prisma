@@ -148,6 +148,8 @@ model Patient {
   doctor       Doctor         @relation(fields: [doctorId], references: [id])
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  chamberId    String?       
+  chamber      Chamber?      @relation(fields: [chamberId], references: [id])
   prescription Prescription[]
   visit        Visit[]
 }
@@ -165,15 +167,20 @@ model Visit {
 }
 
 model Chamber {
-  id            String @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
   address       String
   oldPatientFee String
   newPatientFee String
   reportFee     String
-  status        Status @default(ACTIVE)
+  status        Status    @default(ACTIVE)
+  startTime     String?
+  endTime       String?
   doctorId      String
-  doctor        Doctor @relation(fields: [doctorId], references: [id])
+  doctor        Doctor    @relation(fields: [doctorId], references: [id])
+  patients      Patient[]
+  createdAt     DateTime  @default(now()) 
+  updatedAt     DateTime  @updatedAt
 }
 
 model Prescription {

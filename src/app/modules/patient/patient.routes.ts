@@ -8,7 +8,7 @@ import { PatientController } from './patient.controller';
 const router = Router();
 
 router.post(
-  '/',
+  '/create-patient',
   auth([UserType.DOCTOR, UserType.STAFF]),
   validation(PatientValidation.createPatientZodSchema),
   PatientController.createPatientHandler,
