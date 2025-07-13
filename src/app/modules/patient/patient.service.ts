@@ -80,4 +80,10 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
   return newPatient;
 };
 
-export const PatientService = { createPatientIntoDB };
+const getPatientsFromDB = async () => {
+  const result = await prisma.patient.findMany();
+  return result;
+};
+
+
+export const PatientService = { createPatientIntoDB, getPatientsFromDB };
