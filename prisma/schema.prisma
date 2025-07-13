@@ -128,14 +128,22 @@ model Staff {
   routeAccess    RouteAccess[]
 }
 
+enum VisitStatus {
+  VISITED
+  NOT_VISITED
+}
+
 model Patient {
   id           String         @id @default(uuid())
   name         String
   phoneNumber  String
   email        String?
   age          String
+  gender       String
   weight       String
   status       PatientStatus
+  visitStatus  VisitStatus    @default(NOT_VISITED)
+  visitedAt    DateTime?
   doctorId     String
   doctor       Doctor         @relation(fields: [doctorId], references: [id])
   createdAt    DateTime       @default(now())
