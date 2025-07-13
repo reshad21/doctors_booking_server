@@ -3,6 +3,7 @@ import { TModuleRoute } from '../types/moduleRoute.type';
 import { AuthRoutes } from '../modules/Doctor/doctor.routes';
 import { StaffRoutes } from '../modules/Staff/staff.route';
 import { AdminRoutes } from '../modules/admin/admin.routes';
+import { PrescriptionRoutes } from '../modules/Prescription/prescription.route';
 
 const router = Router();
 
@@ -18,6 +19,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/staff',
     route: StaffRoutes,
+  },
+  {
+    path: '/prescription',
+    route: PrescriptionRoutes,
   },
 ];
 

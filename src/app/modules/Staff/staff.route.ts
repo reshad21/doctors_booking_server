@@ -13,6 +13,11 @@ router.post(
   validation(staffValidations.crateStaffValidation),    
  StaffController.createStaff
 );
+router.post(
+  '/staff-login',
+  validation(staffValidations.loginStaffValidation),    
+ StaffController.login
+);
 router.get(
   '/get-staff',
   StaffController.getStaff

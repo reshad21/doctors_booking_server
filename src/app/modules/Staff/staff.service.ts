@@ -1,6 +1,13 @@
+import { Status } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
+import { TLogin } from '../../types/auth.type';
 import { TStaff } from '../../types/staff.type';
+import bcrypt from 'bcryptjs';
+import { UserType } from '../../context/userType';
+import { generateToken } from '../../utils/tokenGenerator';
+import configs from '../../configs';
+import bcryptjs from 'bcryptjs';
 
 const createStaffIntoDB = async (payload: TStaff) => {
   const existingStaff = await prisma.staff.findFirst();
@@ -26,14 +33,14 @@ const createStaffIntoDB = async (payload: TStaff) => {
     name: route.name,
     allowed: route.allowed,
   }));
-
+  const password = await bcryptjs.hash(`${payload.password}`, 10);
   const response = await prisma.staff.create({
     data: {
       name: payload.name,
       email: payload.email,
       phone: payload.phone,
       image: payload.image,
-      password: payload.password,
+      password:password,
       doctorId:payload.doctorId,
       routeAccess: {
         create: transformedRouteAccess,
@@ -58,8 +65,52 @@ const getStaffIntoDB = async () => {
   return response;
 };
 
+const loginIntoDB = async (payload: TLogin) => {
+  const existingStaff = await prisma.staff.findFirst({
+    where: {
+      email: payload.email,
+    },
+  });
+
+  if (!existingStaff) {
+    throw new AppError(404, 'Staff user not found with this email');
+  }
+
+  if (existingStaff.status === Status.INACTIVE) {
+    throw new AppError(403, 'Staff user is inactive. Please contact support.');
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    payload.password as string,
+    existingStaff.password as string,
+  );
+
+  if (!isPasswordMatch) {
+    throw new AppError(401, 'Password is incorrect');
+  }
+
+  const jwtPayload = {
+    id: existingStaff.id,
+    email: existingStaff.email,
+    name: existingStaff.name,
+    status: existingStaff.status,
+    profilePhoto: existingStaff.image,
+    type: UserType.STAFF,
+  };
+
+  const accessToken = generateToken(
+    jwtPayload,
+    configs.jwtSecret as string,
+    configs.jwtExpiresIn as string,
+  );
+  return {
+    accessToken,
+  };
+};
+
 export const StaffServices = {
   createStaffIntoDB,
   getStaffIntoDB,
   deleteStaffIntoDB,
+  loginIntoDB,
 };
