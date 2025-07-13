@@ -85,5 +85,13 @@ const getPatientsFromDB = async () => {
   return result;
 };
 
+const deletePatientFromDB = async (id: string) => {
+  const result = await prisma.patient.delete({ where: { id } });
+  return result;
+};
 
-export const PatientService = { createPatientIntoDB, getPatientsFromDB };
+export const PatientService = {
+  createPatientIntoDB,
+  getPatientsFromDB,
+  deletePatientFromDB,
+};

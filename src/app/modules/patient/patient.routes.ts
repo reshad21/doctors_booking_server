@@ -20,4 +20,10 @@ router.get(
   PatientController.getPatientHandler,
 );
 
+router.delete(
+  '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  PatientController.deleteChamberHandler,
+);
+
 export const PatientRoutes = router;
