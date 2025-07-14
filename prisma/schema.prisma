@@ -31,6 +31,7 @@ model FeatureToggle {
   staffId        String? // Optional: for staff-specific toggles
   enabled        Boolean  @default(false)
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   feature      Feature       @relation(fields: [featureId], references: [id])
   doctor       Doctor?       @relation(fields: [doctorId], references: [id])
@@ -47,6 +48,7 @@ model Feature {
   key       String          @unique // e.g. CREATE_PRESCRIPTION
   name      String // Human-readable label
   createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
   toggles   FeatureToggle[]
 }
 
@@ -58,6 +60,7 @@ model RouteAccess {
   organizationId String? // specific to organization
   allowed        Boolean  @default(true)
   createdAt      DateTime @default(now())
+  updatedAt    DateTime       @updatedAt
 
   doctor       Doctor?       @relation(fields: [doctorId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
@@ -148,8 +151,8 @@ model Patient {
   doctor       Doctor         @relation(fields: [doctorId], references: [id])
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  chamberId    String?       
-  chamber      Chamber?      @relation(fields: [chamberId], references: [id])
+  chamberId    String?
+  chamber      Chamber?       @relation(fields: [chamberId], references: [id])
   prescription Prescription[]
   visit        Visit[]
 }
@@ -160,6 +163,7 @@ model Visit {
   doctorId  String
   visitDate DateTime @default(now())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   patient Patient @relation(fields: [patientId], references: [id])
@@ -179,20 +183,20 @@ model Chamber {
   doctorId      String
   doctor        Doctor    @relation(fields: [doctorId], references: [id])
   patients      Patient[]
-  createdAt     DateTime  @default(now()) 
+  createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
 
 model Prescription {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id])
+  patient   Patient    @relation(fields: [patientId], references: [id])
   doctorId  String
-  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  doctor    Doctor     @relation(fields: [doctorId], references: [id])
   advice    String
   nextVisit String?
-  createdAt DateTime @default(now())
-
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   medicines Medicine[]
   tests     Test[]
 }
@@ -206,6 +210,8 @@ model Medicine {
   day            String
   time           String
   comment        String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model Test {
@@ -213,22 +219,30 @@ model Test {
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
   description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model PrescriptionUITable {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   headerImage String
   footerImage String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model DisplayNoticeTable {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   description String
-  status      Status @default(ACTIVE)
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model SmsNoticeTable {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   description String
-  status      Status @default(ACTIVE)
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
