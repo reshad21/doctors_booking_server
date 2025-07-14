@@ -49,11 +49,23 @@ const deleteWatchVideoByIdController = catchAsync(async (req, res) => {
 
 
 
+// const updateWatchVideoByIdController = catchAsync(async (req, res) => {
+//     const response = await WatchVideoServices.updateWatchVideoByIdFromDB(
+//         req.params.id,
+//         req.body,
+//     );
+//     sendResponse(res, {
+//         statusCode: 200,
+//         success: true,
+//         message: 'Watch Video updated successfully',
+//         data: response,
+//     });
+// });
+
 const updateWatchVideoByIdController = catchAsync(async (req, res) => {
-    const response = await WatchVideoServices.updateWatchVideoByIdFromDB(
-        req.params.id,
-        req.body,
-    );
+    const { id } = req.params;
+    const payload = req.body;
+    const response = await WatchVideoServices.updateWatchVideoByIdFromDB(id, payload);
     sendResponse(res, {
         statusCode: 200,
         success: true,

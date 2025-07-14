@@ -49,14 +49,18 @@ const getWatchVideoByIdFromDB = async (id: string) => {
 
 
 
-const updateWatchVideoByIdFromDB = async (id: string, payload: IWatchVideo) => {
+const updateWatchVideoByIdFromDB = async (id: string, payload:Prisma.WatchVideoUpdateInput ) => {
     const result = await prisma.watchVideo.update({
         where: {
             id,
         },
+        // data: {
+        //     videoFile: payload.videoFile,
+        //     status: payload.status as Status, // Cast to your enum type if needed
+        // },
         data: {
-            videoFile: payload.videoFile,
-            status: payload.status as Status, // Cast to your enum type if needed
+          ...payload as Prisma.WatchVideoUpdateInput,
+
         },
     });
     return result;
