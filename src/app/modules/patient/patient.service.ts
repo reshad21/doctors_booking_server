@@ -1,19 +1,37 @@
 import { Patient } from '@prisma/client';
 import prisma from '../../../db/db.config';
+import { UserType } from '../../context/userType';
+import { JwtPayload } from 'jsonwebtoken';
 
-// doctorId is not used in this function; patient uniqueness is based on name, phoneNumber, age, gender only
-const createPatientIntoDB = async (patientData: Patient) => {
+type User = JwtPayload & { id: string; type: string };
+
+const createPatientIntoDB = async (patientData: Patient, user: User) => {
+  let doctorId = patientData.doctorId;
+  // Determine doctorId based on user type
+  if (user?.type === UserType.DOCTOR) {
+    doctorId = user.id;
+  } else if (user?.type === UserType.STAFF) {
+    const staff = await prisma.staff.findUnique({ where: { id: user.id } });
+    if (!staff || !staff.doctorId) {
+      throw new Error('Staff is not assigned to a doctor');
+    }
+    doctorId = staff.doctorId;
+  }
+
   const {
     phoneNumber,
     name,
     age,
     gender,
-    doctorId,
-    email,
-    weight,
-    status,
-    visitStatus,
+    email = '',
+    weight = '',
+    status = 'NEW',
+    visitStatus = 'NOT_VISITED',
   } = patientData;
+
+  if (!name || !phoneNumber || !age || !gender || !doctorId) {
+    throw new Error('Missing required patient fields');
+  }
 
   const existingPatient = await prisma.patient.findFirst({
     where: {
@@ -24,7 +42,7 @@ const createPatientIntoDB = async (patientData: Patient) => {
 
   if (existingPatient) {
     // Check if patient details match
-    if (  
+    if (
       existingPatient.name === name &&
       existingPatient.gender === gender &&
       existingPatient.age === age
@@ -62,4 +80,18 @@ const createPatientIntoDB = async (patientData: Patient) => {
   return newPatient;
 };
 
-export const PatientService = { createPatientIntoDB };
+const getPatientsFromDB = async () => {
+  const result = await prisma.patient.findMany();
+  return result;
+};
+
+const deletePatientFromDB = async (id: string) => {
+  const result = await prisma.patient.delete({ where: { id } });
+  return result;
+};
+
+export const PatientService = {
+  createPatientIntoDB,
+  getPatientsFromDB,
+  deletePatientFromDB,
+};
