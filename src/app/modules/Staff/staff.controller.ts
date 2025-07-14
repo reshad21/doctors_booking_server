@@ -4,7 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { StaffServices } from './staff.service';
 
 const createStaff = catchAsync(async (req, res) => {
-     const file = req.file;
+  const file = req.file;
      
   const image = getSingleImageUrl(req, file);
   const payload = {
