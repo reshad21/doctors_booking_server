@@ -11,4 +11,8 @@ router.post(
   validation(prescriptionValidations.prescriptionValidationSchema),   
 PrescriptionController.createPrescription
 );
+router.get(
+  '/:patientId',  
+PrescriptionController.getPrescriptionByPatientId
+);
 export const PrescriptionRoutes = router;

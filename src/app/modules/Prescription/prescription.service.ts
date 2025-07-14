@@ -30,8 +30,38 @@ const createPrescriptionIntoDB = async (payload: TPrescription) => {
 
   return response;
 };
+const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
+ 
+const response = await prisma.prescription.findMany({
+  where:{
+    patientId
+  },
+  orderBy: {
+      createdAt: 'desc',
+    },
+  include:{
+    medicines:true,
+    tests:{
+      select:{
+        id:true,
+        description:true,
+      }
+    },
+    patient:{
+      select:{
+        gender:true,
+        age:true,
+        name:true,
+        weight:true,
+      }
+    }
+  }
+})
+return response
+};
 
 
 export const PrescriptionServices = {
-createPrescriptionIntoDB
+createPrescriptionIntoDB,
+getPrescriptionByPatientIdIntoDB
 };
