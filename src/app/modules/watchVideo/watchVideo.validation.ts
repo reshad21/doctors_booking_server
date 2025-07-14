@@ -1,12 +1,21 @@
 
 import { z } from 'zod';
 
-const watchVideoValidation = z.object({
+const createWatchVideoValidation = z.object({
   body: z.object({
-    VideoFile: z.string({ required_error: 'VideoFile is required' }),
+    videoFile: z.string({ required_error: 'VideoFile is required' }),
   }),
 });
 
+const updateWatchVideoValidation = z.object({
+  body: z.object({
+    status: z.string({ required_error: 'Status is required' }),
+  }),
+});
+
+
+
 export const watchVideoValidations = {
-  watchVideoValidation,
+  createWatchVideoValidation,
+  updateWatchVideoValidation
 };

@@ -1,4 +1,4 @@
-import { WatchVideo } from '@prisma/client';
+import { Prisma, Status, WatchVideo } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { IWatchVideo } from './watchVideoTypes';
 
@@ -37,17 +37,30 @@ const getWatchVideoByIdFromDB = async (id: string) => {
     return result;
  }
 
- const updateWatchVideoByIdFromDB = async (id: string, payload: IWatchVideo) => {
+//  const updateWatchVideoByIdFromDB = async (id: string, payload: IWatchVideo) => {
+//     const result = await prisma.watchVideo.update({
+//         where: {
+//             id,
+//         },
+//         data: payload as WatchVideo,
+//     });
+//     return result;
+//  }
+
+
+
+const updateWatchVideoByIdFromDB = async (id: string, payload: IWatchVideo) => {
     const result = await prisma.watchVideo.update({
         where: {
             id,
         },
-        data: payload as WatchVideo,
+        data: {
+            videoFile: payload.videoFile,
+            status: payload.status as Status, // Cast to your enum type if needed
+        },
     });
     return result;
- }
-
-
+}
 export const WatchVideoServices = {
     createWatchVideoIntoDB,
     getWatchVideoFromDB,
