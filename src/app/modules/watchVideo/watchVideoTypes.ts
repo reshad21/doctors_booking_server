@@ -8,6 +8,7 @@
 
 
 export type IWatchVideo = {
+  title ?: string;
   videoFile?: string;
   status?: string;
 };

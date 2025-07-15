@@ -218,6 +218,7 @@ model Medicine {
 
 model WatchVideo {
   id        String   @id @default(uuid())
+  title     String
   videoFile String?
   status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())

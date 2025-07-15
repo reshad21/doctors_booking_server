@@ -3,13 +3,15 @@ import { z } from 'zod';
 
 const createWatchVideoValidation = z.object({
   body: z.object({
+    title: z.string({ required_error: 'Title is required' }),
     videoFile: z.string({ required_error: 'VideoFile is required' }),
   }),
 });
 
 const updateWatchVideoValidation = z.object({
   body: z.object({
-    status: z.string({ required_error: 'Status is required' }),
+    title: z.string().optional(),
+    status: z.string().optional(),
   }),
 });
 
