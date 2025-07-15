@@ -40,8 +40,19 @@ const deleteChamberHandler = catchAsync(async (req, res) => {
   });
 });
 
+const updateChamberHandler = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  await PatientService.updatePatientFromDB(id, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Patient update successfully',
+  });
+});
+
 export const PatientController = {
   createPatientHandler,
   getPatientHandler,
   deleteChamberHandler,
+  updateChamberHandler,
 };
