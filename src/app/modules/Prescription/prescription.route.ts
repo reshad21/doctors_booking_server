@@ -11,6 +11,11 @@ router.post(
   validation(prescriptionValidations.prescriptionValidationSchema),   
 PrescriptionController.createPrescription
 );
+router.patch(
+  '/update-prescription',
+  validation(prescriptionValidations.prescriptionUpdateValidationSchema),   
+PrescriptionController.updatePrescription
+);
 router.get(
   '/:patientId',  
 PrescriptionController.getPrescriptionByPatientId

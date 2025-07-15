@@ -25,6 +25,7 @@ const createPrescriptionIntoDB = async (payload: TPrescription) => {
           comment: medicine.comment,
         })),
       },
+      
     },
   });
 
@@ -59,9 +60,38 @@ const response = await prisma.prescription.findMany({
 })
 return response
 };
+const updatePrescriptionIntoDB = async (payload: TPrescription) => {
+  const { advice, nextVisit, tests, medicines,id } = payload;
+  const response = await prisma.prescription.update({
+    where: { id },
+    data: {
+      advice: advice as string,
+      nextVisit,
+      tests: {
+        deleteMany: {}, 
+        create: tests.map((test) => ({
+          description: test.description,
+        })),
+      },
+      medicines: {
+        deleteMany: {}, 
+        create: medicines.map((medicine) => ({
+          medicineName: medicine.medicineName,
+          dosage: medicine.dosage,
+          time: medicine.time,
+          day: medicine.day,
+          comment: medicine.comment,
+        })),
+      },
+    },
+  });
+
+  return response;
+};
 
 
 export const PrescriptionServices = {
 createPrescriptionIntoDB,
-getPrescriptionByPatientIdIntoDB
+getPrescriptionByPatientIdIntoDB,
+updatePrescriptionIntoDB
 };
