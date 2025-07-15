@@ -8,6 +8,7 @@ const router = Router();
 
 router.post('/',validation(watchVideoValidations.createWatchVideoValidation), WatchVideoController.createWatchVideoController);
 router.get('/', WatchVideoController.getWatchVideoController);
+router.get('/active', WatchVideoController.getOnlyActiveVideo);
 router.get('/:id', WatchVideoController.getWatchVideoByIdController);
 router.delete('/:id', WatchVideoController.deleteWatchVideoByIdController);
 router.patch('/:id', WatchVideoController.updateWatchVideoByIdController);

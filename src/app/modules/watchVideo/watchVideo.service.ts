@@ -1,4 +1,4 @@
-import { Prisma, Status, WatchVideo } from '@prisma/client';
+import { Status, WatchVideo } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { IWatchVideo } from './watchVideoTypes';
 
@@ -49,7 +49,7 @@ const getWatchVideoByIdFromDB = async (id: string) => {
 
 
 
-const updateWatchVideoByIdFromDB = async (id: string, payload:Prisma.WatchVideoUpdateInput ) => {
+const updateWatchVideoByIdFromDB = async (id: string, payload: WatchVideo) => {
     const result = await prisma.watchVideo.update({
         where: {
             id,
@@ -59,8 +59,18 @@ const updateWatchVideoByIdFromDB = async (id: string, payload:Prisma.WatchVideoU
         //     status: payload.status as Status, // Cast to your enum type if needed
         // },
         data: {
-          ...payload as Prisma.WatchVideoUpdateInput,
+          ...payload,
 
+        },
+    });
+    return result;
+}
+
+
+const getOnlyActiveVideoFromDB = async () => {
+    const result = await prisma.watchVideo.findMany({
+        where: {
+            status: Status.ACTIVE,
         },
     });
     return result;
@@ -70,5 +80,6 @@ export const WatchVideoServices = {
     getWatchVideoFromDB,
     getWatchVideoByIdFromDB,
     deleteWatchVideoByIdFromDB,
-    updateWatchVideoByIdFromDB
+    updateWatchVideoByIdFromDB,
+    getOnlyActiveVideoFromDB,
 };

@@ -1,3 +1,4 @@
+import { get } from 'http';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { WatchVideoServices } from './watchVideo.service';
@@ -74,10 +75,23 @@ const updateWatchVideoByIdController = catchAsync(async (req, res) => {
     });
 });
 
+
+
+const getOnlyActiveVideo = catchAsync(async (req, res) => {
+    const response = await WatchVideoServices.getOnlyActiveVideoFromDB();
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: 'Watch Video fetched successfully',
+        data: response,
+    });
+});
+
 export const WatchVideoController = {
     createWatchVideoController,
     getWatchVideoController,
     getWatchVideoByIdController,
     deleteWatchVideoByIdController,
-    updateWatchVideoByIdController
+    updateWatchVideoByIdController,
+    getOnlyActiveVideo
 };
