@@ -4,7 +4,7 @@ export const prescriptionValidationSchema = z.object({
   body: z.object({
     patientId: z.string().min(1, 'patientId is required'),
     doctorId: z.string().min(1, 'doctorId is required'),
-    name: z.string().min(1, 'Name is required'),
+    // name: z.string().min(1, 'Name is required'),
     advice: z.string().optional(),
     nextVisit: z.string().optional(),
 

@@ -7,6 +7,7 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { PrescriptionRoutes } from '../modules/Prescription/prescription.route';
 import { PatientRoutes } from '../modules/patient/patient.routes';
 import { ChamberRoutes } from '../modules/chamber/chamber.routes';
+import { MessageRoutes } from '../modules/Message/message.route';
 
 const router = Router();
 
@@ -34,6 +35,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/prescription',
     route: PrescriptionRoutes,
+  },
+  {
+    path: '/message',
+    route: MessageRoutes,
   },
 ];
 
