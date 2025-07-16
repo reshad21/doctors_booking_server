@@ -7,6 +7,7 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { WatchVideoRoutes } from '../modules/watchVideo/watchVideo.routes';
 import { PatientRoutes } from '../modules/patient/patient.routes';
 import { ChamberRoutes } from '../modules/chamber/chamber.routes';
+import { PreManagementRoutes } from '../modules/preManagement/preManagement.routes';
 
 const router = Router();
 
@@ -35,6 +36,10 @@ const moduleRoutes: TModuleRoute[] = [
     path: '/chamber',
     route: ChamberRoutes,
   },
+  {
+    path: '/PreManagement',
+    route: PreManagementRoutes,
+  }
 ];
 
 moduleRoutes.forEach((route) => {
