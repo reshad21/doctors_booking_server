@@ -8,12 +8,29 @@ const createChamberValidation = z.object({
     newPatientFee: z.string({ required_error: 'New patient fee is required' }),
     reportFee: z.string({ required_error: 'Report fee is required' }),
     status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
-    startTime: z.string({ required_error: 'Start time is required' }).optional(),
+    startTime: z
+      .string({ required_error: 'Start time is required' })
+      .optional(),
     endTime: z.string({ required_error: 'End time is required' }).optional(),
     doctorId: z.string({ required_error: 'Doctor ID is required' }),
   }),
 });
 
+const updateChamberValidation = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    address: z.string().optional(),
+    oldPatientFee: z.string().optional(),
+    newPatientFee: z.string().optional(),
+    reportFee: z.string().optional(),
+    status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+    startTime: z.string().optional(),
+    endTime: z.string().optional(),
+    doctorId: z.string().optional(),
+  }),
+});
+
 export const chamberValidations = {
   createChamberValidation,
+  updateChamberValidation,
 };
