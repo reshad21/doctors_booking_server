@@ -4,14 +4,14 @@ import sendResponse from '../../utils/sendResponse';
 import { StaffServices } from './staff.service';
 
 const createStaff = catchAsync(async (req, res) => {
-     const file = req.file;
-     
+  const file = req.file;
+
+  console.log(file, 'file')
   const image = getSingleImageUrl(req, file);
   const payload = {
     ...req.body,
-      image,
+    image,
   };
-
 
   const response = await StaffServices.createStaffIntoDB(payload);
   sendResponse(res, {
@@ -22,7 +22,6 @@ const createStaff = catchAsync(async (req, res) => {
   });
 });
 const getStaff = catchAsync(async (req, res) => {
-   
   const response = await StaffServices.getStaffIntoDB();
   sendResponse(res, {
     statusCode: 200,
@@ -44,5 +43,5 @@ const getDelete = catchAsync(async (req, res) => {
 export const StaffController = {
   createStaff,
   getStaff,
-  getDelete
+  getDelete,
 };
