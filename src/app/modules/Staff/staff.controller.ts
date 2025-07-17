@@ -40,9 +40,20 @@ const getDelete = catchAsync(async (req, res) => {
     data: response,
   });
 });
+const login = catchAsync(async (req, res) => {
+  const response = await StaffServices.loginIntoDB(req.body);
+ 
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Login Successful',
+    data: response,
+  });
+});
 
 export const StaffController = {
   createStaff,
   getStaff,
-  getDelete
+  getDelete,
+  login
 };
