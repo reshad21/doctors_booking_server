@@ -37,7 +37,7 @@ const moduleRoutes: TModuleRoute[] = [
     route: ChamberRoutes,
   },
   {
-    path: '/PreManagement',
+    path: '/preManagement',
     route: PreManagementRoutes,
   }
 ];
