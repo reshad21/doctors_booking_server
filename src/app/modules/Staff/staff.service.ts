@@ -8,6 +8,7 @@ import { UserType } from '../../context/userType';
 import { generateToken } from '../../utils/tokenGenerator';
 import configs from '../../configs';
 import bcryptjs from 'bcryptjs';
+import { TPermissionUpdate } from './staff.type';
 
 const createStaffIntoDB = async (payload: TStaff) => {
   const existingStaff = await prisma.staff.findFirst();
@@ -32,7 +33,9 @@ const createStaffIntoDB = async (payload: TStaff) => {
     path: route.path,
     name: route.name,
     allowed: route.allowed,
+    doctorId: null,
   }));
+
   const password = await bcryptjs.hash(`${payload.password}`, 10);
   const response = await prisma.staff.create({
     data: {
@@ -40,8 +43,8 @@ const createStaffIntoDB = async (payload: TStaff) => {
       email: payload.email,
       phone: payload.phone,
       image: payload.image,
-      password:password,
-      doctorId:payload.doctorId,
+      password: password,
+      doctorId: payload.doctorId,
       routeAccess: {
         create: transformedRouteAccess,
       },
@@ -58,10 +61,11 @@ const deleteStaffIntoDB = async (id: string) => {
   return response;
 };
 const getStaffIntoDB = async () => {
-  const response = await prisma.staff.findMany();
-  if (response == null) {
-    throw new AppError(404, 'Staff not Found');
-  }
+  const response = await prisma.staff.findMany({
+    include: {
+      routeAccess: true,
+    },
+  });
   return response;
 };
 
@@ -108,9 +112,41 @@ const loginIntoDB = async (payload: TLogin) => {
   };
 };
 
+const allowAndDisallowPermissionForStaffInDB = async (
+  routePermissions: TPermissionUpdate[],
+) => {
+  if (!routePermissions || routePermissions.length === 0) {
+    throw new AppError(400, 'No route permissions provided');
+  }
+
+  await prisma.$transaction(async (tx) => {
+    for (const permission of routePermissions) {
+      // Update only if both id and staffId match (for additional security)
+      const updateResult = await tx.routeAccess.updateMany({
+        where: {
+          id: permission.id,
+          staffId: permission.staffId,
+        },
+        data: {
+          allowed: permission.allowed,
+        },
+      });
+
+      // Optional: Check if the update actually affected a row
+      if (updateResult.count === 0) {
+        throw new AppError(
+          404,
+          `Route permission not found for ID: ${permission.id}`,
+        );
+      }
+    }
+  });
+};
+
 export const StaffServices = {
   createStaffIntoDB,
   getStaffIntoDB,
   deleteStaffIntoDB,
   loginIntoDB,
+  allowAndDisallowPermissionForStaffInDB,
 };

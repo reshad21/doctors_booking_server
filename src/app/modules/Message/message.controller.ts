@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import { MessageService } from './Message.service';
+import { MessageService } from './message.service';
 
 const sendMessageHandler = catchAsync(async (req, res) => {
   const result = await MessageService.sendSingleMsgFromDB(req.body);
