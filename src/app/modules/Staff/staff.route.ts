@@ -15,9 +15,12 @@ router.post(
 );
 router.patch(
   '/update-staff',
-  imageUpload.single('staffImage'),
+  // imageUpload.single('staffImage'),
+  imageUpload.fields([
+    { name: 'staffImage', maxCount: 1 },
+  ]),
   uploadImages,
-  // validation(staffValidations.crateStaffValidation),    
+  validation(staffValidations.updateStaffValidation),    
  StaffController.updateStaff
 );
 router.post(

@@ -24,7 +24,6 @@ import { PreManagementServices } from './preManagement.service';
 
 const createPreManagementController = catchAsync(async (req, res) => {
   const files = req.files as { [key: string]: Express.Multer.File[] };
-  console.log(files, 'files');
 
   const headerImage = files['headerImage']
     ? `http://localhost:5000/public/images/${files['headerImage'][0].filename}`

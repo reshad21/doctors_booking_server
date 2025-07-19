@@ -16,6 +16,13 @@ const crateStaffValidation = z.object({
       .min(8, 'Password must be at least 8 characters long'),
   }),
 });
+const updateStaffValidation = z.object({
+  body: z.object({
+    email: z.string().optional(),
+    name: z.string().optional(),
+    phone: z.string().optional()
+  }),
+});
 
 const loginStaffValidation = z.object({
   body: z.object({
@@ -30,5 +37,6 @@ const loginStaffValidation = z.object({
 
 export const staffValidations = {
   crateStaffValidation,
-  loginStaffValidation
+  loginStaffValidation,
+  updateStaffValidation
 };
