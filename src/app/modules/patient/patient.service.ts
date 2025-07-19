@@ -1,4 +1,5 @@
-import { Patient } from '@prisma/client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Patient, PatientStatus, VisitStatus } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { UserType } from '../../context/userType';
 import { JwtPayload } from 'jsonwebtoken';
@@ -85,5 +86,126 @@ const getPatientsFromDB = async () => {
   return result;
 };
 
+const deletePatientFromDB = async (id: string) => {
+  const result = await prisma.patient.delete({ where: { id } });
+  return result;
+};
 
-export const PatientService = { createPatientIntoDB, getPatientsFromDB };
+
+const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
+  return await prisma.$transaction(async (tx) => {
+    // 1. Fetch existing patient info
+    const existingPatient = await tx.patient.findUnique({
+      where: { id },
+      select: {
+        visitStatus: true,
+        status: true,
+        chamberId: true,
+      },
+    });
+
+    if (!existingPatient) {
+      throw new Error(`Patient with ID ${id} not found`);
+    }
+
+    // 2. Prepare safe update data
+    const updateData: any = {
+      name: payload.name,
+      phoneNumber: payload.phoneNumber,
+      age: payload.age,
+      gender: payload.gender,
+      doctorId: payload.doctorId,
+      email: payload.email,
+      weight: payload.weight,
+      status: payload.status,
+      visitedAt: payload.visitedAt,
+    };
+
+    if (payload.visitStatus !== undefined) {
+      updateData.visitStatus = payload.visitStatus;
+    }
+
+    // 3. Update patient
+    const updatedPatient = await tx.patient.update({
+      where: { id },
+      data: updateData,
+    });
+
+    // 4. Handle Visit record creation/deletion
+    const wasNotVisited = existingPatient.visitStatus !== VisitStatus.VISITED;
+    const isNowVisited = payload.visitStatus === VisitStatus.VISITED;
+
+    const wasVisited = existingPatient.visitStatus === VisitStatus.VISITED;
+    const isNowNotVisited = payload.visitStatus === VisitStatus.NOT_VISITED;
+
+    if (wasNotVisited && isNowVisited) {
+      // Ensure chamber exists
+      if (!existingPatient.chamberId) {
+        throw new Error('Chamber not assigned to patient.');
+      }
+
+      const chamber = await tx.chamber.findUnique({
+        where: { id: existingPatient.chamberId },
+        select: {
+          newPatientFee: true,
+          oldPatientFee: true,
+          reportFee: true,
+        },
+      });
+
+      if (!chamber) {
+        throw new Error('Chamber not found');
+      }
+
+      // Determine fee using payload.status
+      if (!payload.status) {
+        throw new Error('Missing patient status to determine visit fee');
+      }
+
+      let fee: number;
+      switch (payload.status) {
+        case PatientStatus.NEW:
+          fee = parseInt(chamber.newPatientFee);
+          break;
+        case PatientStatus.OLD:
+          fee = parseInt(chamber.oldPatientFee);
+          break;
+        case PatientStatus.REPORT:
+          fee = parseInt(chamber.reportFee);
+          break;
+        default:
+          throw new Error('Invalid patient status');
+      }
+
+      if (isNaN(fee)) {
+        throw new Error('Fee is not a valid number');
+      }
+
+      // Create visit using PatientStatus as type
+      await tx.visit.create({
+        data: {
+          patientId: id,
+          doctorId: payload.doctorId!,
+          visitDate: payload.visitedAt ?? new Date(),
+          type: payload.status, // ⬅️ reuse PatientStatus enum
+          fee,
+        },
+      });
+    } else if (wasVisited && isNowNotVisited) {
+      await tx.visit.deleteMany({
+        where: {
+          patientId: id,
+        },
+      });
+    }
+
+    return updatedPatient;
+  });
+};
+
+export const PatientService = {
+  createPatientIntoDB,
+  getPatientsFromDB,
+  deletePatientFromDB,
+  updatePatientFromDB,
+};

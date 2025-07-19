@@ -21,11 +21,11 @@ const createStaff = catchAsync(async (req, res) => {
   });
 });
 const updateStaff = catchAsync(async (req, res) => {
-  const file = req.file;
+  const files = req.files as { [key: string]: Express.Multer.File[] };
 
-  const image = getSingleImageUrl(req, file);
-  console.log(req.body);
-  
+  const image = files['staffImage']
+    ? `http://localhost:5000/public/images/${files['staffImage'][0].filename}`
+    : null;
   const payload = {
     ...req.body,
     image,

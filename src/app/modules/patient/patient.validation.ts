@@ -14,6 +14,21 @@ export const createPatientZodSchema = z.object({
   }),
 });
 
+export const updatePatientZodSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    age: z.string().optional(),
+    gender: z.string().optional(),
+    doctorId: z.string().optional(),
+    email: z.string().optional(),
+    weight: z.string().optional(),
+    status: z.string().optional(),
+    visitStatus: z.string().optional(),
+  }),
+});
+
 export const PatientValidation = {
   createPatientZodSchema,
+  updatePatientZodSchema,
 };
