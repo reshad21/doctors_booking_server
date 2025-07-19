@@ -12,8 +12,12 @@ router.post(
 );
 
 router.get('/get-chambers', ChamberController.getAllChambers);
-// router.get('/:id');
-// router.put('/:id');
-// router.delete('/:id');
+router.get('/:id', ChamberController.getChamberById);
+router.put(
+  '/:id',
+  validation(chamberValidations.updateChamberValidation),
+  ChamberController.updateChamber,
+);
+router.delete('/:id', ChamberController.deleteChamber);
 
 export const ChamberRoutes = router;

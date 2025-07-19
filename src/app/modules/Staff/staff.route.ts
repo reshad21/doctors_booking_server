@@ -10,16 +10,24 @@ router.post(
   '/create-staff',
   imageUpload.single('staffImage'),
   uploadImages,
-  validation(staffValidations.crateStaffValidation),    
- StaffController.createStaff
+  validation(staffValidations.crateStaffValidation),
+  StaffController.createStaff,
 );
-router.get(
-  '/get-staff',
-  StaffController.getStaff
+
+router.post(
+  '/staff-login',
+  validation(staffValidations.loginStaffValidation),
+  StaffController.login,
 );
-router.delete(
-  '/:id',
-  StaffController.getDelete
+
+router.get('/get-staff', StaffController.getStaff);
+
+router.delete('/:id', StaffController.getDelete);
+
+router.put(
+  '/allow-routes',
+  validation(staffValidations.allowDisallowPermissionSchema),
+  StaffController.allowDisallowPermissionForStaff,
 );
 
 export const StaffRoutes = router;

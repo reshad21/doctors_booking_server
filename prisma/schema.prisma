@@ -60,7 +60,7 @@ model RouteAccess {
   organizationId String? // specific to organization
   allowed        Boolean  @default(true)
   createdAt      DateTime @default(now())
-  updatedAt    DateTime       @updatedAt
+  updatedAt      DateTime @updatedAt
 
   doctor       Doctor?       @relation(fields: [doctorId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
@@ -165,7 +165,9 @@ model Visit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
+  type PatientStatus
+  fee  Int // 👈 Use Int instead of Decimal
+
   patient Patient @relation(fields: [patientId], references: [id])
   doctor  Doctor  @relation(fields: [doctorId], references: [id])
 }
@@ -212,6 +214,15 @@ model Medicine {
   comment        String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+}
+
+model WatchVideo {
+  id        String   @id @default(uuid())
+  title     String
+  videoFile String?
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Test {
