@@ -1,10 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { ChamberService } from './chamber.service';
 
 const createChamber = catchAsync(async (req, res) => {
+  console.log(req.user, "user")
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
   const payload = req.body;
-  const chamber = await ChamberService.createChamber(payload);
+  const chamber = await ChamberService.createChamber(payload, user);
   sendResponse(res, {
     statusCode: 201,
     success: true,
