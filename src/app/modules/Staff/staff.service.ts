@@ -50,6 +50,39 @@ const createStaffIntoDB = async (payload: TStaff) => {
 
   return response;
 };
+const updateStaffIntoDB = async (payload: Partial<TStaff>) => {
+   const id = payload?.id;
+
+  if (!id) {
+    throw new AppError(400, 'Staff id is required');
+  }
+  const existingStaff = await prisma.staff.findUnique({
+    where: { id },
+  });
+
+  if (!existingStaff) {
+    throw new AppError(404, 'Staff not found');
+  }
+
+  const updateData: any = {
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone,
+    image: payload.image,
+  };
+
+  // If password is being updated, hash it
+  if (payload?.password) {
+    updateData.password = await bcryptjs.hash(payload.password, 10);
+  }
+
+  const updatedStaff = await prisma.staff.update({
+    where: { id },
+    data: updateData,
+  });
+
+  return updatedStaff;
+};
 
 const deleteStaffIntoDB = async (id: string) => {
   const response = await prisma.staff.delete({
@@ -110,6 +143,7 @@ const loginIntoDB = async (payload: TLogin) => {
 
 export const StaffServices = {
   createStaffIntoDB,
+  updateStaffIntoDB,
   getStaffIntoDB,
   deleteStaffIntoDB,
   loginIntoDB,

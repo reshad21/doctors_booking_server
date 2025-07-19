@@ -11,8 +11,6 @@ const crateStaffValidation = z.object({
       .string({ required_error: 'doctorId is required' }),
     phone: z
       .string({ required_error: 'phone is required' }),
-       image: z.any().optional(),
-       staffImage: z.any().optional(),
     password: z
       .string({ required_error: 'Password is required' })
       .min(8, 'Password must be at least 8 characters long'),

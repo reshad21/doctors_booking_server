@@ -13,6 +13,13 @@ router.post(
   validation(staffValidations.crateStaffValidation),    
  StaffController.createStaff
 );
+router.patch(
+  '/update-staff',
+  imageUpload.single('staffImage'),
+  uploadImages,
+  // validation(staffValidations.crateStaffValidation),    
+ StaffController.updateStaff
+);
 router.post(
   '/staff-login',
   validation(staffValidations.loginStaffValidation),    
