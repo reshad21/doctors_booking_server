@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Patient, PatientStatus, VisitStatus } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { UserType } from '../../context/userType';
@@ -92,30 +93,6 @@ const deletePatientFromDB = async (id: string) => {
 
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
-  return await prisma.patient.update({
-    where: { id },
-    data: {
-      name: payload.name,
-      phoneNumber: payload.phoneNumber,
-      age: payload.age,
-      gender: payload.gender,
-      doctorId: payload.doctorId,
-      email: payload.email,
-      weight: payload.weight,
-      status: payload.status,
-      visitedAt: payload.visitedAt,
-    },
-  });
-};
-
-
-const updatePatientVisitStatus = async (
-  id: string,
-  visitStatus: VisitStatus,
-  doctorId?: string,
-  status?: PatientStatus,
-  visitedAt?: Date
-) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Fetch existing patient info
     const existingPatient = await tx.patient.findUnique({
@@ -131,20 +108,32 @@ const updatePatientVisitStatus = async (
       throw new Error(`Patient with ID ${id} not found`);
     }
 
-    // 2. Update visitStatus
+    // 2. Prepare safe update data
+    const updateData: any = {
+      name: payload.name,
+      phoneNumber: payload.phoneNumber,
+      age: payload.age,
+      gender: payload.gender,
+      doctorId: payload.doctorId,
+      email: payload.email,
+      weight: payload.weight,
+      status: payload.status,
+      visitedAt: payload.visitedAt,
+    };
+
+    if (payload.visitStatus !== undefined) {
+      updateData.visitStatus = payload.visitStatus;
+    }
+
+    // 3. Update patient
     const updatedPatient = await tx.patient.update({
       where: { id },
-      data: { visitStatus },
+      data: updateData,
     });
 
-    // 3. Handle Visit record creation/deletion
-    const wasNotVisited = existingPatient.visitStatus !== VisitStatus.VISITED;
-    const isNowVisited = visitStatus === VisitStatus.VISITED;
 
-    const wasVisited = existingPatient.visitStatus === VisitStatus.VISITED;
-    const isNowNotVisited = visitStatus === VisitStatus.NOT_VISITED;
-
-    if (wasNotVisited && isNowVisited) {
+    // 4. 30-day logic for Visit creation
+    if (payload.visitStatus === VisitStatus.VISITED && payload.status) {
       // Ensure chamber exists
       if (!existingPatient.chamberId) {
         throw new Error('Chamber not assigned to patient.');
@@ -163,41 +152,80 @@ const updatePatientVisitStatus = async (
         throw new Error('Chamber not found');
       }
 
-      // Determine fee using status
-      if (!status) {
-        throw new Error('Missing patient status to determine visit fee');
+      // Find the latest visit for this patient
+      const latestVisit = await tx.visit.findFirst({
+        where: { patientId: id },
+        orderBy: { visitDate: 'desc' },
+      });
+
+      const visitDate = payload.visitedAt ? new Date(payload.visitedAt) : new Date();
+      let daysSinceLastVisit = Infinity;
+      if (latestVisit && latestVisit.visitDate) {
+        const lastVisitDate = new Date(latestVisit.visitDate);
+        daysSinceLastVisit = (visitDate.getTime() - lastVisitDate.getTime()) / (1000 * 60 * 60 * 24);
       }
 
-      let fee: number;
-      switch (status) {
-        case PatientStatus.NEW:
+      let fee: number | undefined;
+      let allowVisit = false;
+
+      if (payload.status === PatientStatus.NEW) {
+        if (daysSinceLastVisit > 30) {
           fee = parseInt(chamber.newPatientFee);
-          break;
-        case PatientStatus.OLD:
+          allowVisit = true;
+        } else {
+          throw new Error('Patient cannot be marked as NEW within 30 days of last visit.');
+        }
+      } else if (payload.status === PatientStatus.OLD) {
+        if (daysSinceLastVisit <= 30 && daysSinceLastVisit >= 0) {
           fee = parseInt(chamber.oldPatientFee);
-          break;
-        case PatientStatus.REPORT:
-          fee = parseInt(chamber.reportFee);
-          break;
-        default:
-          throw new Error('Invalid patient status');
+          allowVisit = true;
+        } else {
+          throw new Error('Patient can only be marked as OLD within 30 days of last visit.');
+        }
+      } else if (payload.status === PatientStatus.REPORT) {
+        fee = parseInt(chamber.reportFee);
+        allowVisit = true;
+      } else {
+        throw new Error('Invalid patient status');
       }
 
-      if (isNaN(fee)) {
+      if (fee === undefined || isNaN(fee)) {
         throw new Error('Fee is not a valid number');
       }
 
-      // Create visit using PatientStatus as type
-      await tx.visit.create({
-        data: {
+      // Only create a Visit if not already created for this patient, doctor, status, and date (same day)
+      const startOfDay = new Date(visitDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(visitDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const existingVisit = await tx.visit.findFirst({
+        where: {
           patientId: id,
-          doctorId: doctorId!,
-          visitDate: visitedAt ?? new Date(),
-          type: status, // ⬅️ reuse PatientStatus enum
-          fee,
+          doctorId: payload.doctorId!,
+          type: payload.status,
+          visitDate: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
         },
       });
-    } else if (wasVisited && isNowNotVisited) {
+
+      if (allowVisit && !existingVisit) {
+        await tx.visit.create({
+          data: {
+            patientId: id,
+            doctorId: payload.doctorId!,
+            visitDate: visitDate,
+            type: payload.status,
+            fee,
+          },
+        });
+      }
+    }
+
+    // If visitStatus is set to NOT_VISITED, delete all Visit records for this patient
+    if (payload.visitStatus === VisitStatus.NOT_VISITED) {
       await tx.visit.deleteMany({
         where: {
           patientId: id,
@@ -214,5 +242,4 @@ export const PatientService = {
   getPatientsFromDB,
   deletePatientFromDB,
   updatePatientFromDB,
-  updatePatientVisitStatus,
 };
