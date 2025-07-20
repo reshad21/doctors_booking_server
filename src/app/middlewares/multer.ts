@@ -52,51 +52,45 @@ export const imageUpload = multer({
 
 export const uploadImages = async (req: any, res: any, next: NextFunction) => {
   try {
-    // Skip if no image files were uploaded
     if (!req.files && !req.file) {
       return next();
     }
 
-    const files = req.files || [req.file];
+    const processFile = async (file: Express.Multer.File) => {
+      const timestamp = Date.now();
+      const filename = `${file.fieldname}-${timestamp}-${Math.round(Math.random() * 1e9)}.webp`;
+      const outputPath = path.join(process.cwd(), 'public', 'images', filename);
 
-    // If files array is empty, skip processing
-    if (!files || files.length === 0) {
-      return next();
-    }
+      await sharp(file.buffer)
+        .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toFile(outputPath);
 
-    const uploadPromises = files.map(async (file: any, index: number) => {
-      // Added index
-      const filename = `${file.fieldname}-${Date.now()}-${file.originalname}.webp`;
-      const outputPath = `./public/images/${filename}`;
+      return filename;
+    };
 
-      if (file.mimetype === 'image/avif') {
-        try {
-          await sharp(file.buffer, { failOnError: false })
-            .toFormat('webp', { quality: 80 })
-            .toFile(outputPath);
-        } catch (err) {
-          console.error('Failed to convert AVIF:', err);
-          throw new Error('AVIF conversion failed');
+    if (req.files) {
+      // Handle multiple files
+      for (const field of Object.keys(req.files)) {
+        const files = req.files[field];
+        if (Array.isArray(files)) {
+          for (const file of files) {
+            file.filename = await processFile(file);
+          }
         }
-      } else {
-        // Normal processing for other formats
-        await sharp(file.buffer).webp({ quality: 80 }).toFile(outputPath);
       }
-
-      file.filename = filename;
-      if (Array.isArray(req.files)) req.files[index].filename = filename;
-    });
-
-    await Promise.all(uploadPromises);
-
-    // If it's a single file, update req.file
-    if (req.file && files.length === 1) {
-      req.file.filename = files[0].filename;
+    } else if (req.file) {
+      // Handle single file
+      req.file.filename = await processFile(req.file);
     }
 
     next();
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error processing the images.');
+    // eslint-disable-next-line no-console
+    console.error('Image processing error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error processing the images',
+    });
   }
 };

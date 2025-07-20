@@ -5,7 +5,6 @@ import { StaffServices } from './staff.service';
 
 const createStaff = catchAsync(async (req, res) => {
   const file = req.file;
-
   const image = getSingleImageUrl(req, file);
   const payload = {
     ...req.body,
@@ -17,6 +16,26 @@ const createStaff = catchAsync(async (req, res) => {
     statusCode: 200,
     success: true,
     message: 'Create Staff Successful',
+    data: response,
+  });
+});
+
+const updateStaff = catchAsync(async (req, res) => {
+  const files = req.files as { [key: string]: Express.Multer.File[] };
+
+  const image = files['staffImage']
+    ? `http://localhost:5000/public/images/${files['staffImage'][0].filename}`
+    : null;
+  const payload = {
+    ...req.body,
+    image,
+  };
+
+  const response = await StaffServices.updateStaffIntoDB(payload);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Update Staff Successful',
     data: response,
   });
 });
@@ -66,6 +85,7 @@ const allowDisallowPermissionForStaff = catchAsync(async (req, res) => {
 
 export const StaffController = {
   createStaff,
+  updateStaff,
   getStaff,
   getDelete,
   login,
