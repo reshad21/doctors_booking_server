@@ -90,11 +90,16 @@ const updateStaffIntoDB = async (payload: Partial<TStaff>) => {
 };
 
 const deleteStaffIntoDB = async (id: string) => {
+  await prisma.routeAccess.deleteMany({
+    where: { staffId: id },
+  });
+  
   const response = await prisma.staff.delete({
     where: { id },
   });
   return response;
 };
+
 const getStaffIntoDB = async () => {
   const response = await prisma.staff.findMany({
     include: {
