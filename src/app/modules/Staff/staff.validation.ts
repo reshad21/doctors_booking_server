@@ -6,13 +6,19 @@ const crateStaffValidation = z.object({
       .string({ required_error: 'Email is required' })
       .email('Invalid email format'),
     name: z.string({ required_error: 'Name is required' }),
-    doctorId: z.string({ required_error: 'doctorId is required' }),
     phone: z.string({ required_error: 'phone is required' }),
-    image: z.any().optional(),
-    staffImage: z.any().optional(),
     password: z
       .string({ required_error: 'Password is required' })
-      .min(6, 'Password must be at least 8 characters long'),
+      .min(8, 'Password must be at least 8 characters long'),
+    doctorId: z.string({ required_error: 'doctorId is required' }),
+  }),
+});
+
+const updateStaffValidation = z.object({
+  body: z.object({
+    email: z.string().optional(),
+    name: z.string().optional(),
+    phone: z.string().optional(),
   }),
 });
 
@@ -38,5 +44,6 @@ export const allowDisallowPermissionSchema = z.object({
 export const staffValidations = {
   crateStaffValidation,
   loginStaffValidation,
+  updateStaffValidation,
   allowDisallowPermissionSchema,
 };

@@ -20,6 +20,24 @@ const createStaff = catchAsync(async (req, res) => {
   });
 });
 
+const updateStaff = catchAsync(async (req, res) => {
+  const file = req.file;
+  const image = getSingleImageUrl(req, file);
+
+  const payload = {
+    ...req.body,
+    image,
+  };
+
+  const response = await StaffServices.updateStaffIntoDB(payload);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Update Staff Successful',
+    data: response,
+  });
+});
+
 const getStaff = catchAsync(async (req, res) => {
   const response = await StaffServices.getStaffIntoDB();
   sendResponse(res, {
@@ -52,9 +70,7 @@ const login = catchAsync(async (req, res) => {
 });
 
 const allowDisallowPermissionForStaff = catchAsync(async (req, res) => {
-  await StaffServices.allowAndDisallowPermissionForStaffInDB(
-    req.body,
-  );
+  await StaffServices.allowAndDisallowPermissionForStaffInDB(req.body);
 
   sendResponse(res, {
     statusCode: 200,
@@ -65,8 +81,9 @@ const allowDisallowPermissionForStaff = catchAsync(async (req, res) => {
 
 export const StaffController = {
   createStaff,
+  updateStaff,
   getStaff,
   getDelete,
   login,
-  allowDisallowPermissionForStaff
+  allowDisallowPermissionForStaff,
 };

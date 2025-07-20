@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Status } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
@@ -54,12 +55,51 @@ const createStaffIntoDB = async (payload: TStaff) => {
   return response;
 };
 
+const updateStaffIntoDB = async (payload: Partial<TStaff>) => {
+   const id = payload?.id;
+
+  if (!id) {
+    throw new AppError(400, 'Staff id is required');
+  }
+  const existingStaff = await prisma.staff.findUnique({
+    where: { id },
+  });
+
+  if (!existingStaff) {
+    throw new AppError(404, 'Staff not found');
+  }
+
+  const updateData: any = {
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone,
+    image: payload.image,
+  };
+
+  // If password is being updated, hash it
+  if (payload?.password) {
+    updateData.password = await bcryptjs.hash(payload.password, 10);
+  }
+
+  const updatedStaff = await prisma.staff.update({
+    where: { id },
+    data: updateData,
+  });
+
+  return updatedStaff;
+};
+
 const deleteStaffIntoDB = async (id: string) => {
+  await prisma.routeAccess.deleteMany({
+    where: { staffId: id },
+  });
+  
   const response = await prisma.staff.delete({
     where: { id },
   });
   return response;
 };
+
 const getStaffIntoDB = async () => {
   const response = await prisma.staff.findMany({
     include: {
@@ -145,6 +185,7 @@ const allowAndDisallowPermissionForStaffInDB = async (
 
 export const StaffServices = {
   createStaffIntoDB,
+  updateStaffIntoDB,
   getStaffIntoDB,
   deleteStaffIntoDB,
   loginIntoDB,

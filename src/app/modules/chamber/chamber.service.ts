@@ -19,11 +19,11 @@ const createChamber = async (payload: Chamber, user: User) => {
   }
 
   if (!doctorId) {
-    throw new Error("doctorId must be defined");
+    throw new Error('Doctor ID is required to create a chamber');
   }
 
-  console.log(payload, 'payload');
-  return prisma.chamber.create({ data: { ...payload, doctorId } });
+  const chamberPayload = { ...payload, doctorId };
+  return prisma.chamber.create({ data: chamberPayload });
 };
 
 const getAllChambers = async () => {

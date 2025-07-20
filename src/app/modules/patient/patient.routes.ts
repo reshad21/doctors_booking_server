@@ -29,6 +29,7 @@ router.delete(
 router.put(
   '/:id',
   auth([UserType.DOCTOR, UserType.STAFF]),
+  validation(PatientValidation.updatePatientZodSchema),
   PatientController.updateChamberHandler,
 );
 
