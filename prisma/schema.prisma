@@ -216,6 +216,15 @@ model Medicine {
   updatedAt      DateTime     @updatedAt
 }
 
+model WatchVideo {
+  id        String   @id @default(uuid())
+  title     String
+  videoFile String?
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Test {
   id             String       @id @default(uuid())
   prescriptionId String

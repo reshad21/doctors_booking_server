@@ -14,4 +14,6 @@ export default {
   adminEmail: process.env.ADMIN_EMAIL,
   adminPass: process.env.ADMIN_PASS,
   adminFullName: process.env.ADMIN_FULLNAME,
+  SENDER_ID: process.env.SENDER_ID,
+  API_KEY: process.env.API_KEY,
 };
