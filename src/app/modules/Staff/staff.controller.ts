@@ -21,11 +21,9 @@ const createStaff = catchAsync(async (req, res) => {
 });
 
 const updateStaff = catchAsync(async (req, res) => {
-  const files = req.files as { [key: string]: Express.Multer.File[] };
+  const file = req.file;
+  const image = getSingleImageUrl(req, file);
 
-  const image = files['staffImage']
-    ? `http://localhost:5000/public/images/${files['staffImage'][0].filename}`
-    : null;
   const payload = {
     ...req.body,
     image,
@@ -72,9 +70,7 @@ const login = catchAsync(async (req, res) => {
 });
 
 const allowDisallowPermissionForStaff = catchAsync(async (req, res) => {
-  await StaffServices.allowAndDisallowPermissionForStaffInDB(
-    req.body,
-  );
+  await StaffServices.allowAndDisallowPermissionForStaffInDB(req.body);
 
   sendResponse(res, {
     statusCode: 200,
@@ -89,5 +85,5 @@ export const StaffController = {
   getStaff,
   getDelete,
   login,
-  allowDisallowPermissionForStaff
+  allowDisallowPermissionForStaff,
 };
