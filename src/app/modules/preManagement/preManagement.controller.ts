@@ -1,5 +1,4 @@
 import catchAsync from '../../utils/catchAsync';
-import { getSingleImageUrl } from '../../utils/getImageUrl';
 import sendResponse from '../../utils/sendResponse';
 import { PreManagementServices } from './preManagement.service';
 
@@ -26,11 +25,14 @@ const createPreManagementController = catchAsync(async (req, res) => {
   const files = req.files as { [key: string]: Express.Multer.File[] };
 
   const headerImage = files['headerImage']
-    ? `http://localhost:5000/public/images/${files['headerImage'][0].filename}`
+    ? `http://localhost:5000/images/${files['headerImage'][0].filename}`
     : null;
   const footerImage = files['footerImage']
-    ? `http://localhost:5000/public/images/${files['footerImage'][0].filename}`
-    : null;
+    ? `http://localhost:5000/images/${files['footerImage'][0].filename}`
+    : null; 
+
+    console.log(headerImage, 'headerImage');
+    console.log(footerImage, 'footerImage');
 
   const payload = {
     ...req.body,
