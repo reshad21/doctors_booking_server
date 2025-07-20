@@ -13,6 +13,21 @@ router.post(
   validation(staffValidations.crateStaffValidation),    
  StaffController.createStaff
 );
+router.patch(
+  '/update-staff',
+  // imageUpload.single('staffImage'),
+  imageUpload.fields([
+    { name: 'staffImage', maxCount: 1 },
+  ]),
+  uploadImages,
+  validation(staffValidations.updateStaffValidation),    
+ StaffController.updateStaff
+);
+router.post(
+  '/staff-login',
+  validation(staffValidations.loginStaffValidation),    
+ StaffController.login
+);
 router.get(
   '/get-staff',
   StaffController.getStaff
@@ -20,6 +35,22 @@ router.get(
 router.delete(
   '/:id',
   StaffController.getDelete
+);
+
+router.post(
+  '/staff-login',
+  validation(staffValidations.loginStaffValidation),
+  StaffController.login,
+);
+
+router.get('/get-staff', StaffController.getStaff);
+
+router.delete('/:id', StaffController.getDelete);
+
+router.put(
+  '/allow-routes',
+  validation(staffValidations.allowDisallowPermissionSchema),
+  StaffController.allowDisallowPermissionForStaff,
 );
 
 export const StaffRoutes = router;

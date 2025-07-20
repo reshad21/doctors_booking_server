@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { TModuleRoute } from '../types/moduleRoute.type';
-
 import { AuthRoutes } from '../modules/Doctor/doctor.routes';
 import { StaffRoutes } from '../modules/Staff/staff.route';
 import { AdminRoutes } from '../modules/admin/admin.routes';
+import { PrescriptionRoutes } from '../modules/Prescription/prescription.route';
+import { MessageRoutes } from '../modules/Message/message.route';
 import { WatchVideoRoutes } from '../modules/watchVideo/watchVideo.routes';
 import { PatientRoutes } from '../modules/patient/patient.routes';
 import { ChamberRoutes } from '../modules/chamber/chamber.routes';
@@ -35,6 +36,14 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/chamber',
     route: ChamberRoutes,
+  },
+  {
+    path: '/prescription',
+    route: PrescriptionRoutes,
+  },
+  {
+    path: '/message',
+    route: MessageRoutes,
   },
   {
     path: '/preManagement',
