@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Patient, PatientStatus, VisitStatus } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { UserType } from '../../context/userType';
@@ -93,6 +92,30 @@ const deletePatientFromDB = async (id: string) => {
 
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
+  return await prisma.patient.update({
+    where: { id },
+    data: {
+      name: payload.name,
+      phoneNumber: payload.phoneNumber,
+      age: payload.age,
+      gender: payload.gender,
+      doctorId: payload.doctorId,
+      email: payload.email,
+      weight: payload.weight,
+      status: payload.status,
+      visitedAt: payload.visitedAt,
+    },
+  });
+};
+
+
+const updatePatientVisitStatus = async (
+  id: string,
+  visitStatus: VisitStatus,
+  doctorId?: string,
+  status?: PatientStatus,
+  visitedAt?: Date
+) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Fetch existing patient info
     const existingPatient = await tx.patient.findUnique({
@@ -108,35 +131,18 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       throw new Error(`Patient with ID ${id} not found`);
     }
 
-    // 2. Prepare safe update data
-    const updateData: any = {
-      name: payload.name,
-      phoneNumber: payload.phoneNumber,
-      age: payload.age,
-      gender: payload.gender,
-      doctorId: payload.doctorId,
-      email: payload.email,
-      weight: payload.weight,
-      status: payload.status,
-      visitedAt: payload.visitedAt,
-    };
-
-    if (payload.visitStatus !== undefined) {
-      updateData.visitStatus = payload.visitStatus;
-    }
-
-    // 3. Update patient
+    // 2. Update visitStatus
     const updatedPatient = await tx.patient.update({
       where: { id },
-      data: updateData,
+      data: { visitStatus },
     });
 
-    // 4. Handle Visit record creation/deletion
+    // 3. Handle Visit record creation/deletion
     const wasNotVisited = existingPatient.visitStatus !== VisitStatus.VISITED;
-    const isNowVisited = payload.visitStatus === VisitStatus.VISITED;
+    const isNowVisited = visitStatus === VisitStatus.VISITED;
 
     const wasVisited = existingPatient.visitStatus === VisitStatus.VISITED;
-    const isNowNotVisited = payload.visitStatus === VisitStatus.NOT_VISITED;
+    const isNowNotVisited = visitStatus === VisitStatus.NOT_VISITED;
 
     if (wasNotVisited && isNowVisited) {
       // Ensure chamber exists
@@ -157,13 +163,13 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         throw new Error('Chamber not found');
       }
 
-      // Determine fee using payload.status
-      if (!payload.status) {
+      // Determine fee using status
+      if (!status) {
         throw new Error('Missing patient status to determine visit fee');
       }
 
       let fee: number;
-      switch (payload.status) {
+      switch (status) {
         case PatientStatus.NEW:
           fee = parseInt(chamber.newPatientFee);
           break;
@@ -185,9 +191,9 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       await tx.visit.create({
         data: {
           patientId: id,
-          doctorId: payload.doctorId!,
-          visitDate: payload.visitedAt ?? new Date(),
-          type: payload.status, // ⬅️ reuse PatientStatus enum
+          doctorId: doctorId!,
+          visitDate: visitedAt ?? new Date(),
+          type: status, // ⬅️ reuse PatientStatus enum
           fee,
         },
       });
@@ -208,4 +214,5 @@ export const PatientService = {
   getPatientsFromDB,
   deletePatientFromDB,
   updatePatientFromDB,
+  updatePatientVisitStatus,
 };
