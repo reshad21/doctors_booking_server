@@ -12,7 +12,6 @@ const createChamberValidation = z.object({
       .string({ required_error: 'Start time is required' })
       .optional(),
     endTime: z.string({ required_error: 'End time is required' }).optional(),
-    doctorId: z.string({ required_error: 'Doctor ID is required' }),
   }),
 });
 
@@ -26,7 +25,6 @@ const updateChamberValidation = z.object({
     status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
     startTime: z.string().optional(),
     endTime: z.string().optional(),
-    doctorId: z.string().optional(),
   }),
 });
 
