@@ -5,7 +5,6 @@ import { StaffServices } from './staff.service';
 
 const createStaff = catchAsync(async (req, res) => {
   const file = req.file;
-
   const image = getSingleImageUrl(req, file);
   const payload = {
     ...req.body,
@@ -20,12 +19,11 @@ const createStaff = catchAsync(async (req, res) => {
     data: response,
   });
 });
-const updateStaff = catchAsync(async (req, res) => {
-  const files = req.files as { [key: string]: Express.Multer.File[] };
 
-  const image = files['staffImage']
-    ? `http://localhost:5000/public/images/${files['staffImage'][0].filename}`
-    : null;
+const updateStaff = catchAsync(async (req, res) => {
+  const file = req.file;
+  const image = getSingleImageUrl(req, file);
+
   const payload = {
     ...req.body,
     image,
@@ -39,6 +37,7 @@ const updateStaff = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const getStaff = catchAsync(async (req, res) => {
   const response = await StaffServices.getStaffIntoDB();
   sendResponse(res, {
@@ -48,6 +47,7 @@ const getStaff = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const getDelete = catchAsync(async (req, res) => {
   const response = await StaffServices.deleteStaffIntoDB(req.params.id);
   sendResponse(res, {
@@ -57,6 +57,7 @@ const getDelete = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const login = catchAsync(async (req, res) => {
   const response = await StaffServices.loginIntoDB(req.body);
 
@@ -68,10 +69,21 @@ const login = catchAsync(async (req, res) => {
   });
 });
 
+const allowDisallowPermissionForStaff = catchAsync(async (req, res) => {
+  await StaffServices.allowAndDisallowPermissionForStaffInDB(req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Permission Update Successful',
+  });
+});
+
 export const StaffController = {
   createStaff,
   updateStaff,
   getStaff,
   getDelete,
   login,
+  allowDisallowPermissionForStaff,
 };
