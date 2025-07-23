@@ -83,6 +83,20 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
 };
 
 const getPatientsFromDB = async (query: Record<string, any>) => {
+  if (query.filter) {
+    const parsedFilter = JSON.parse(query.filter);
+
+    if (parsedFilter.createdAt) {
+      const dateStr = parsedFilter.createdAt;
+      parsedFilter.createdAt = {
+        gte: new Date(`${dateStr}T00:00:00.000Z`),
+        lt: new Date(`${dateStr}T23:59:59.999Z`),
+      };
+    }
+
+    query.filter = JSON.stringify(parsedFilter);
+  }
+
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
@@ -92,9 +106,12 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
     limit: query.limit,
   });
 
-  const totalItems = await prisma.patient.count({
-    where: patientQuery.where,
-  });
+  const totalItems = (
+    await prisma.patient.findMany({
+      where: patientQuery.where,
+      select: { id: true },
+    })
+  ).length;
 
   const currentPage = Number(query.page) || 1;
   const totalPages = Math.ceil(totalItems / patientQuery.take);
