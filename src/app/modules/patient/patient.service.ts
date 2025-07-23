@@ -86,7 +86,26 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
   if (query.filter) {
     const parsedFilter = JSON.parse(query.filter);
 
-    if (parsedFilter.createdAt) {
+    // Handle date range filtering for createdAt
+    if (parsedFilter.startDate && parsedFilter.endDate) {
+      parsedFilter.createdAt = {
+        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+      };
+      delete parsedFilter.startDate;
+      delete parsedFilter.endDate;
+    } else if (parsedFilter.startDate) {
+      parsedFilter.createdAt = {
+        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+      };
+      delete parsedFilter.startDate;
+    } else if (parsedFilter.endDate) {
+      parsedFilter.createdAt = {
+        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+      };
+      delete parsedFilter.endDate;
+    } else if (parsedFilter.createdAt) {
+      // Single date filter (legacy)
       const dateStr = parsedFilter.createdAt;
       parsedFilter.createdAt = {
         gte: new Date(`${dateStr}T00:00:00.000Z`),
@@ -127,7 +146,6 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
     data: result,
   };
 };
-
 const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
