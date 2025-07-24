@@ -3,6 +3,7 @@ import { Patient, PatientStatus, VisitStatus } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { UserType } from '../../context/userType';
 import { JwtPayload } from 'jsonwebtoken';
+import { builderQuery } from '../../builders/prismaBuilderQuery';
 
 type User = JwtPayload & { id: string; type: string };
 
@@ -81,16 +82,74 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
   return newPatient;
 };
 
-const getPatientsFromDB = async () => {
-  const result = await prisma.patient.findMany();
-  return result;
-};
+const getPatientsFromDB = async (query: Record<string, any>) => {
+  if (query.filter) {
+    const parsedFilter = JSON.parse(query.filter);
 
+    // Handle date range filtering for createdAt
+    if (parsedFilter.startDate && parsedFilter.endDate) {
+      parsedFilter.createdAt = {
+        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+      };
+      delete parsedFilter.startDate;
+      delete parsedFilter.endDate;
+    } else if (parsedFilter.startDate) {
+      parsedFilter.createdAt = {
+        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+      };
+      delete parsedFilter.startDate;
+    } else if (parsedFilter.endDate) {
+      parsedFilter.createdAt = {
+        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+      };
+      delete parsedFilter.endDate;
+    } else if (parsedFilter.createdAt) {
+      // Single date filter (legacy)
+      const dateStr = parsedFilter.createdAt;
+      parsedFilter.createdAt = {
+        gte: new Date(`${dateStr}T00:00:00.000Z`),
+        lt: new Date(`${dateStr}T23:59:59.999Z`),
+      };
+    }
+
+    query.filter = JSON.stringify(parsedFilter);
+  }
+
+  const patientQuery = builderQuery({
+    searchFields: ['name', 'phoneNumber', 'email'],
+    searchTerm: query.searchTerm,
+    filter: query.filter ? JSON.parse(query.filter) : {},
+    orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
+    page: query.page,
+    limit: query.limit,
+  });
+
+  const totalItems = (
+    await prisma.patient.findMany({
+      where: patientQuery.where,
+      select: { id: true },
+    })
+  ).length;
+
+  const currentPage = Number(query.page) || 1;
+  const totalPages = Math.ceil(totalItems / patientQuery.take);
+
+  const result = await prisma.patient.findMany(patientQuery);
+
+  return {
+    meta: {
+      totalItems,
+      totalPages,
+      currentPage,
+    },
+    data: result,
+  };
+};
 const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
-
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
@@ -131,7 +190,6 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       data: updateData,
     });
 
-
     // 4. 30-day logic for Visit creation
     if (payload.visitStatus === VisitStatus.VISITED && payload.status) {
       // Ensure chamber exists
@@ -158,11 +216,15 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         orderBy: { visitDate: 'desc' },
       });
 
-      const visitDate = payload.visitedAt ? new Date(payload.visitedAt) : new Date();
+      const visitDate = payload.visitedAt
+        ? new Date(payload.visitedAt)
+        : new Date();
       let daysSinceLastVisit = Infinity;
       if (latestVisit && latestVisit.visitDate) {
         const lastVisitDate = new Date(latestVisit.visitDate);
-        daysSinceLastVisit = (visitDate.getTime() - lastVisitDate.getTime()) / (1000 * 60 * 60 * 24);
+        daysSinceLastVisit =
+          (visitDate.getTime() - lastVisitDate.getTime()) /
+          (1000 * 60 * 60 * 24);
       }
 
       let fee: number | undefined;
@@ -173,14 +235,18 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
           fee = parseInt(chamber.newPatientFee);
           allowVisit = true;
         } else {
-          throw new Error('Patient cannot be marked as NEW within 30 days of last visit.');
+          throw new Error(
+            'Patient cannot be marked as NEW within 30 days of last visit.',
+          );
         }
       } else if (payload.status === PatientStatus.OLD) {
         if (daysSinceLastVisit <= 30 && daysSinceLastVisit >= 0) {
           fee = parseInt(chamber.oldPatientFee);
           allowVisit = true;
         } else {
-          throw new Error('Patient can only be marked as OLD within 30 days of last visit.');
+          throw new Error(
+            'Patient can only be marked as OLD within 30 days of last visit.',
+          );
         }
       } else if (payload.status === PatientStatus.REPORT) {
         fee = parseInt(chamber.reportFee);

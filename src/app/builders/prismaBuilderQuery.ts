@@ -22,7 +22,6 @@ export const builderQuery = <TWhereInput, TOrderByInput>({
           OR: searchFields.map((field) => ({
             [field]: {
               contains: searchTerm,
-              mode: 'insensitive',
             },
           })),
         }
