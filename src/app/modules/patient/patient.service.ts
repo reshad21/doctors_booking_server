@@ -29,6 +29,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     weight = '',
     status = 'NEW',
     visitStatus = 'NOT_VISITED',
+    chamberId = '',
   } = patientData;
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
@@ -77,6 +78,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       weight,
       status,
       visitStatus,
+      chamberId,
     },
   });
   return newPatient;
@@ -106,6 +108,7 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
       delete parsedFilter.endDate;
     } else if (parsedFilter.createdAt) {
       // Single date filter (legacy)
+      
       const dateStr = parsedFilter.createdAt;
       parsedFilter.createdAt = {
         gte: new Date(`${dateStr}T00:00:00.000Z`),
@@ -146,6 +149,7 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
     data: result,
   };
 };
+
 const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
