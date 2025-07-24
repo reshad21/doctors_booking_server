@@ -21,7 +21,7 @@ const createChamber = catchAsync(async (req, res) => {
 });
 
 const getAllChambers = catchAsync(async (req, res) => {
-  const chambers = await ChamberService.getAllChambers();
+  const chambers = await ChamberService.getAllChambers(req.query);
   sendResponse(res, {
     statusCode: 200,
     success: true,
