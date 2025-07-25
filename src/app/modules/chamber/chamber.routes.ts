@@ -15,12 +15,20 @@ router.post(
 );
 
 router.get('/get-chambers', ChamberController.getAllChambers);
+
 router.get('/:id', ChamberController.getChamberById);
+
 router.put(
   '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
   validation(chamberValidations.updateChamberValidation),
   ChamberController.updateChamber,
 );
-router.delete('/:id', ChamberController.deleteChamber);
+
+router.delete(
+  '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  ChamberController.deleteChamber
+);
 
 export const ChamberRoutes = router;

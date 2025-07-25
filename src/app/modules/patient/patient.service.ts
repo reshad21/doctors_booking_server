@@ -29,6 +29,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     weight = '',
     status = 'NEW',
     visitStatus = 'NOT_VISITED',
+    chamberId = '',
   } = patientData;
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
@@ -77,12 +78,47 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       weight,
       status,
       visitStatus,
+      chamberId,
     },
   });
   return newPatient;
 };
 
 const getPatientsFromDB = async (query: Record<string, any>) => {
+  if (query.filter) {
+    const parsedFilter = JSON.parse(query.filter);
+
+    // Handle date range filtering for createdAt
+    if (parsedFilter.startDate && parsedFilter.endDate) {
+      parsedFilter.createdAt = {
+        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+      };
+      delete parsedFilter.startDate;
+      delete parsedFilter.endDate;
+    } else if (parsedFilter.startDate) {
+      parsedFilter.createdAt = {
+        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+      };
+      delete parsedFilter.startDate;
+    } else if (parsedFilter.endDate) {
+      parsedFilter.createdAt = {
+        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+      };
+      delete parsedFilter.endDate;
+    } else if (parsedFilter.createdAt) {
+      // Single date filter (legacy)
+      
+      const dateStr = parsedFilter.createdAt;
+      parsedFilter.createdAt = {
+        gte: new Date(`${dateStr}T00:00:00.000Z`),
+        lt: new Date(`${dateStr}T23:59:59.999Z`),
+      };
+    }
+
+    query.filter = JSON.stringify(parsedFilter);
+  }
+
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
@@ -92,9 +128,12 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
     limit: query.limit,
   });
 
-  const totalItems = await prisma.patient.count({
-    where: patientQuery.where,
-  });
+  const totalItems = (
+    await prisma.patient.findMany({
+      where: patientQuery.where,
+      select: { id: true },
+    })
+  ).length;
 
   const currentPage = Number(query.page) || 1;
   const totalPages = Math.ceil(totalItems / patientQuery.take);

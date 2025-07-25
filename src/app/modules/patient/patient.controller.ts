@@ -21,7 +21,7 @@ const createPatientHandler = catchAsync(async (req, res) => {
 });
 
 const getPatientHandler = catchAsync(async (req, res) => {
-  const patients = await PatientService.getPatientsFromDB();
+  const patients = await PatientService.getPatientsFromDB(req.query);
   sendResponse(res, {
     statusCode: 200,
     success: true,
