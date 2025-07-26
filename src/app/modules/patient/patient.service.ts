@@ -29,7 +29,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     weight = '',
     status = 'NEW',
     visitStatus = 'NOT_VISITED',
-    chamberId = '',
+    chamberId,
   } = patientData;
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
@@ -108,7 +108,7 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
       delete parsedFilter.endDate;
     } else if (parsedFilter.createdAt) {
       // Single date filter (legacy)
-      
+
       const dateStr = parsedFilter.createdAt;
       parsedFilter.createdAt = {
         gte: new Date(`${dateStr}T00:00:00.000Z`),
@@ -164,6 +164,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         visitStatus: true,
         status: true,
         chamberId: true,
+        doctorId: true,
       },
     });
 
@@ -195,7 +196,18 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
     });
 
     // 4. 30-day logic for Visit creation
-    if (payload.visitStatus === VisitStatus.VISITED && payload.status) {
+    if (payload.visitStatus === VisitStatus.VISITED) {
+      const effectiveStatus = payload.status || existingPatient.status;
+      const effectiveDoctorId = payload.doctorId || existingPatient.doctorId;
+
+      if (!effectiveDoctorId) {
+        throw new Error('Doctor ID is required to create a visit.');
+      }
+
+      if (!effectiveStatus) {
+        throw new Error('Patient status is required to create a visit.');
+      }
+
       // Ensure chamber exists
       if (!existingPatient.chamberId) {
         throw new Error('Chamber not assigned to patient.');
@@ -223,7 +235,9 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       const visitDate = payload.visitedAt
         ? new Date(payload.visitedAt)
         : new Date();
+
       let daysSinceLastVisit = Infinity;
+
       if (latestVisit && latestVisit.visitDate) {
         const lastVisitDate = new Date(latestVisit.visitDate);
         daysSinceLastVisit =
@@ -234,7 +248,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       let fee: number | undefined;
       let allowVisit = false;
 
-      if (payload.status === PatientStatus.NEW) {
+      if (effectiveStatus === PatientStatus.NEW) {
         if (daysSinceLastVisit > 30) {
           fee = parseInt(chamber.newPatientFee);
           allowVisit = true;
@@ -243,7 +257,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
             'Patient cannot be marked as NEW within 30 days of last visit.',
           );
         }
-      } else if (payload.status === PatientStatus.OLD) {
+      } else if (effectiveStatus === PatientStatus.OLD) {
         if (daysSinceLastVisit <= 30 && daysSinceLastVisit >= 0) {
           fee = parseInt(chamber.oldPatientFee);
           allowVisit = true;
@@ -252,7 +266,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
             'Patient can only be marked as OLD within 30 days of last visit.',
           );
         }
-      } else if (payload.status === PatientStatus.REPORT) {
+      } else if (effectiveStatus === PatientStatus.REPORT) {
         fee = parseInt(chamber.reportFee);
         allowVisit = true;
       } else {
@@ -272,8 +286,8 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       const existingVisit = await tx.visit.findFirst({
         where: {
           patientId: id,
-          doctorId: payload.doctorId!,
-          type: payload.status,
+          doctorId: effectiveDoctorId,
+          type: effectiveStatus,
           visitDate: {
             gte: startOfDay,
             lte: endOfDay,
@@ -285,9 +299,9 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         await tx.visit.create({
           data: {
             patientId: id,
-            doctorId: payload.doctorId!,
+            doctorId: effectiveDoctorId,
             visitDate: visitDate,
-            type: payload.status,
+            type: effectiveStatus,
             fee,
           },
         });
