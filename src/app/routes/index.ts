@@ -9,6 +9,7 @@ import { WatchVideoRoutes } from '../modules/watchVideo/watchVideo.routes';
 import { PatientRoutes } from '../modules/patient/patient.routes';
 import { ChamberRoutes } from '../modules/chamber/chamber.routes';
 import { PreManagementRoutes } from '../modules/preManagement/preManagement.routes';
+import { VisitRoutes } from '../modules/visit/visit.routes';
 
 const router = Router();
 
@@ -48,7 +49,11 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/preManagement',
     route: PreManagementRoutes,
-  }
+  },
+  {
+    path: '/visit',
+    route: VisitRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => {
