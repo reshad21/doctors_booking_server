@@ -3,7 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { ChamberService } from './chamber.service';
 
-const createChamber = catchAsync(async (req, res) => {
+const createChamber = catchAsync(async (req, res) => { 
   const payload = req.body;
   const user = {
     ...req.user,
@@ -21,7 +21,7 @@ const createChamber = catchAsync(async (req, res) => {
 });
 
 const getAllChambers = catchAsync(async (req, res) => {
-  const chambers = await ChamberService.getAllChambers();
+  const chambers = await ChamberService.getAllChambers(req.query);
   sendResponse(res, {
     statusCode: 200,
     success: true,

@@ -108,6 +108,7 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
       delete parsedFilter.endDate;
     } else if (parsedFilter.createdAt) {
       // Single date filter (legacy)
+      
       const dateStr = parsedFilter.createdAt;
       parsedFilter.createdAt = {
         gte: new Date(`${dateStr}T00:00:00.000Z`),
