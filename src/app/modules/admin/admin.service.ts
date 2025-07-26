@@ -53,8 +53,41 @@ const updateAdminPassById = async (payload: {
   });
   return res;
 };
+const updateStaffPassById = async (payload: {
+  password: string;
+  oldPassword:string
+  id: string;
+}) => {
+  const staffExists = await prisma.staff.findUnique({
+    where: {
+      id: payload?.id,
+    },
+  });
+  if (!staffExists) {
+    throw new AppError(401, 'Invalid Doctor Id');
+  }
+
+  const isPasswordMatch = bcryptjs.compareSync(
+    payload.oldPassword,
+    staffExists.password,
+  );
+  if (!isPasswordMatch) {
+    throw new AppError(401, 'Invalid Old Password');
+  }
+  const password = await bcryptjs.hash(payload?.password ?? 'password', 10);
+  const res = await prisma.staff.update({
+    where: {
+      id: payload?.id,
+    },
+    data: {
+      password: password,
+    },
+  });
+  return res;
+};
 
 export const AdminService = {
   getAdminUserById,
   updateAdminPassById,
+  updateStaffPassById
 };

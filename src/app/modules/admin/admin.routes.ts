@@ -7,5 +7,6 @@ const router = Router();
 
 router.get('/me', auth([UserType.DOCTOR, UserType.STAFF]), AdminController.getAdminById);
 router.patch('/admin-password', auth([UserType.DOCTOR]), AdminController.updateAdminPassById);
+router.patch('/staff-password', auth([UserType.STAFF]), AdminController.updateStaffPassById);
 
 export const AdminRoutes = router;
