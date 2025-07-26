@@ -10,6 +10,7 @@ import { PatientRoutes } from '../modules/patient/patient.routes';
 import { ChamberRoutes } from '../modules/chamber/chamber.routes';
 import { PreManagementRoutes } from '../modules/preManagement/preManagement.routes';
 import { VisitRoutes } from '../modules/visit/visit.routes';
+import { PatientSummaryRoutes } from '../modules/patient-summary/patient-summary.routes';
 
 const router = Router();
 
@@ -53,6 +54,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/visit',
     route: VisitRoutes,
+  },
+  {
+    path: '/patient-summary',
+    route: PatientSummaryRoutes,
   },
 ];
 
