@@ -1,12 +1,46 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Chamber } from '@prisma/client';
 import prisma from '../../../db/db.config';
+import { JwtPayload } from 'jsonwebtoken';
+import { UserType } from '../../context/userType';
+import { builderQuery } from '../../builders/prismaBuilderQuery';
 
-const createChamber = async (payload: Chamber) => {
-  return prisma.chamber.create({ data: payload });
+type User = JwtPayload & { id: string; type: string };
+
+const createChamber = async (payload: Chamber, user: User) => {
+  let doctorId;
+
+  if (user?.type === UserType.DOCTOR) {
+    doctorId = user.id;
+  } else if (user?.type === UserType.STAFF) {
+    const staff = await prisma.staff.findUnique({ where: { id: user.id } });
+    if (!staff || !staff.doctorId) {
+      throw new Error('Staff is not assigned to a doctor');
+    }
+    doctorId = staff.doctorId;
+  }
+
+  if (!doctorId) {
+    throw new Error('Doctor ID is required to create a chamber');
+  }
+
+  const chamberPayload = { ...payload, doctorId };
+  return prisma.chamber.create({ data: chamberPayload });
 };
 
-const getAllChambers = async () => {
-  return prisma.chamber.findMany();
+const getAllChambers = async (query: Record<string, any>) => {
+  const chamberQuery = builderQuery({
+    searchFields: ['name'],
+    searchTerm: query.searchTerm,
+    filter: query.filter ? JSON.parse(query.filter) : {},
+    orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
+    page: query.page,
+    limit: query.limit,
+  });
+
+  return prisma.chamber.findMany({
+    where: chamberQuery.where,
+  });
 };
 
 const getChamberById = async (id: string) => {

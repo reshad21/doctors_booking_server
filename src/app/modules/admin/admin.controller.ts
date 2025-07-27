@@ -12,7 +12,29 @@ const getAdminById = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updateAdminPassById = catchAsync(async (req, res) => {
+  const result = await AdminService.updateAdminPassById(req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Update Admin Password successfully',
+    data: result,
+  });
+});
+const updateStaffPassById = catchAsync(async (req, res) => {
+  const result = await AdminService.updateStaffPassById(req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Update Staff Password successfully',
+    data: result,
+  });
+});
 
 export const AdminController = {
   getAdminById,
+  updateAdminPassById,
+  updateStaffPassById
 };

@@ -49,7 +49,32 @@ const loginIntoDB = async (payload: TLogin) => {
     accessToken,
   };
 };
+const updateDoctorDB = async (payload: any) => {
+  const existingAdmin = await prisma.doctor.findFirst({
+    where: {
+      id:payload.id,
+    },
+  });
 
+  if (!existingAdmin) {
+    throw new AppError(404, 'Doctor not found with this email');
+  }
+
+  if (existingAdmin.status === Status.INACTIVE) {
+    throw new AppError(403, 'Admin user is inactive. Please contact support.');
+  }
+const res = await prisma.doctor.update({
+  where: {
+    id: payload.id,
+  },
+  data: {
+    name: payload.name,
+    image:payload.image
+  },
+});
+  return res
+};
 export const AuthServices = {
   loginIntoDB,
+  updateDoctorDB
 };
