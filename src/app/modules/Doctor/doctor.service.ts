@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import prisma from '../../../db/db.config';
 import bcrypt from 'bcryptjs';
 import AppError from '../../errors/AppError';
