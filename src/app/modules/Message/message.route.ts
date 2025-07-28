@@ -10,5 +10,10 @@ router.post(
   validation(MessageValidation.singleMessageZodSchema),
  MessageController.sendMessageHandler
 );
+router.post(
+  '/message',
+  validation(MessageValidation.messageZodSchema),
+ MessageController.sendMultipleMessageHandler
+);
 
 export const MessageRoutes = router;

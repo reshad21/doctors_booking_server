@@ -2,25 +2,6 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PreManagementServices } from './preManagement.service';
 
-// const createPreManagementController = catchAsync(async (req, res) => {
-//   const file = req.file;
-
-//   const headerImage = getSingleImageUrl(req, file);
-//   const payload = {
-//     ...req.body,
-//     headerImage,
-//   };
-
-//   const response =
-//     await PreManagementServices.createPreManagementIntoDB(payload);
-//   sendResponse(res, {
-//     statusCode: 200,
-//     success: true,
-//     message: 'Pre Management created successfully',
-//     data: response,
-//   });
-// });
-
 const createPreManagementController = catchAsync(async (req, res) => {
   const files = req.files as { [key: string]: Express.Multer.File[] };
 
