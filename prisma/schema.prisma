@@ -257,3 +257,18 @@ model SmsNoticeTable {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model AdviceTable {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExceptionalTable {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
