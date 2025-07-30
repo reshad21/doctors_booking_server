@@ -66,14 +66,23 @@ const getPatientSummaryFromDB = async () => {
   };
 
   // Total patients
-  const totalPatients = await prisma.patient.count();
+  const totalPatients = await prisma.patient.count(
+    {
+  where: { visitStatus: 'VISITED' },
+}
+  );
   // Today's patients
   const todaysPatients = await prisma.patient.count({
-    where: { createdAt: { gte: today } },
+    where: {
+      createdAt: { gte: today },
+       visitStatus: 'VISITED'
+  
+  },
+    
   });
   // Monthly patients
   const monthlyPatients = await prisma.patient.count({
-    where: { createdAt: { gte: monthStart } },
+    where: { createdAt: { gte: monthStart } , visitStatus: 'VISITED' },
   });
 
   // Percentages by status
