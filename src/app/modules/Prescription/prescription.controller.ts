@@ -2,7 +2,26 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PrescriptionServices } from './prescription.service';
 
+const getPrescriptionByPatientId = catchAsync(async (req, res) => {
+  const response = await PrescriptionServices.getPrescriptionByPatientIdIntoDB(req.params.patientId)
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Get Prescription Successful',
+    data: response,
+  });
+});
+const getExceptionalAdvice = catchAsync(async (req, res) => {
+  const response = await PrescriptionServices.getExceptionalIntoDB()
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Get exceptional advice Successful',
+    data: response,
+  });
+});
 const createPrescription = catchAsync(async (req, res) => {
+
   const response = await PrescriptionServices.createPrescriptionIntoDB(req.body)
   sendResponse(res, {
     statusCode: 200,
@@ -22,6 +41,8 @@ const createExtraAdvice = catchAsync(async (req, res) => {
   });
 });
 const updatePrescription = catchAsync(async (req, res) => {
+  
+  
   const response = await PrescriptionServices.updatePrescriptionIntoDB(req.body)
   sendResponse(res, {
     statusCode: 200,
@@ -30,18 +51,12 @@ const updatePrescription = catchAsync(async (req, res) => {
     data: response,
   });
 });
-const getPrescriptionByPatientId = catchAsync(async (req, res) => {
-  const response = await PrescriptionServices.getPrescriptionByPatientIdIntoDB(req.params.patientId)
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Get Prescription Successful',
-    data: response,
-  });
-});
+
+
 export const PrescriptionController = {
   createPrescription,
   getPrescriptionByPatientId,
   updatePrescription,
-  createExtraAdvice
+  createExtraAdvice,
+  getExceptionalAdvice
 };

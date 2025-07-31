@@ -6,6 +6,14 @@ import validation from '../../middlewares/validation';
 
 const router = Router();
 
+router.get(
+  '/exceptional-advice',  
+PrescriptionController.getExceptionalAdvice
+);
+router.get(
+  '/:patientId',  
+PrescriptionController.getPrescriptionByPatientId
+);
 router.post(
   '/create-prescription',
   validation(prescriptionValidations.prescriptionValidationSchema),   
@@ -18,11 +26,8 @@ PrescriptionController.createExtraAdvice
 );
 router.patch(
   '/update-prescription',
-  validation(prescriptionValidations.prescriptionUpdateValidationSchema),   
+  // validation(prescriptionValidations.prescriptionUpdateValidationSchema),   
 PrescriptionController.updatePrescription
 );
-router.get(
-  '/:patientId',  
-PrescriptionController.getPrescriptionByPatientId
-);
+
 export const PrescriptionRoutes = router;
