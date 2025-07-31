@@ -6,18 +6,28 @@ import validation from '../../middlewares/validation';
 
 const router = Router();
 
-router.post(
-  '/create-prescription',
-  validation(prescriptionValidations.prescriptionValidationSchema),   
-PrescriptionController.createPrescription
-);
-router.patch(
-  '/update-prescription',
-  validation(prescriptionValidations.prescriptionUpdateValidationSchema),   
-PrescriptionController.updatePrescription
+router.get(
+  '/exceptional-advice',  
+PrescriptionController.getExceptionalAdvice
 );
 router.get(
   '/:patientId',  
 PrescriptionController.getPrescriptionByPatientId
 );
+router.post(
+  '/create-prescription',
+  validation(prescriptionValidations.prescriptionValidationSchema),   
+PrescriptionController.createPrescription
+);
+router.post(
+  '/create-createExtraAdvice',
+  // validation(prescriptionValidations.prescriptionValidationSchema),   
+PrescriptionController.createExtraAdvice
+);
+router.patch(
+  '/update-prescription',
+  // validation(prescriptionValidations.prescriptionUpdateValidationSchema),   
+PrescriptionController.updatePrescription
+);
+
 export const PrescriptionRoutes = router;

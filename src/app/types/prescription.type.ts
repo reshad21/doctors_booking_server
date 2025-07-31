@@ -6,6 +6,10 @@ export type TPrescription = {
   name: string;
   advice?: string;
   nextVisit?:string;
+  onExaminations:any[];
+  diagnosis:any[];
+  investigation:any[];
+  chiefComplaint:any[];
   tests:any[];
   medicines:any[];
   createdAt?:string;
