@@ -190,17 +190,21 @@ model Chamber {
 }
 
 model Prescription {
-  id        String     @id @default(uuid())
-  patientId String
-  patient   Patient    @relation(fields: [patientId], references: [id])
-  doctorId  String
-  doctor    Doctor     @relation(fields: [doctorId], references: [id])
-  advice    String
-  nextVisit String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  medicines Medicine[]
-  tests     Test[]
+  id             String           @id @default(uuid())
+  patientId      String
+  patient        Patient          @relation(fields: [patientId], references: [id])
+  doctorId       String
+  doctor         Doctor           @relation(fields: [doctorId], references: [id])
+  advice         String           @db.Text
+  nextVisit      String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  medicines      Medicine[]
+  tests          Test[]
+  chiefComplaint chiefComplaint[]
+  onExaminations onExaminations[]
+  diagnosis      diagnosis[]
+  investigation  investigation[]
 }
 
 model Medicine {
@@ -234,6 +238,42 @@ model Test {
   updatedAt      DateTime     @updatedAt
 }
 
+model chiefComplaint {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model onExaminations {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model diagnosis {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model investigation {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
 model PrescriptionUITable {
   id          String   @id @default(uuid())
   headerImage String
@@ -256,4 +296,19 @@ model SmsNoticeTable {
   status      Status   @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model AdviceTable {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExceptionalTable {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

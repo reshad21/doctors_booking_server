@@ -12,6 +12,7 @@ import { PreManagementRoutes } from '../modules/preManagement/preManagement.rout
 import { VisitRoutes } from '../modules/visit/visit.routes';
 import { PatientSummaryRoutes } from '../modules/patient-summary/patient-summary.routes';
 import { DisplayNoticeTableRoutes } from '../modules/displayNoticeTable/displayNoticeTable.routes';
+import { AdviceTableRoutes } from '../modules/adviceTable/adviceTable.routes';
 
 const router = Router();
 
@@ -63,6 +64,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/notice',
     route: DisplayNoticeTableRoutes,
+  },
+  {
+    path: '/advice',
+    route: AdviceTableRoutes,
   },
 ];
 
