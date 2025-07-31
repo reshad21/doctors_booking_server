@@ -151,9 +151,17 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
 };
 
 const deletePatientFromDB = async (id: string) => {
+  // Step 1: Delete related Visits
+  await prisma.visit.deleteMany({ where: { patientId: id } });
+
+  // Step 2: Delete related Prescriptions
+  await prisma.prescription.deleteMany({ where: { patientId: id } });
+
+  // Step 3: Now delete the patient
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
+
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
