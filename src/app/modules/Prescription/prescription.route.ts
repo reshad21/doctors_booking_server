@@ -11,6 +11,11 @@ router.post(
   validation(prescriptionValidations.prescriptionValidationSchema),   
 PrescriptionController.createPrescription
 );
+router.post(
+  '/create-createExtraAdvice',
+  // validation(prescriptionValidations.prescriptionValidationSchema),   
+PrescriptionController.createExtraAdvice
+);
 router.patch(
   '/update-prescription',
   validation(prescriptionValidations.prescriptionUpdateValidationSchema),   

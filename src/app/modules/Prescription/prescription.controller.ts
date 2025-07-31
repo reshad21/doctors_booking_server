@@ -11,6 +11,16 @@ const createPrescription = catchAsync(async (req, res) => {
     data: response,
   });
 });
+const createExtraAdvice = catchAsync(async (req, res) => {
+  const {content} = req.body
+  const response = await PrescriptionServices.createExceptionalIntoDB(content)
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Create extra advice Successful',
+    data: response,
+  });
+});
 const updatePrescription = catchAsync(async (req, res) => {
   const response = await PrescriptionServices.updatePrescriptionIntoDB(req.body)
   sendResponse(res, {
@@ -32,5 +42,6 @@ const getPrescriptionByPatientId = catchAsync(async (req, res) => {
 export const PrescriptionController = {
   createPrescription,
   getPrescriptionByPatientId,
-  updatePrescription
+  updatePrescription,
+  createExtraAdvice
 };

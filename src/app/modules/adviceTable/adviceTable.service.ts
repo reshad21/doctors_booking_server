@@ -2,6 +2,8 @@
 import prisma from '../../../db/db.config';
 
 const createAdvice = async (payload: any) => {
+  console.log(payload);
+  
   return prisma.adviceTable.create({ data: payload });
 };
 
