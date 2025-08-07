@@ -1,8 +1,8 @@
 
 import { Router } from 'express';
 import { PrescriptionController } from './prescription.controller';
-import { prescriptionValidations } from './prescription.validation';
-import validation from '../../middlewares/validation';
+// import { prescriptionValidations } from './prescription.validation';
+// import validation from '../../middlewares/validation';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ PrescriptionController.getPrescriptionByPatientId
 );
 router.post(
   '/create-prescription',
-  validation(prescriptionValidations.prescriptionValidationSchema),   
+  // validation(prescriptionValidations.prescriptionValidationSchema),   
 PrescriptionController.createPrescription
 );
 router.post(
