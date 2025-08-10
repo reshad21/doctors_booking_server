@@ -38,64 +38,145 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
   });
   return response;
 };
+// const createPrescriptionIntoDB = async (payload: TPrescription) => {
+//   const {
+//     patientId,
+//     doctorId,
+//     advice,
+//     nextVisit,
+//     tests,
+//     medicines,
+//     investigation,
+//     onExaminations,
+//     chiefComplaint,
+//     diagnosis,
+//   } = payload;
+
+//   const response = await prisma.prescription.create({
+//     data: {
+//       patientId,
+//       doctorId,
+//       advice: advice as string,
+//       nextVisit,
+//       tests: {
+//         create: tests.map((test) => ({
+//           description: test.description,
+//         })),
+//       },
+//       chiefComplaint: {
+//         create: chiefComplaint.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       investigation: {
+//         create: investigation.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       diagnosis: {
+//         create: diagnosis.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       onExaminations: {
+//         create: onExaminations.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       medicines: {
+//         create: medicines.map((medicine) => ({
+//           medicineName: medicine.medicineName,
+//           dosage: medicine.dosage,
+//           time: medicine.time,
+//           day: medicine.day,
+//           comment: medicine.comment,
+//         })),
+//       },
+//     },
+//   });
+
+//   return response;
+// };
+
+
 const createPrescriptionIntoDB = async (payload: TPrescription) => {
   const {
     patientId,
     doctorId,
     advice,
     nextVisit,
-    tests,
     medicines,
-    investigation,
-    onExaminations,
+    tests,
     chiefComplaint,
+    onExaminations,
     diagnosis,
+    investigation,
   } = payload;
 
-  const response = await prisma.prescription.create({
-    data: {
-      patientId,
-      doctorId,
-      advice: advice as string,
-      nextVisit,
-      tests: {
-        create: tests.map((test) => ({
-          description: test.description,
-        })),
+  return await prisma.$transaction(async (tx) => {
+    // Create the prescription
+    const prescription = await tx.prescription.create({
+      data: {
+        patientId,
+        doctorId,
+        advice,
+        nextVisit,
+        tests: {
+          create: tests?.map((test) => ({
+            description: test.description,
+          })),
+        },
+        chiefComplaint: {
+          create: chiefComplaint?.map((item) => ({
+            description: item.description,
+          })),
+        },
+        onExaminations: {
+          create: onExaminations?.map((item) => ({
+            description: item.description,
+          })),
+        },
+        diagnosis: {
+          create: diagnosis?.map((item) => ({
+            description: item.description,
+          })),
+        },
+        investigation: {
+          create: investigation?.map((item) => ({
+            description: item.description,
+          })),
+        },
       },
-      chiefComplaint: {
-        create: chiefComplaint.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      investigation: {
-        create: investigation.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      diagnosis: {
-        create: diagnosis.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      onExaminations: {
-        create: onExaminations.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      medicines: {
-        create: medicines.map((medicine) => ({
-          medicineName: medicine.medicineName,
-          dosage: medicine.dosage,
-          time: medicine.time,
-          day: medicine.day,
-          comment: medicine.comment,
-        })),
-      },
-    },
-  });
+    });
 
-  return response;
+    // Create medicines with their dosage schedules
+    if (medicines && medicines.length > 0) {
+      await Promise.all(
+        medicines.map(async (medicine) => {
+          const createdMedicine = await tx.medicine.create({
+            data: {
+              prescriptionId: prescription.id,
+              medicineName: medicine.medicineName,
+            },
+          });
+
+          if (medicine.DosageSchedule && medicine.DosageSchedule.length > 0) {
+            await tx.dosageSchedule.createMany({
+              data: medicine.DosageSchedule.map((schedule) => ({
+                medicineId: createdMedicine.id,
+                dosage: schedule.dosage,
+                day: schedule.day,
+                time: schedule.time,
+                comment: schedule.comment,
+              })),
+            });
+          }
+        })
+      );
+    }
+
+    return prescription;
+  });
 };
 const updatePrescriptionIntoDB = async (payload: TPrescription) => {
   const {

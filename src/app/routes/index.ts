@@ -13,6 +13,10 @@ import { VisitRoutes } from '../modules/visit/visit.routes';
 import { PatientSummaryRoutes } from '../modules/patient-summary/patient-summary.routes';
 import { DisplayNoticeTableRoutes } from '../modules/displayNoticeTable/displayNoticeTable.routes';
 import { AdviceTableRoutes } from '../modules/adviceTable/adviceTable.routes';
+import { OnExaminationRoutes } from '../modules/onExamination/onExamination.routes';
+import { InvestigationRoutes } from '../modules/investigation/investigation.routes';
+import { ChiefComplaintRoutes } from '../modules/chiefComplaint/chiefComplaint.routes';
+import { DiagnosisRoutes } from '../modules/diagnosis/diagnosis.routes';
 
 const router = Router();
 
@@ -68,6 +72,22 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/advice',
     route: AdviceTableRoutes,
+  },
+  {
+    path: '/on-examination',
+    route: OnExaminationRoutes,
+  },
+  {
+    path: '/investigation',
+    route: InvestigationRoutes,
+  },
+  {
+    path: '/chief-complaint',
+    route: ChiefComplaintRoutes,
+  },
+  {
+    path: '/diagnosis',
+    route: DiagnosisRoutes,
   },
 ];
 
