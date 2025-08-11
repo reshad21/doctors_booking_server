@@ -296,6 +296,19 @@ model onExaminations {
   updatedAt      DateTime     @updatedAt
 }
 
+model MedicineInput {
+  id                String    @id @default(uuid())
+  serialNo          Int
+  nameManufacturer  String
+  brandName         String?
+  genericName       String
+  strength          String
+  dosageDescription String
+  price             Float
+  useFor            String
+  dar               String
+}
+
 model diagnosis {
   id             String       @id @default(uuid())
   prescriptionId String
