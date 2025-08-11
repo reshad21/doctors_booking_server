@@ -201,10 +201,10 @@ model Prescription {
   updatedAt      DateTime         @updatedAt
   medicines      Medicine[]
   tests          Test[]
-  chiefComplaint chiefComplaint[]
-  onExaminations onExaminations[]
-  diagnosis      diagnosis[]
-  investigation  investigation[]
+  chiefComplaint ChiefComplaint[]
+  onExaminations OnExaminations[]
+  diagnosis      Diagnosis[]
+  investigation  Investigation[]
 }
 
 model Medicine {
@@ -277,7 +277,7 @@ model Test {
   updatedAt      DateTime     @updatedAt
 }
 
-model chiefComplaint {
+model ChiefComplaint {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -286,7 +286,7 @@ model chiefComplaint {
   updatedAt      DateTime     @updatedAt
 }
 
-model onExaminations {
+model OnExaminations {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -295,7 +295,7 @@ model onExaminations {
   updatedAt      DateTime     @updatedAt
 }
 
-model diagnosis {
+model Diagnosis {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -304,7 +304,7 @@ model diagnosis {
   updatedAt      DateTime     @updatedAt
 }
 
-model investigation {
+model Investigation {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])

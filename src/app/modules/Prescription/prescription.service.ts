@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
-import { PrescriptionData, TPrescription } from '../../types/prescription.type';
+import { PrescriptionData } from '../../types/prescription.type';
 
 const getExceptionalIntoDB = async () => {
   const response = await prisma.exceptionalTable.findMany();
@@ -39,86 +39,6 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
   });
   return response;
 };
-// const createPrescriptionIntoDB = async (payload: TPrescription) => {
-//   const {
-//     patientId,
-//     doctorId,
-//     advice,
-//     nextVisit,
-//     medicines,
-//     tests,
-//     chiefComplaint,
-//     onExaminations,
-//     diagnosis,
-//     investigation,
-//   } = payload;
-
-//   return await prisma.$transaction(async (tx) => {
-//     // Create the prescription
-//     const prescription = await tx.prescription.create({
-//       data: {
-//         patientId,
-//         doctorId,
-//         advice,
-//         nextVisit,
-//         tests: {
-//           create: tests?.map((test) => ({
-//             description: test.description,
-//           })),
-//         },
-//         chiefComplaint: {
-//           create: chiefComplaint?.map((item) => ({
-//             description: typeof item === 'string' ? item : item.description,
-//           })),
-//         },
-//         onExaminations: {
-//           create: onExaminations?.map((item) => ({
-//             description: item.description,
-//           })),
-//         },
-//         diagnosis: {
-//           create: diagnosis?.map((item) => ({
-//             description: item.description,
-//           })),
-//         },
-//         investigation: {
-//           create: investigation?.map((item) => ({
-//             description: item.description,
-//           })),
-//         },
-//       },
-//     });
-
-//     // Create medicines with their dosage schedules
-//     if (medicines && medicines.length > 0) {
-//       await Promise.all(
-//         medicines.map(async (medicine) => {
-//           const createdMedicine = await tx.medicine.create({
-//             data: {
-//               prescriptionId: prescription.id,
-//               medicineName: medicine.medicineName,
-//             },
-//           });
-
-//           if (medicine.DosageSchedule && medicine.DosageSchedule.length > 0) {
-//             await tx.dosageSchedule.createMany({
-//               data: medicine.DosageSchedule.map((schedule) => ({
-//                 medicineId: createdMedicine.id,
-//                 dosage: schedule.dosage,
-//                 day: schedule.day,
-//                 time: schedule.time,
-//                 comment: schedule.comment,
-//               })),
-//             });
-//           }
-//         })
-//       );
-//     }
-
-//     return prescription;
-//   });
-// };
-
 const createPrescriptionIntoDB = async (prescriptionData:PrescriptionData) => {
   const { 
     doctorId, 
@@ -179,70 +99,70 @@ const createPrescriptionIntoDB = async (prescriptionData:PrescriptionData) => {
 
   return prescription;
 };
-const updatePrescriptionIntoDB = async (payload: TPrescription) => {
-  const {
-    advice,
-    nextVisit,
-    tests,
-    medicines,
-    id,
-    chiefComplaint,
-    investigation,
-    diagnosis,
-    onExaminations,
-  } = payload;
+// const updatePrescriptionIntoDB = async (payload: TPrescription) => {
+//   const {
+//     advice,
+//     nextVisit,
+//     tests,
+//     medicines,
+//     id,
+//     chiefComplaint,
+//     investigation,
+//     diagnosis,
+//     onExaminations,
+//   } = payload;
 
-  const response = await prisma.prescription.update({
-    where: { id },
-    data: {
-      advice: advice as string,
-      nextVisit,
-      tests: {
-        deleteMany: {},
-        create: tests.map((test) => ({
-          description: test.description,
-        })),
-      },
+//   const response = await prisma.prescription.update({
+//     where: { id },
+//     data: {
+//       advice: advice as string,
+//       nextVisit,
+//       tests: {
+//         deleteMany: {},
+//         create: tests.map((test) => ({
+//           description: test.description,
+//         })),
+//       },
 
-      chiefComplaint: {
-        deleteMany: {},
-        create: chiefComplaint.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      investigation: {
-        deleteMany: {},
-        create: investigation.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      diagnosis: {
-        deleteMany: {},
-        create: diagnosis.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      onExaminations: {
-        deleteMany: {},
-        create: onExaminations.map((complain) => ({
-          description: complain.description,
-        })),
-      },
-      medicines: {
-        deleteMany: {},
-        create: medicines.map((medicine) => ({
-          medicineName: medicine.medicineName,
-          dosage: medicine.dosage,
-          time: medicine.time,
-          day: medicine.day,
-          comment: medicine.comment,
-        })),
-      },
-    },
-  });
+//       chiefComplaint: {
+//         deleteMany: {},
+//         create: chiefComplaint.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       investigation: {
+//         deleteMany: {},
+//         create: investigation.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       diagnosis: {
+//         deleteMany: {},
+//         create: diagnosis.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       onExaminations: {
+//         deleteMany: {},
+//         create: onExaminations.map((complain) => ({
+//           description: complain.description,
+//         })),
+//       },
+//       medicines: {
+//         deleteMany: {},
+//         create: medicines.map((medicine) => ({
+//           medicineName: medicine.medicineName,
+//           dosage: medicine.dosage,
+//           time: medicine.time,
+//           day: medicine.day,
+//           comment: medicine.comment,
+//         })),
+//       },
+//     },
+//   });
 
-  return response;
-};
+//   return response;
+// };
 const createExceptionalIntoDB = async (content: string) => {
   const isAvailable = await prisma.exceptionalTable.findFirst({
     where: {
@@ -264,7 +184,7 @@ const createExceptionalIntoDB = async (content: string) => {
 export const PrescriptionServices = {
   createPrescriptionIntoDB,
   getPrescriptionByPatientIdIntoDB,
-  updatePrescriptionIntoDB,
+  // updatePrescriptionIntoDB,
   createExceptionalIntoDB,
   getExceptionalIntoDB,
 };
