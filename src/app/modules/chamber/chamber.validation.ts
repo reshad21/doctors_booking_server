@@ -8,6 +8,7 @@ const createChamberValidation = z.object({
     newPatientFee: z.string({ required_error: 'New patient fee is required' }),
     reportFee: z.string({ required_error: 'Report fee is required' }),
     status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+    days: z.string().optional(),
     startTime: z
       .string({ required_error: 'Start time is required' })
       .optional(),
@@ -23,6 +24,7 @@ const updateChamberValidation = z.object({
     newPatientFee: z.string().optional(),
     reportFee: z.string().optional(),
     status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+    days: z.string().optional(),
     startTime: z.string().optional(),
     endTime: z.string().optional(),
   }),

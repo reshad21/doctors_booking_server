@@ -182,6 +182,7 @@ model Chamber {
   status        Status    @default(ACTIVE)
   startTime     String?
   endTime       String?
+  day           String?
   doctorId      String
   doctor        Doctor    @relation(fields: [doctorId], references: [id])
   patients      Patient[]
