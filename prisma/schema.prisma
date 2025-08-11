@@ -227,7 +227,7 @@ model DosageSchedule {
   medicine   Medicine @relation(fields: [medicineId], references: [id])
 }
 
-model Diagnosis {
+model DiagnosisInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -235,7 +235,7 @@ model Diagnosis {
   updatedAt DateTime @updatedAt
 }
 
-model Investigation {
+model InvestigationInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -243,7 +243,7 @@ model Investigation {
   updatedAt DateTime @updatedAt
 }
 
-model OnExaminations {
+model OnExaminationsInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -251,7 +251,7 @@ model OnExaminations {
   updatedAt DateTime @updatedAt
 }
 
-model ChiefComplaint {
+model ChiefComplaintInput {
   id        String   @id @default(uuid())
   title     String
   value     String?

@@ -1,36 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { OnExaminations } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 
-const createOnExamination = async (payload: OnExaminations) => {
-  return prisma.onExaminations.create({ data: payload });
+const createOnExamination = async (payload: {title: string,value:string}) => {
+  return prisma.onExaminationsInput.create({ data: payload });
 };
 
 const getAllOnExaminations = async (query: Record<string, any>) => {
-  const onExaminationQuery = builderQuery({
-    searchFields: ['description'],
+  const onExaminationQueryInput = builderQuery({
+    searchFields: ['title'],
     searchTerm: query.searchTerm,
     filter: query.filter ? JSON.parse(query.filter) : {},
     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
     page: query.page,
     limit: query.limit,
   });
-  return prisma.onExaminations.findMany({
-    where: onExaminationQuery.where,
+  return prisma.onExaminationsInput.findMany({
+    where: onExaminationQueryInput.where,
   });
 };
 
 const getOnExaminationById = async (id: string) => {
-  return prisma.onExaminations.findUnique({ where: { id } });
+  return prisma.onExaminationsInput.findUnique({ where: { id } });
 };
 
 const updateOnExamination = async (id: string, payload: any) => {
-  return prisma.onExaminations.update({ where: { id }, data: payload });
+  return prisma.onExaminationsInput.update({ where: { id }, data: payload });
 };
 
 const deleteOnExamination = async (id: string) => {
-  return prisma.onExaminations.delete({ where: { id } });
+  return prisma.onExaminationsInput.delete({ where: { id } });
 };
 
 export const OnExaminationService = {

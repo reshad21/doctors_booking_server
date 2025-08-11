@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
-import { TPrescription } from '../../types/prescription.type';
+import { PrescriptionData, TPrescription } from '../../types/prescription.type';
 
 const getExceptionalIntoDB = async () => {
   const response = await prisma.exceptionalTable.findMany();
@@ -44,139 +45,139 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
 //     doctorId,
 //     advice,
 //     nextVisit,
-//     tests,
 //     medicines,
-//     investigation,
-//     onExaminations,
+//     tests,
 //     chiefComplaint,
+//     onExaminations,
 //     diagnosis,
+//     investigation,
 //   } = payload;
 
-//   const response = await prisma.prescription.create({
-//     data: {
-//       patientId,
-//       doctorId,
-//       advice: advice as string,
-//       nextVisit,
-//       tests: {
-//         create: tests.map((test) => ({
-//           description: test.description,
-//         })),
+//   return await prisma.$transaction(async (tx) => {
+//     // Create the prescription
+//     const prescription = await tx.prescription.create({
+//       data: {
+//         patientId,
+//         doctorId,
+//         advice,
+//         nextVisit,
+//         tests: {
+//           create: tests?.map((test) => ({
+//             description: test.description,
+//           })),
+//         },
+//         chiefComplaint: {
+//           create: chiefComplaint?.map((item) => ({
+//             description: typeof item === 'string' ? item : item.description,
+//           })),
+//         },
+//         onExaminations: {
+//           create: onExaminations?.map((item) => ({
+//             description: item.description,
+//           })),
+//         },
+//         diagnosis: {
+//           create: diagnosis?.map((item) => ({
+//             description: item.description,
+//           })),
+//         },
+//         investigation: {
+//           create: investigation?.map((item) => ({
+//             description: item.description,
+//           })),
+//         },
 //       },
-//       chiefComplaint: {
-//         create: chiefComplaint.map((complain) => ({
-//           description: complain.description,
-//         })),
-//       },
-//       investigation: {
-//         create: investigation.map((complain) => ({
-//           description: complain.description,
-//         })),
-//       },
-//       diagnosis: {
-//         create: diagnosis.map((complain) => ({
-//           description: complain.description,
-//         })),
-//       },
-//       onExaminations: {
-//         create: onExaminations.map((complain) => ({
-//           description: complain.description,
-//         })),
-//       },
-//       medicines: {
-//         create: medicines.map((medicine) => ({
-//           medicineName: medicine.medicineName,
-//           dosage: medicine.dosage,
-//           time: medicine.time,
-//           day: medicine.day,
-//           comment: medicine.comment,
-//         })),
-//       },
-//     },
-//   });
+//     });
 
-//   return response;
+//     // Create medicines with their dosage schedules
+//     if (medicines && medicines.length > 0) {
+//       await Promise.all(
+//         medicines.map(async (medicine) => {
+//           const createdMedicine = await tx.medicine.create({
+//             data: {
+//               prescriptionId: prescription.id,
+//               medicineName: medicine.medicineName,
+//             },
+//           });
+
+//           if (medicine.DosageSchedule && medicine.DosageSchedule.length > 0) {
+//             await tx.dosageSchedule.createMany({
+//               data: medicine.DosageSchedule.map((schedule) => ({
+//                 medicineId: createdMedicine.id,
+//                 dosage: schedule.dosage,
+//                 day: schedule.day,
+//                 time: schedule.time,
+//                 comment: schedule.comment,
+//               })),
+//             });
+//           }
+//         })
+//       );
+//     }
+
+//     return prescription;
+//   });
 // };
 
+const createPrescriptionIntoDB = async (prescriptionData:PrescriptionData) => {
+  const { 
+    doctorId, 
+    patientId, 
+    medicines, 
+    chiefComplaint = [], 
+    onExaminations = [], 
+    diagnosis = [], 
+    nxVisit, 
+    investigation = [], 
+    advice 
+  } = prescriptionData;
 
-const createPrescriptionIntoDB = async (payload: TPrescription) => {
-  const {
-    patientId,
-    doctorId,
-    advice,
-    nextVisit,
-    medicines,
-    tests,
-    chiefComplaint,
-    onExaminations,
-    diagnosis,
-    investigation,
-  } = payload;
-
-  return await prisma.$transaction(async (tx) => {
-    // Create the prescription
-    const prescription = await tx.prescription.create({
-      data: {
-        patientId,
-        doctorId,
-        advice,
-        nextVisit,
-        tests: {
-          create: tests?.map((test) => ({
-            description: test.description,
-          })),
-        },
-        chiefComplaint: {
-          create: chiefComplaint?.map((item) => ({
-            description: item.description,
-          })),
-        },
-        onExaminations: {
-          create: onExaminations?.map((item) => ({
-            description: item.description,
-          })),
-        },
-        diagnosis: {
-          create: diagnosis?.map((item) => ({
-            description: item.description,
-          })),
-        },
-        investigation: {
-          create: investigation?.map((item) => ({
-            description: item.description,
-          })),
+  const prescription = await prisma.prescription.create({
+    data: {
+      patientId,
+      doctorId,
+      advice,
+      nextVisit: nxVisit,
+      chiefComplaint: {
+        create: chiefComplaint.map((complaint:any) => ({ description:complaint })),
+      },
+      onExaminations: {
+        create: onExaminations.map((exam:any) => ({ description: exam })),
+      },
+      diagnosis: {
+        create: diagnosis.map((diag:any) => ({ description: diag })),
+      },
+      investigation: {
+        create: investigation.map((inv:any) => ({ description: inv })),
+      },
+      medicines: {
+        create: medicines.map((med:any) => ({
+          medicineName: med.medicineName,
+          DosageSchedule: {
+            create: med.DosageSchedule.map((dosage:any) => ({
+              dosage: dosage.dosage,
+              day: dosage.day,
+              time: dosage.time,
+              comment: dosage.comment || null,
+            })),
+          },
+        })),
+      },
+    },
+    include: {
+      medicines: {
+        include: {
+          DosageSchedule: true,
         },
       },
-    });
-
-    // Create medicines with their dosage schedules
-    if (medicines && medicines.length > 0) {
-      await Promise.all(
-        medicines.map(async (medicine) => {
-          const createdMedicine = await tx.medicine.create({
-            data: {
-              prescriptionId: prescription.id,
-              medicineName: medicine.medicineName,
-            },
-          });
-
-          if (medicine.DosageSchedule && medicine.DosageSchedule.length > 0) {
-            await tx.dosageSchedule.createMany({
-              data: medicine.DosageSchedule.map((schedule) => ({
-                medicineId: createdMedicine.id,
-                dosage: schedule.dosage,
-                day: schedule.day,
-                time: schedule.time,
-                comment: schedule.comment,
-              })),
-            });
-          }
-        })
-      );
-    }
-
-    return prescription;
+      chiefComplaint: true,
+      onExaminations: true,
+      diagnosis: true,
+      investigation: true,
+    },
   });
+
+  return prescription;
 };
 const updatePrescriptionIntoDB = async (payload: TPrescription) => {
   const {
@@ -242,7 +243,6 @@ const updatePrescriptionIntoDB = async (payload: TPrescription) => {
 
   return response;
 };
-
 const createExceptionalIntoDB = async (content: string) => {
   const isAvailable = await prisma.exceptionalTable.findFirst({
     where: {

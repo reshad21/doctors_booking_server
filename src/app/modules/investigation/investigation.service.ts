@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// ... existing code ...
-import { Investigation } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 
-const createInvestigation = async (payload: Investigation) => {
-  return prisma.investigation.create({ data: payload });
+const createInvestigation = async (payload: {title: string,value:string}) => {
+  return prisma.investigationInput.create({ data: payload });
 };
 
 const getAllInvestigations = async (query: Record<string, any>) => {
@@ -17,21 +15,21 @@ const getAllInvestigations = async (query: Record<string, any>) => {
     page: query.page,
     limit: query.limit,
   });
-  return prisma.investigation.findMany({
+  return prisma.investigationInput.findMany({
     where: investigationQuery.where,
   });
 };
 
 const getInvestigationById = async (id: string) => {
-  return prisma.investigation.findUnique({ where: { id } });
+  return prisma.investigationInput.findUnique({ where: { id } });
 };
 
 const updateInvestigation = async (id: string, payload: any) => {
-  return prisma.investigation.update({ where: { id }, data: payload });
+  return prisma.investigationInput.update({ where: { id }, data: payload });
 };
 
 const deleteInvestigation = async (id: string) => {
-  return prisma.investigation.delete({ where: { id } });
+  return prisma.investigationInput.delete({ where: { id } });
 };
 
 export const InvestigationService = {
