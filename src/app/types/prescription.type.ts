@@ -37,6 +37,7 @@ export interface MedicineData {
 }
 
 export interface PrescriptionData {
+  id?: string ;
   doctorId: string;
   patientId: string;
   medicines: MedicineData[];

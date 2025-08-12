@@ -104,7 +104,6 @@ const createPrescriptionIntoDB = async (prescriptionData:PrescriptionData) => {
 
   return prescription;
 };
-
 const updatePrescriptionIntoDB = async (id: string, prescriptionData: PrescriptionData) => {
   const {
     doctorId,
@@ -128,33 +127,33 @@ const updatePrescriptionIntoDB = async (id: string, prescriptionData: Prescripti
 
       // Chief Complaint
       chiefComplaint: {
-        deleteMany: {}, // delete all previous
-        create: chiefComplaint.map((complain: any) => ({
-          description: complain.description ?? complain, // handles string or object
+        deleteMany: {},
+        create: chiefComplaint.map((complain: string) => ({
+          description: complain,
         })),
       },
 
       // On Examinations
       onExaminations: {
         deleteMany: {},
-        create: onExaminations.map((exam: any) => ({
-          description: exam.description ?? exam,
+        create: onExaminations.map((exam: string) => ({
+          description: exam,
         })),
       },
 
       // Diagnosis
       diagnosis: {
         deleteMany: {},
-        create: diagnosis.map((diag: any) => ({
-          description: diag.description ?? diag,
+        create: diagnosis.map((diag: string) => ({
+          description: diag,
         })),
       },
 
       // Investigation
       investigation: {
         deleteMany: {},
-        create: investigation.map((inv: any) => ({
-          description: inv.description ?? inv,
+        create: investigation.map((inv: string) => ({
+          description: inv,
         })),
       },
 
@@ -189,6 +188,7 @@ const updatePrescriptionIntoDB = async (id: string, prescriptionData: Prescripti
 
   return updatedPrescription;
 };
+
 
 const createExceptionalIntoDB = async (content: string) => {
   const isAvailable = await prisma.exceptionalTable.findFirst({
