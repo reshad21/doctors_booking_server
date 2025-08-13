@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AdviceTable } from '@prisma/client';
 import prisma from '../../../db/db.config';
+import { User } from '../../types/user.type';
 
-const createAdvice = async (payload: any) => {
-  console.log(payload);
-  
+const createAdvice = async (payload: AdviceTable) => {
   return prisma.adviceTable.create({ data: payload });
 };
 
-const getAllAdvices = async () => {
-  return prisma.adviceTable.findMany();
+const getAllAdvices = async (user: User) => {
+  return prisma.adviceTable.findMany({
+    where: { doctorId: user.id }
+  });
 };
 
 const getAdviceById = async (id: string) => {

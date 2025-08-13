@@ -1,6 +1,7 @@
 import { Status, WatchVideo } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { IWatchVideo } from './watchVideoTypes';
+import { User } from '../../types/user.type';
 
 const createWatchVideoIntoDB = async (payload: IWatchVideo) => {
   const result = await prisma.watchVideo.create({
@@ -9,8 +10,10 @@ const createWatchVideoIntoDB = async (payload: IWatchVideo) => {
   return result;
 };
 
-const getWatchVideoFromDB = async () => {
-  const result = await prisma.watchVideo.findMany({});
+const getWatchVideoFromDB = async (user: User) => {
+  const result = await prisma.watchVideo.findMany({
+    where: { doctorId: user.id }
+  });
   return result;
 };
 
