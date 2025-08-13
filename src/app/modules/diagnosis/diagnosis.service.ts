@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { Diagnosis } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 
-const createDiagnosis = async (payload: Diagnosis) => {
-  return prisma.diagnosis.create({ data: payload });
+const createDiagnosis = async (payload: {title: string,value:string}) => {
+  return prisma.diagnosisInput.create({ data: payload });
 };
 
 const getAllDiagnoses = async (query: Record<string, any>) => {
@@ -17,21 +15,21 @@ const getAllDiagnoses = async (query: Record<string, any>) => {
     page: query.page,
     limit: query.limit,
   });
-  return prisma.diagnosis.findMany({
+  return prisma.diagnosisInput.findMany({
     where: diagnosisQuery.where,
   });
 };
 
 const getDiagnosisById = async (id: string) => {
-  return prisma.diagnosis.findUnique({ where: { id } });
+  return prisma.diagnosisInput.findUnique({ where: { id } });
 };
 
-const updateDiagnosis = async (id: string, payload: Diagnosis) => {
-  return prisma.diagnosis.update({ where: { id }, data: payload });
+const updateDiagnosis = async (id: string, payload: {title: string,value:string}) => {
+  return prisma.diagnosisInput.update({ where: { id }, data: payload });
 };
 
 const deleteDiagnosis = async (id: string) => {
-  return prisma.diagnosis.delete({ where: { id } });
+  return prisma.diagnosisInput.delete({ where: { id } });
 };
 
 export const DiagnosisService = {

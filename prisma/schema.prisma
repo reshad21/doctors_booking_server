@@ -203,10 +203,10 @@ model Prescription {
   updatedAt      DateTime         @updatedAt
   medicines      Medicine[]
   tests          Test[]
-  chiefComplaint chiefComplaint[]
-  onExaminations onExaminations[]
-  diagnosis      diagnosis[]
-  investigation  investigation[]
+  chiefComplaint ChiefComplaint[]
+  onExaminations OnExaminations[]
+  diagnosis      Diagnosis[]
+  investigation  Investigation[]
 }
 
 model Medicine {
@@ -229,7 +229,7 @@ model DosageSchedule {
   medicine   Medicine @relation(fields: [medicineId], references: [id])
 }
 
-model Diagnosis {
+model DiagnosisInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -237,7 +237,7 @@ model Diagnosis {
   updatedAt DateTime @updatedAt
 }
 
-model Investigation {
+model InvestigationInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -245,7 +245,7 @@ model Investigation {
   updatedAt DateTime @updatedAt
 }
 
-model OnExaminations {
+model OnExaminationsInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -253,7 +253,7 @@ model OnExaminations {
   updatedAt DateTime @updatedAt
 }
 
-model ChiefComplaint {
+model ChiefComplaintInput {
   id        String   @id @default(uuid())
   title     String
   value     String?
@@ -279,7 +279,7 @@ model Test {
   updatedAt      DateTime     @updatedAt
 }
 
-model chiefComplaint {
+model ChiefComplaint {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -288,7 +288,7 @@ model chiefComplaint {
   updatedAt      DateTime     @updatedAt
 }
 
-model onExaminations {
+model OnExaminations {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -310,7 +310,7 @@ model MedicineInput {
   dar               String
 }
 
-model diagnosis {
+model Diagnosis {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -319,7 +319,7 @@ model diagnosis {
   updatedAt      DateTime     @updatedAt
 }
 
-model investigation {
+model Investigation {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])

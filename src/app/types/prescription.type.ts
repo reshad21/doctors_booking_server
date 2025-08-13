@@ -23,3 +23,28 @@ export type TPrescription = {
   diagnosis: { description: string }[];
   investigation: { description: string }[];
 };
+
+export interface DosageScheduleData {
+  dosage: string;
+  day: string;
+  time: string;
+  comment?: string;
+}
+
+export interface MedicineData {
+  medicineName: string;
+  DosageSchedule: DosageScheduleData[];
+}
+
+export interface PrescriptionData {
+  id?: string ;
+  doctorId: string;
+  patientId: string;
+  medicines: MedicineData[];
+  chiefComplaint: string[];
+  onExaminations: string[];
+  diagnosis: string[];
+  nxVisit: string;
+  investigation: string[];
+  advice: string;
+}
