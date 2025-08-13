@@ -13,10 +13,17 @@ const createPreManagementController = catchAsync(async (req, res) => {
     ? `${configs.serverUrl}/images/${files['footerImage'][0].filename}`
     : null;
 
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
   const payload = {
     ...req.body,
     headerImage,
     footerImage,
+    doctorId: user.id
   };
 
   const response =
@@ -30,7 +37,12 @@ const createPreManagementController = catchAsync(async (req, res) => {
 });
 
 const getPreManagementController = catchAsync(async (req, res) => {
-  const response = await PreManagementServices.getPreManagementFromDB();
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const response = await PreManagementServices.getPreManagementFromDB(user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
