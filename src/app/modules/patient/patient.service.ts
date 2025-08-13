@@ -84,7 +84,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
   return newPatient;
 };
 
-const getPatientsFromDB = async (query: Record<string, any>) => {
+const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   if (query.filter) {
     const parsedFilter = JSON.parse(query.filter);
 
@@ -119,10 +119,15 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
     query.filter = JSON.stringify(parsedFilter);
   }
 
+  const doctorFilter = { doctorId: user.id };
+
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
-    filter: query.filter ? JSON.parse(query.filter) : {},
+    filter: {
+      ...doctorFilter,
+      ...(query.filter ? JSON.parse(query.filter) : {}),
+    },
     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
     page: query.page,
     limit: query.limit,
@@ -151,9 +156,17 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
 };
 
 const deletePatientFromDB = async (id: string) => {
+  // Step 1: Delete related Visits
+  await prisma.visit.deleteMany({ where: { patientId: id } });
+
+  // Step 2: Delete related Prescriptions
+  await prisma.prescription.deleteMany({ where: { patientId: id } });
+
+  // Step 3: Now delete the patient
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
+
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
@@ -195,7 +208,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       data: updateData,
     });
 
-    // 4. 30-day logic for Visit creation
+    // 4. Dynamic day logic for Visit creation
     if (payload.visitStatus === VisitStatus.VISITED) {
       const effectiveStatus = payload.status || existingPatient.status;
       const effectiveDoctorId = payload.doctorId || existingPatient.doctorId;
@@ -219,12 +232,17 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
           newPatientFee: true,
           oldPatientFee: true,
           reportFee: true,
+          day: true,
         },
       });
 
       if (!chamber) {
         throw new Error('Chamber not found');
       }
+
+      // Use dynamic day threshold (fallback to 30 if not set or invalid)
+      const dayThreshold =
+        chamber.day && !isNaN(Number(chamber.day)) ? Number(chamber.day) : 30;
 
       // Find the latest visit for this patient
       const latestVisit = await tx.visit.findFirst({
@@ -238,7 +256,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
 
       let daysSinceLastVisit = Infinity;
 
-      if (latestVisit && latestVisit.visitDate) {
+      if (latestVisit?.visitDate) {
         const lastVisitDate = new Date(latestVisit.visitDate);
         daysSinceLastVisit =
           (visitDate.getTime() - lastVisitDate.getTime()) /
@@ -249,21 +267,21 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       let allowVisit = false;
 
       if (effectiveStatus === PatientStatus.NEW) {
-        if (daysSinceLastVisit > 30) {
+        if (daysSinceLastVisit > dayThreshold) {
           fee = parseInt(chamber.newPatientFee);
           allowVisit = true;
         } else {
           throw new Error(
-            'Patient cannot be marked as NEW within 30 days of last visit.',
+            `Patient cannot be marked as NEW within ${dayThreshold} days of last visit.`,
           );
         }
       } else if (effectiveStatus === PatientStatus.OLD) {
-        if (daysSinceLastVisit <= 30 && daysSinceLastVisit >= 0) {
+        if (daysSinceLastVisit <= dayThreshold && daysSinceLastVisit >= 0) {
           fee = parseInt(chamber.oldPatientFee);
           allowVisit = true;
         } else {
           throw new Error(
-            'Patient can only be marked as OLD within 30 days of last visit.',
+            `Patient can only be marked as OLD within ${dayThreshold} days of last visit.`,
           );
         }
       } else if (effectiveStatus === PatientStatus.REPORT) {

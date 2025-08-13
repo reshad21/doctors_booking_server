@@ -85,13 +85,14 @@ model Doctor {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  staff         Staff[]
-  patients      Patient[]
-  chamber       Chamber[]
-  prescription  Prescription[]
-  featureToggle FeatureToggle[]
-  routeAccess   RouteAccess[]
-  visit         Visit[]
+  staff              Staff[]
+  patients           Patient[]
+  chamber            Chamber[]
+  prescription       Prescription[]
+  featureToggle      FeatureToggle[]
+  routeAccess        RouteAccess[]
+  visit              Visit[]
+  DisplayNoticeTable DisplayNoticeTable[]
 }
 
 model Organization {
@@ -182,6 +183,7 @@ model Chamber {
   status        Status    @default(ACTIVE)
   startTime     String?
   endTime       String?
+  day           String?
   doctorId      String
   doctor        Doctor    @relation(fields: [doctorId], references: [id])
   patients      Patient[]
@@ -201,23 +203,62 @@ model Prescription {
   updatedAt      DateTime         @updatedAt
   medicines      Medicine[]
   tests          Test[]
-  chiefComplaint chiefComplaint[]
-  onExaminations onExaminations[]
-  diagnosis      diagnosis[]
-  investigation  investigation[]
+  chiefComplaint ChiefComplaint[]
+  onExaminations OnExaminations[]
+  diagnosis      Diagnosis[]
+  investigation  Investigation[]
 }
 
 model Medicine {
-  id             String       @id @default(uuid())
+  id             String           @id @default(uuid())
   prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  prescription   Prescription     @relation(fields: [prescriptionId], references: [id])
   medicineName   String
-  dosage         String
-  day            String
-  time           String
-  comment        String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  DosageSchedule DosageSchedule[]
+}
+
+model DosageSchedule {
+  id         String   @id @default(uuid())
+  dosage     String
+  day        String
+  time       String
+  comment    String?
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+}
+
+model DiagnosisInput {
+  id        String   @id @default(uuid())
+  title     String
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvestigationInput {
+  id        String   @id @default(uuid())
+  title     String
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OnExaminationsInput {
+  id        String   @id @default(uuid())
+  title     String
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChiefComplaintInput {
+  id        String   @id @default(uuid())
+  title     String
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model WatchVideo {
@@ -238,7 +279,7 @@ model Test {
   updatedAt      DateTime     @updatedAt
 }
 
-model chiefComplaint {
+model ChiefComplaint {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -247,7 +288,7 @@ model chiefComplaint {
   updatedAt      DateTime     @updatedAt
 }
 
-model onExaminations {
+model OnExaminations {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -256,7 +297,20 @@ model onExaminations {
   updatedAt      DateTime     @updatedAt
 }
 
-model diagnosis {
+model MedicineInput {
+  id                String  @id @default(uuid())
+  serialNo          Int
+  nameManufacturer  String
+  brandName         String?
+  genericName       String
+  strength          String
+  dosageDescription String
+  price             Float
+  useFor            String
+  dar               String
+}
+
+model Diagnosis {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -265,7 +319,7 @@ model diagnosis {
   updatedAt      DateTime     @updatedAt
 }
 
-model investigation {
+model Investigation {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
@@ -286,6 +340,8 @@ model DisplayNoticeTable {
   id          String   @id @default(uuid())
   description String
   status      Status   @default(ACTIVE)
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

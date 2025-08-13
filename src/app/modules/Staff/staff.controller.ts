@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import { getSingleImageUrl } from '../../utils/getImageUrl';
 import sendResponse from '../../utils/sendResponse';
@@ -40,7 +41,12 @@ const updateStaff = catchAsync(async (req, res) => {
 });
 
 const getStaff = catchAsync(async (req, res) => {
-  const response = await StaffServices.getStaffIntoDB();
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const response = await StaffServices.getStaffIntoDB(user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
