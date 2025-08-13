@@ -17,6 +17,7 @@ import { OnExaminationRoutes } from '../modules/onExamination/onExamination.rout
 import { InvestigationRoutes } from '../modules/investigation/investigation.routes';
 import { ChiefComplaintRoutes } from '../modules/chiefComplaint/chiefComplaint.routes';
 import { DiagnosisRoutes } from '../modules/diagnosis/diagnosis.routes';
+import { MedicinesRoutes } from '../modules/medicinesList/medicinesList.routes';
 
 const router = Router();
 
@@ -88,6 +89,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/diagnosis',
     route: DiagnosisRoutes,
+  },
+  {
+    path: '/medicines',
+    route: MedicinesRoutes,
   },
 ];
 
