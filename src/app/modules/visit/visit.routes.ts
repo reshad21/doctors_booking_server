@@ -14,13 +14,29 @@ router.post(
   VisitController.createVisit,
 );
 
-router.get('/get-visits', VisitController.getAllVisits);
-router.get('/:id', VisitController.getVisitById);
+router.get(
+  '/get-visits',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  VisitController.getAllVisits,
+);
+
+router.get(
+  '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  VisitController.getVisitById,
+);
+
 router.put(
   '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
   validation(visitValidations.updateVisitValidation),
   VisitController.updateVisit,
 );
-router.delete('/:id', VisitController.deleteVisit);
+
+router.delete(
+  '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  VisitController.deleteVisit,
+);
 
 export const VisitRoutes = router;

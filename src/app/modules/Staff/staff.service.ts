@@ -10,6 +10,7 @@ import { generateToken } from '../../utils/tokenGenerator';
 import configs from '../../configs';
 import bcryptjs from 'bcryptjs';
 import { TPermissionUpdate } from './staff.type';
+import { User } from '../../types/user.type';
 
 const createStaffIntoDB = async (payload: TStaff) => {
   const existingStaff = await prisma.staff.findFirst();
@@ -100,8 +101,9 @@ const deleteStaffIntoDB = async (id: string) => {
   return response;
 };
 
-const getStaffIntoDB = async () => {
+const getStaffIntoDB = async (user: User) => {
   const response = await prisma.staff.findMany({
+    where: {doctorId: user.id},
     include: {
       routeAccess: true,
     },

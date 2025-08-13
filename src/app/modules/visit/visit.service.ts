@@ -28,9 +28,9 @@ const createVisit = async (payload: Visit, user: User) => {
   return prisma.visit.create({ data: visitPayload });
 };
 
-const getAllVisits = async (query: Record<string, any>) => {
+const getAllVisits = async (query: Record<string, any>, user: User) => {
   let filter = query.filter || {};
-  
+
   if (typeof filter === 'string') {
     try {
       filter = JSON.parse(filter);
@@ -38,6 +38,8 @@ const getAllVisits = async (query: Record<string, any>) => {
       filter = {};
     }
   }
+
+  filter.doctorId = user.id;
 
   if (filter.startDate && filter.endDate) {
     filter.visitDate = {
