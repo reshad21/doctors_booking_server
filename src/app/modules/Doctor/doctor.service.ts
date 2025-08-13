@@ -9,23 +9,23 @@ import { TLogin } from '../../types/auth.type';
 import { UserType } from '../../context/userType';
 
 const loginIntoDB = async (payload: TLogin) => {
-  const existingAdmin = await prisma.doctor.findFirst({
+  const existingDoctor = await prisma.doctor.findFirst({
     where: {
       email: payload.email,
     },
   });
 
-  if (!existingAdmin) {
-    throw new AppError(404, 'Admin user not found with this email');
+  if (!existingDoctor) {
+    throw new AppError(404, 'Doctor user not found with this email');
   }
 
-  if (existingAdmin.status === Status.INACTIVE) {
-    throw new AppError(403, 'Admin user is inactive. Please contact support.');
+  if (existingDoctor.status === Status.INACTIVE) {
+    throw new AppError(403, 'Doctor user is inactive. Please contact support.');
   }
 
   const isPasswordMatch = await bcrypt.compare(
     payload.password as string,
-    existingAdmin.password as string,
+    existingDoctor.password as string,
   );
 
   if (!isPasswordMatch) {
@@ -33,11 +33,11 @@ const loginIntoDB = async (payload: TLogin) => {
   }
 
   const jwtPayload = {
-    id: existingAdmin.id,
-    email: existingAdmin.email,
-    name: existingAdmin.name,
-    status: existingAdmin.status,
-    profilePhoto: existingAdmin.image,
+    id: existingDoctor.id,
+    email: existingDoctor.email,
+    name: existingDoctor.name,
+    status: existingDoctor.status,
+    profilePhoto: existingDoctor.image,
     type: UserType.DOCTOR,
   };
 
@@ -50,10 +50,11 @@ const loginIntoDB = async (payload: TLogin) => {
     accessToken,
   };
 };
+
 const updateDoctorDB = async (payload: any) => {
   const existingAdmin = await prisma.doctor.findFirst({
     where: {
-      id:payload.id,
+      id: payload.id,
     },
   });
 
@@ -64,18 +65,19 @@ const updateDoctorDB = async (payload: any) => {
   if (existingAdmin.status === Status.INACTIVE) {
     throw new AppError(403, 'Admin user is inactive. Please contact support.');
   }
-const res = await prisma.doctor.update({
-  where: {
-    id: payload.id,
-  },
-  data: {
-    name: payload.name,
-    image:payload.image
-  },
-});
-  return res
+  const res = await prisma.doctor.update({
+    where: {
+      id: payload.id,
+    },
+    data: {
+      name: payload.name,
+      image: payload.image,
+    },
+  });
+  return res;
 };
+
 export const AuthServices = {
   loginIntoDB,
-  updateDoctorDB
+  updateDoctorDB,
 };
