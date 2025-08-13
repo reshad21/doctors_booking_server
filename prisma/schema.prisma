@@ -85,13 +85,14 @@ model Doctor {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  staff         Staff[]
-  patients      Patient[]
-  chamber       Chamber[]
-  prescription  Prescription[]
-  featureToggle FeatureToggle[]
-  routeAccess   RouteAccess[]
-  visit         Visit[]
+  staff              Staff[]
+  patients           Patient[]
+  chamber            Chamber[]
+  prescription       Prescription[]
+  featureToggle      FeatureToggle[]
+  routeAccess        RouteAccess[]
+  visit              Visit[]
+  DisplayNoticeTable DisplayNoticeTable[]
 }
 
 model Organization {
@@ -297,7 +298,7 @@ model onExaminations {
 }
 
 model MedicineInput {
-  id                String    @id @default(uuid())
+  id                String  @id @default(uuid())
   serialNo          Int
   nameManufacturer  String
   brandName         String?
@@ -339,6 +340,8 @@ model DisplayNoticeTable {
   id          String   @id @default(uuid())
   description String
   status      Status   @default(ACTIVE)
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

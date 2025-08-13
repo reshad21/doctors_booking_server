@@ -1,10 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { DisplayNoticeTableService } from './displayNoticeTable.service';
 
 const createDisplayNotice = catchAsync(async (req, res) => {
   const payload = req.body;
-  const notice = await DisplayNoticeTableService.createDisplayNotice(payload);
+    const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const notice = await DisplayNoticeTableService.createDisplayNotice(payload, user);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -14,7 +20,12 @@ const createDisplayNotice = catchAsync(async (req, res) => {
 });
 
 const getAllDisplayNotices = catchAsync(async (req, res) => {
-  const notices = await DisplayNoticeTableService.getAllDisplayNotices();
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const notices = await DisplayNoticeTableService.getAllDisplayNotices(user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -44,7 +55,10 @@ const getDisplayNoticeById = catchAsync(async (req, res) => {
 const updateDisplayNotice = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const notice = await DisplayNoticeTableService.updateDisplayNotice(id, payload);
+  const notice = await DisplayNoticeTableService.updateDisplayNotice(
+    id,
+    payload,
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,

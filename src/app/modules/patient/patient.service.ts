@@ -84,7 +84,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
   return newPatient;
 };
 
-const getPatientsFromDB = async (query: Record<string, any>) => {
+const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   if (query.filter) {
     const parsedFilter = JSON.parse(query.filter);
 
@@ -119,10 +119,15 @@ const getPatientsFromDB = async (query: Record<string, any>) => {
     query.filter = JSON.stringify(parsedFilter);
   }
 
+  const doctorFilter = { doctorId: user.id };
+
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
-    filter: query.filter ? JSON.parse(query.filter) : {},
+    filter: {
+      ...doctorFilter,
+      ...(query.filter ? JSON.parse(query.filter) : {}),
+    },
     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
     page: query.page,
     limit: query.limit,

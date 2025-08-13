@@ -20,7 +20,13 @@ const createVisit = catchAsync(async (req, res) => {
 });
 
 const getAllVisits = catchAsync(async (req, res) => {
-  const visits = await VisitService.getAllVisits(req.query);
+  const user = {
+    ...req.user,
+    id: req.user?.id,
+    type: req.user?.type,
+  };
+
+  const visits = await VisitService.getAllVisits(req.query, user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
