@@ -11,14 +11,9 @@ import configs from '../../configs';
 import bcryptjs from 'bcryptjs';
 import { TPermissionUpdate } from './staff.type';
 import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const createStaffIntoDB = async (payload: TStaff) => {
-  const existingStaff = await prisma.staff.findFirst();
-
-  if (existingStaff) {
-    throw new AppError(404, 'Staff is already created');
-  }
-
   const doctor = await prisma.doctor.findUnique({
     where: { id: payload?.doctorId },
     select: {
@@ -57,7 +52,7 @@ const createStaffIntoDB = async (payload: TStaff) => {
 };
 
 const updateStaffIntoDB = async (payload: Partial<TStaff>) => {
-   const id = payload?.id;
+  const id = payload?.id;
 
   if (!id) {
     throw new AppError(400, 'Staff id is required');
@@ -94,7 +89,7 @@ const deleteStaffIntoDB = async (id: string) => {
   await prisma.routeAccess.deleteMany({
     where: { staffId: id },
   });
-  
+
   const response = await prisma.staff.delete({
     where: { id },
   });
@@ -102,8 +97,10 @@ const deleteStaffIntoDB = async (id: string) => {
 };
 
 const getStaffIntoDB = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+
   const response = await prisma.staff.findMany({
-    where: {doctorId: user.id},
+    where: { doctorId },
     include: {
       routeAccess: true,
     },

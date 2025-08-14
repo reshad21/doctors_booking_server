@@ -345,7 +345,7 @@ model PrescriptionUITable {
 
 model DisplayNoticeTable {
   id          String   @id @default(uuid())
-  description String
+  description String   @db.LongText
   status      Status   @default(ACTIVE)
   doctorId    String
   doctor      Doctor   @relation(fields: [doctorId], references: [id])

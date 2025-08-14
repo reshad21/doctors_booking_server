@@ -5,12 +5,15 @@ import { DisplayNoticeTableService } from './displayNoticeTable.service';
 
 const createDisplayNotice = catchAsync(async (req, res) => {
   const payload = req.body;
-    const user = {
+  const user = {
     ...req.user,
     id: (req.user as any).id,
     type: (req.user as any).type,
   };
-  const notice = await DisplayNoticeTableService.createDisplayNotice(payload, user);
+  const notice = await DisplayNoticeTableService.createDisplayNotice(
+    payload,
+    user,
+  );
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -25,7 +28,11 @@ const getAllDisplayNotices = catchAsync(async (req, res) => {
     id: (req.user as any).id,
     type: (req.user as any).type,
   };
-  const notices = await DisplayNoticeTableService.getAllDisplayNotices(user);
+
+  const notices = await DisplayNoticeTableService.getAllDisplayNotices(
+    req.query,
+    user,
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,

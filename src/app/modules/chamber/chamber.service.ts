@@ -4,7 +4,7 @@ import prisma from '../../../db/db.config';
 import { UserType } from '../../context/userType';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 import { User } from '../../types/user.type';
-
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const createChamber = async (payload: Chamber, user: User) => {
   let doctorId;
@@ -28,13 +28,13 @@ const createChamber = async (payload: Chamber, user: User) => {
 };
 
 const getAllChambers = async (query: Record<string, any>, user: User) => {
-  const doctorFilter = { doctorId: user.id };
+  const doctorId = await getDoctorIdForUser(user);
 
   const chamberQuery = builderQuery({
     searchFields: ['name'],
     searchTerm: query.searchTerm,
     filter: {
-      ...doctorFilter,
+      doctorId,
       ...(query.filter ? JSON.parse(query.filter) : {}),
     },
     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},

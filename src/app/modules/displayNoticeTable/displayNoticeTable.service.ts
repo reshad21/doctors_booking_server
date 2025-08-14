@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import prisma from '../../../db/db.config';
+import { builderQuery } from '../../builders/prismaBuilderQuery';
 import { UserType } from '../../context/userType';
 import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const createDisplayNotice = async (payload: any, user: User) => {
   let doctorId;
@@ -24,9 +26,23 @@ const createDisplayNotice = async (payload: any, user: User) => {
   return prisma.displayNoticeTable.create({ data: noticePayload });
 };
 
-const getAllDisplayNotices = async (user: User) => {
+const getAllDisplayNotices = async (query: Record<string, any>, user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+
+  const noticeQuery = builderQuery({
+    searchFields: ['name'],
+    searchTerm: query.searchTerm,
+    filter: {
+      doctorId,
+      ...(query.filter ? JSON.parse(query.filter) : {}),
+    },
+    orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
+    page: query.page,
+    limit: query.limit,
+  });
+
   return prisma.displayNoticeTable.findMany({
-    where: { doctorId: user.id },
+    where: noticeQuery.where,
   });
 };
 
