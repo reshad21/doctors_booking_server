@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { PrescriptionController } from './prescription.controller';
 // import { prescriptionValidations } from './prescription.validation';
@@ -6,28 +5,23 @@ import { PrescriptionController } from './prescription.controller';
 
 const router = Router();
 
-router.get(
-  '/exceptional-advice',  
-PrescriptionController.getExceptionalAdvice
-);
-router.get(
-  '/:patientId',  
-PrescriptionController.getPrescriptionByPatientId
-);
+router.get('/exceptional-advice', PrescriptionController.getExceptionalAdvice);
+router.get('/:patientId', PrescriptionController.getPrescriptionByPatientId);
+router.get('/single/:id', PrescriptionController.getPrescriptionById);
 router.post(
   '/create-prescription',
-  // validation(prescriptionValidations.prescriptionValidationSchema),   
-PrescriptionController.createPrescription
+  // validation(prescriptionValidations.prescriptionValidationSchema),
+  PrescriptionController.createPrescription,
 );
 router.post(
   '/create-createExtraAdvice',
-  // validation(prescriptionValidations.prescriptionValidationSchema),   
-PrescriptionController.createExtraAdvice
+  // validation(prescriptionValidations.prescriptionValidationSchema),
+  PrescriptionController.createExtraAdvice,
 );
 router.patch(
   '/update-prescription',
-  // validation(prescriptionValidations.prescriptionUpdateValidationSchema),   
-PrescriptionController.updatePrescription
+  // validation(prescriptionValidations.prescriptionUpdateValidationSchema),
+  PrescriptionController.updatePrescription,
 );
 
 export const PrescriptionRoutes = router;

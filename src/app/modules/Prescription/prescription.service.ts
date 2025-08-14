@@ -32,8 +32,10 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
       diagnosis: true,
       investigation: true,
       onExaminations: true,
+      advice:true,
       patient: {
         select: {
+          id:true,
           gender: true,
           age: true,
           name: true,
@@ -44,24 +46,67 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
   });
   return response;
 };
-const createPrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
-  const {
-    doctorId,
-    patientId,
-    medicines,
-    chiefComplaint = [],
-    onExaminations = [],
-    diagnosis = [],
-    nxVisit,
-    investigation = [],
-    advice
+const getPrescriptionByIdIntoDB = async (id: string) => {
+  // console.log(id);
+  
+  const response = await prisma.prescription.findFirst({
+    where: {
+      id,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      medicines: {
+        select:{
+          medicineName:true,
+          DosageSchedule:true
+        }
+      },
+      tests: {
+        select: {
+          id: true,
+          description: true,
+        },
+      },
+      chiefComplaint: true,
+      diagnosis: true,
+      investigation: true,
+      advice:true,
+      onExaminations: true,
+      patient: {
+        select: {
+          id:true,
+          gender: true,
+          age: true,
+          name: true,
+          weight: true,
+        },
+      },
+    },
+  });
+  return response;
+};
+const createPrescriptionIntoDB = async (prescriptionData:PrescriptionData) => {
+  const { 
+    doctorId, 
+    patientId, 
+    medicines, 
+    chiefComplaint = [], 
+    onExaminations = [], 
+    diagnosis = [], 
+    nxVisit, 
+    investigation = [], 
+    advice = []
   } = prescriptionData;
 
   const prescription = await prisma.prescription.create({
     data: {
       patientId,
       doctorId,
-      advice,
+      advice: {
+        create: (Array.isArray(advice) ? advice : []).map((complaint: any) => ({ description: complaint })),
+      },
       nextVisit: nxVisit,
       chiefComplaint: {
         create: chiefComplaint.map((complaint: any) => ({ description: complaint })),
@@ -104,9 +149,7 @@ const createPrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
 
   return prescription;
 };
-
-
-const updatePrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
+const updatePrescriptionIntoDB = async ( prescriptionData: PrescriptionData) => {
   const {
     id,
     medicines = [],
@@ -115,18 +158,24 @@ const updatePrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
     diagnosis = [],
     nxVisit,
     investigation = [],
-    advice
+    advice = []
   } = prescriptionData;
+console.log(prescriptionData);
 
   const updatedPrescription = await prisma.prescription.update({
     where: { id },
     data: {
-      advice,
+      advice: {
+       deleteMany: { prescriptionId: id },
+        create: advice.map((complain: string) => ({
+          description: complain,
+        })),
+      },
       nextVisit: nxVisit,
 
       // Chief Complaint
       chiefComplaint: {
-        deleteMany: { prescriptionId: id },
+       deleteMany: { prescriptionId: id },
         create: chiefComplaint.map((complain: string) => ({
           description: complain,
         })),
@@ -187,7 +236,6 @@ const updatePrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
 
   return updatedPrescription;
 };
-
 const createExceptionalIntoDB = async (content: string) => {
   const isAvailable = await prisma.exceptionalTable.findFirst({
     where: {
@@ -209,6 +257,7 @@ const createExceptionalIntoDB = async (content: string) => {
 export const PrescriptionServices = {
   createPrescriptionIntoDB,
   getPrescriptionByPatientIdIntoDB,
+  getPrescriptionByIdIntoDB,
   updatePrescriptionIntoDB,
   createExceptionalIntoDB,
   getExceptionalIntoDB,

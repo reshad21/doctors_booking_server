@@ -11,6 +11,17 @@ const getPrescriptionByPatientId = catchAsync(async (req, res) => {
     data: response,
   });
 });
+const getPrescriptionById = catchAsync(async (req, res) => {
+  console.log(req.params.id);
+  
+  const response = await PrescriptionServices.getPrescriptionByIdIntoDB(req.params.id)
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Get Prescription by id Successful',
+    data: response,
+  });
+});
 const getExceptionalAdvice = catchAsync(async (req, res) => {
   const response = await PrescriptionServices.getExceptionalIntoDB()
   sendResponse(res, {
@@ -54,6 +65,7 @@ const updatePrescription = catchAsync(async (req, res) => {
 export const PrescriptionController = {
   createPrescription,
   getPrescriptionByPatientId,
+  getPrescriptionById,
   updatePrescription,
   createExtraAdvice,
   getExceptionalAdvice
