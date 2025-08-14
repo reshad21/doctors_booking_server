@@ -195,7 +195,6 @@ model Prescription {
   patient        Patient          @relation(fields: [patientId], references: [id])
   doctorId       String
   doctor         Doctor           @relation(fields: [doctorId], references: [id])
-  advice         String           @db.Text
   nextVisit      String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -205,6 +204,16 @@ model Prescription {
   onExaminations OnExaminations[]
   diagnosis      Diagnosis[]
   investigation  Investigation[]
+  advice         Advice[]
+}
+
+model Advice {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model Medicine {
@@ -224,7 +233,7 @@ model DosageSchedule {
   time       String
   comment    String?
   medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
 }
 
 model DiagnosisInput {
