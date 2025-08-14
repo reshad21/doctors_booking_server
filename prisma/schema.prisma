@@ -85,13 +85,17 @@ model Doctor {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  staff         Staff[]
-  patients      Patient[]
-  chamber       Chamber[]
-  prescription  Prescription[]
-  featureToggle FeatureToggle[]
-  routeAccess   RouteAccess[]
-  visit         Visit[]
+  staff               Staff[]
+  patients            Patient[]
+  chamber             Chamber[]
+  prescription        Prescription[]
+  featureToggle       FeatureToggle[]
+  routeAccess         RouteAccess[]
+  visit               Visit[]
+  DisplayNoticeTable  DisplayNoticeTable[]
+  PrescriptionUITable PrescriptionUITable[]
+  WatchVideo          WatchVideo[]
+  AdviceTable         AdviceTable[]
 }
 
 model Organization {
@@ -182,6 +186,7 @@ model Chamber {
   status        Status    @default(ACTIVE)
   startTime     String?
   endTime       String?
+  day           String?
   doctorId      String
   doctor        Doctor    @relation(fields: [doctorId], references: [id])
   patients      Patient[]
@@ -273,6 +278,8 @@ model WatchVideo {
   title     String
   videoFile String?
   status    Status   @default(ACTIVE)
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -304,6 +311,19 @@ model OnExaminations {
   updatedAt      DateTime     @updatedAt
 }
 
+model MedicineInput {
+  id                String  @id @default(uuid())
+  serialNo          Int
+  nameManufacturer  String
+  brandName         String?
+  genericName       String
+  strength          String
+  dosageDescription String
+  price             Float
+  useFor            String
+  dar               String
+}
+
 model Diagnosis {
   id             String       @id @default(uuid())
   prescriptionId String
@@ -326,14 +346,18 @@ model PrescriptionUITable {
   id          String   @id @default(uuid())
   headerImage String
   footerImage String
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model DisplayNoticeTable {
   id          String   @id @default(uuid())
-  description String
+  description String   @db.LongText
   status      Status   @default(ACTIVE)
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -350,6 +374,8 @@ model AdviceTable {
   id        String   @id @default(uuid())
   title     String
   content   String
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
   status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

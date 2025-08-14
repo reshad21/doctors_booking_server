@@ -21,6 +21,7 @@ const getAdminUserById = async (loggedUser: JwtPayload) => {
 
   throw new Error('Invalid user type');
 };
+
 const updateAdminPassById = async (payload: {
   password: string;
   oldPassword:string
@@ -53,6 +54,7 @@ const updateAdminPassById = async (payload: {
   });
   return res;
 };
+
 const updateStaffPassById = async (payload: {
   password: string;
   oldPassword:string

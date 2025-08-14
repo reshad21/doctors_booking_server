@@ -1,3 +1,4 @@
+import configs from '../../configs';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PreManagementServices } from './preManagement.service';
@@ -6,17 +7,23 @@ const createPreManagementController = catchAsync(async (req, res) => {
   const files = req.files as { [key: string]: Express.Multer.File[] };
 
   const headerImage = files['headerImage']
-    ? `http://62.72.12.193:5000/images/${files['headerImage'][0].filename}`
+    ? `${configs.serverUrl}/images/${files['headerImage'][0].filename}`
     : null;
   const footerImage = files['footerImage']
-    ? `http://62.72.12.193:5000/images/${files['footerImage'][0].filename}`
+    ? `${configs.serverUrl}/images/${files['footerImage'][0].filename}`
     : null;
 
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
 
   const payload = {
     ...req.body,
     headerImage,
     footerImage,
+    doctorId: user.id
   };
 
   const response =
@@ -30,7 +37,12 @@ const createPreManagementController = catchAsync(async (req, res) => {
 });
 
 const getPreManagementController = catchAsync(async (req, res) => {
-  const response = await PreManagementServices.getPreManagementFromDB();
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const response = await PreManagementServices.getPreManagementFromDB(user);
   sendResponse(res, {
     statusCode: 200,
     success: true,

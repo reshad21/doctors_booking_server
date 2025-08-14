@@ -4,7 +4,16 @@ import { AdviceTableService } from './adviceTable.service';
 
 
 const createAdvice = catchAsync(async (req, res) => {
-  const payload = req.body;
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const payload = {
+    ...req.body,
+    doctorId: user.id
+  };
+
   const advice = await AdviceTableService.createAdvice(payload);
   sendResponse(res, {
     statusCode: 201,
@@ -15,7 +24,12 @@ const createAdvice = catchAsync(async (req, res) => {
 });
 
 const getAllAdvices = catchAsync(async (req, res) => {
-  const advices = await AdviceTableService.getAllAdvices();
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const advices = await AdviceTableService.getAllAdvices(user);
   sendResponse(res, {
     statusCode: 200,
     success: true,

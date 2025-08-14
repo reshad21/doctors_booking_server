@@ -1,4 +1,3 @@
-// ... existing code ...
 import { Router } from 'express';
 import { DiagnosisController } from './diagnosis.controller';
 
@@ -11,4 +10,3 @@ router.put('/:id', DiagnosisController.updateDiagnosis);
 router.delete('/:id', DiagnosisController.deleteDiagnosis);
 
 export const DiagnosisRoutes = router;
-// ... existing code ...

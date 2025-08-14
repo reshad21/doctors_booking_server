@@ -1,10 +1,19 @@
-
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { WatchVideoServices } from './watchVideo.service';
 
 const createWatchVideoController = catchAsync(async (req, res) => {
-    const response = await WatchVideoServices.createWatchVideoIntoDB(req.body);
+    const user = {
+        ...req.user,
+        id: (req.user as any).id,
+        type: (req.user as any).type,
+    };
+
+    const payload = {
+        ...req.body,
+        doctorId: user.id
+    }
+    const response = await WatchVideoServices.createWatchVideoIntoDB(payload);
     sendResponse(res, {
         statusCode: 200,
         success: true,
@@ -14,7 +23,12 @@ const createWatchVideoController = catchAsync(async (req, res) => {
 });
 
 const getWatchVideoController = catchAsync(async (req, res) => {
-    const response = await WatchVideoServices.getWatchVideoFromDB();
+    const user = {
+        ...req.user,
+        id: (req.user as any).id,
+        type: (req.user as any).type,
+    };
+    const response = await WatchVideoServices.getWatchVideoFromDB(user);
     sendResponse(res, {
         statusCode: 200,
         success: true,
@@ -49,20 +63,6 @@ const deleteWatchVideoByIdController = catchAsync(async (req, res) => {
 });
 
 
-
-// const updateWatchVideoByIdController = catchAsync(async (req, res) => {
-//     const response = await WatchVideoServices.updateWatchVideoByIdFromDB(
-//         req.params.id,
-//         req.body,
-//     );
-//     sendResponse(res, {
-//         statusCode: 200,
-//         success: true,
-//         message: 'Watch Video updated successfully',
-//         data: response,
-//     });
-// });
-
 const updateWatchVideoByIdController = catchAsync(async (req, res) => {
     const { id } = req.params;
     const payload = req.body;
@@ -74,7 +74,6 @@ const updateWatchVideoByIdController = catchAsync(async (req, res) => {
         data: response,
     });
 });
-
 
 
 const getOnlyActiveVideo = catchAsync(async (req, res) => {

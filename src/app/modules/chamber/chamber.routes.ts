@@ -14,9 +14,17 @@ router.post(
   ChamberController.createChamber,
 );
 
-router.get('/get-chambers', ChamberController.getAllChambers);
+router.get(
+  '/get-chambers',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  ChamberController.getAllChambers,
+);
 
-router.get('/:id', ChamberController.getChamberById);
+router.get(
+  '/:id',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  ChamberController.getChamberById,
+);
 
 router.put(
   '/:id',
@@ -28,7 +36,7 @@ router.put(
 router.delete(
   '/:id',
   auth([UserType.DOCTOR, UserType.STAFF]),
-  ChamberController.deleteChamber
+  ChamberController.deleteChamber,
 );
 
 export const ChamberRoutes = router;

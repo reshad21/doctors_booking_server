@@ -17,9 +17,9 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
     },
     include: {
       medicines: {
-        select:{
-          medicineName:true,
-          DosageSchedule:true
+        select: {
+          medicineName: true,
+          DosageSchedule: true
         }
       },
       tests: {
@@ -109,22 +109,22 @@ const createPrescriptionIntoDB = async (prescriptionData:PrescriptionData) => {
       },
       nextVisit: nxVisit,
       chiefComplaint: {
-        create: chiefComplaint.map((complaint:any) => ({ description:complaint })),
+        create: chiefComplaint.map((complaint: any) => ({ description: complaint })),
       },
       onExaminations: {
-        create: onExaminations.map((exam:any) => ({ description: exam })),
+        create: onExaminations.map((exam: any) => ({ description: exam })),
       },
       diagnosis: {
-        create: diagnosis.map((diag:any) => ({ description: diag })),
+        create: diagnosis.map((diag: any) => ({ description: diag })),
       },
       investigation: {
-        create: investigation.map((inv:any) => ({ description: inv })),
+        create: investigation.map((inv: any) => ({ description: inv })),
       },
       medicines: {
-        create: medicines.map((med:any) => ({
+        create: medicines.map((med: any) => ({
           medicineName: med.medicineName,
           DosageSchedule: {
-            create: med.DosageSchedule.map((dosage:any) => ({
+            create: med.DosageSchedule.map((dosage: any) => ({
               dosage: dosage.dosage,
               day: dosage.day,
               time: dosage.time,

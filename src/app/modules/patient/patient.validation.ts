@@ -11,7 +11,7 @@ export const createPatientZodSchema = z.object({
     weight: z.string().optional(),
     status: z.string().optional(),
     visitStatus: z.string().optional(),
-    chamberId: z.string().optional(),
+    chamberId: z.string({ required_error: 'Chamber is is required' }),
   }),
 });
 

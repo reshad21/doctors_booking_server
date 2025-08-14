@@ -51,9 +51,7 @@ const createExtraAdvice = catchAsync(async (req, res) => {
     data: response,
   });
 });
-const updatePrescription = catchAsync(async (req, res) => {
-  
-  
+const updatePrescription = catchAsync(async (req, res) => { 
   const response = await PrescriptionServices.updatePrescriptionIntoDB(req.body)
   sendResponse(res, {
     statusCode: 200,
