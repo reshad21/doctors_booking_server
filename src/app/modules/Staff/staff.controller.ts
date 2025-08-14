@@ -24,13 +24,12 @@ const createStaff = catchAsync(async (req, res) => {
 
 const updateStaff = catchAsync(async (req, res) => {
   const file = req.file;
-  const image = getSingleImageUrl(req, file);
 
-  const payload = {
-    ...req.body,
-    image,
-  };
-
+  const payload: any = { ...req.body };
+  if (file) {
+    payload.image = getSingleImageUrl(req, file);
+  }
+  
   const response = await StaffServices.updateStaffIntoDB(payload);
   sendResponse(res, {
     statusCode: 200,

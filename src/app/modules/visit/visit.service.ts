@@ -4,6 +4,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { UserType } from '../../context/userType';
 import { Visit } from '@prisma/client';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 type User = JwtPayload & { id: string; type: string };
 
@@ -29,6 +30,9 @@ const createVisit = async (payload: Visit, user: User) => {
 };
 
 const getAllVisits = async (query: Record<string, any>, user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+
+  // Parse filter
   let filter = query.filter || {};
 
   if (typeof filter === 'string') {
@@ -39,8 +43,10 @@ const getAllVisits = async (query: Record<string, any>, user: User) => {
     }
   }
 
-  filter.doctorId = user.id;
+  // Always ensure doctorId is in filter
+  filter.doctorId = doctorId;
 
+  // Handle date range filters
   if (filter.startDate && filter.endDate) {
     filter.visitDate = {
       gte: new Date(`${filter.startDate}T00:00:00.000Z`),
@@ -49,7 +55,6 @@ const getAllVisits = async (query: Record<string, any>, user: User) => {
     delete filter.startDate;
     delete filter.endDate;
   } else if (filter.startDate) {
-    // Treat single startDate as specific-day filter
     filter.visitDate = {
       gte: new Date(`${filter.startDate}T00:00:00.000Z`),
       lt: new Date(`${filter.startDate}T23:59:59.999Z`),
@@ -62,6 +67,7 @@ const getAllVisits = async (query: Record<string, any>, user: User) => {
     delete filter.endDate;
   }
 
+  // Build query
   const visitQuery = builderQuery({
     searchFields: query.searchFields || [],
     searchTerm: query.searchTerm || '',
@@ -71,6 +77,7 @@ const getAllVisits = async (query: Record<string, any>, user: User) => {
     limit: query.limit || 10,
   });
 
+  // Fetch visits
   return prisma.visit.findMany(visitQuery);
 };
 

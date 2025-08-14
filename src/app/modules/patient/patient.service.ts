@@ -4,6 +4,7 @@ import prisma from '../../../db/db.config';
 import { UserType } from '../../context/userType';
 import { JwtPayload } from 'jsonwebtoken';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 type User = JwtPayload & { id: string; type: string };
 
@@ -85,6 +86,8 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
 };
 
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+
   if (query.filter) {
     const parsedFilter = JSON.parse(query.filter);
 
@@ -119,13 +122,11 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
     query.filter = JSON.stringify(parsedFilter);
   }
 
-  const doctorFilter = { doctorId: user.id };
-
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
     filter: {
-      ...doctorFilter,
+      doctorId,
       ...(query.filter ? JSON.parse(query.filter) : {}),
     },
     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
@@ -166,7 +167,6 @@ const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
-
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {

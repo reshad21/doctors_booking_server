@@ -2,14 +2,16 @@
 import { AdviceTable } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const createAdvice = async (payload: AdviceTable) => {
   return prisma.adviceTable.create({ data: payload });
 };
 
 const getAllAdvices = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
   return prisma.adviceTable.findMany({
-    where: { doctorId: user.id }
+    where: { doctorId },
   });
 };
 
