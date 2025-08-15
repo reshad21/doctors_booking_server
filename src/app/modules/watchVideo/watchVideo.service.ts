@@ -2,6 +2,7 @@ import { Status, WatchVideo } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { IWatchVideo } from './watchVideoTypes';
 import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const createWatchVideoIntoDB = async (payload: IWatchVideo) => {
   const result = await prisma.watchVideo.create({
@@ -11,8 +12,9 @@ const createWatchVideoIntoDB = async (payload: IWatchVideo) => {
 };
 
 const getWatchVideoFromDB = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
   const result = await prisma.watchVideo.findMany({
-    where: { doctorId: user.id }
+    where: { doctorId },
   });
   return result;
 };
@@ -35,7 +37,6 @@ const deleteWatchVideoByIdFromDB = async (id: string) => {
   return result;
 };
 
-
 const updateWatchVideoByIdFromDB = async (id: string, payload: WatchVideo) => {
   const result = await prisma.watchVideo.update({
     where: {
@@ -48,10 +49,12 @@ const updateWatchVideoByIdFromDB = async (id: string, payload: WatchVideo) => {
   return result;
 };
 
-const getOnlyActiveVideoFromDB = async () => {
+const getOnlyActiveVideoFromDB = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
   const result = await prisma.watchVideo.findMany({
     where: {
       status: Status.ACTIVE,
+      doctorId,
     },
   });
   return result;

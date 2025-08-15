@@ -1,96 +1,102 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { WatchVideoServices } from './watchVideo.service';
 
 const createWatchVideoController = catchAsync(async (req, res) => {
-    const user = {
-        ...req.user,
-        id: (req.user as any).id,
-        type: (req.user as any).type,
-    };
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
 
-    const payload = {
-        ...req.body,
-        doctorId: user.id
-    }
-    const response = await WatchVideoServices.createWatchVideoIntoDB(payload);
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: 'Watch Video created successfully',
-        data: response,
-    });
+  const payload = {
+    ...req.body,
+    doctorId: user.id,
+  };
+  const response = await WatchVideoServices.createWatchVideoIntoDB(payload);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Watch Video created successfully',
+    data: response,
+  });
 });
 
 const getWatchVideoController = catchAsync(async (req, res) => {
-    const user = {
-        ...req.user,
-        id: (req.user as any).id,
-        type: (req.user as any).type,
-    };
-    const response = await WatchVideoServices.getWatchVideoFromDB(user);
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: 'Watch Video fetched successfully',
-        data: response,
-    });
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const response = await WatchVideoServices.getWatchVideoFromDB(user);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Watch Video fetched successfully',
+    data: response,
+  });
 });
 
 const getWatchVideoByIdController = catchAsync(async (req, res) => {
-    const response = await WatchVideoServices.getWatchVideoByIdFromDB(
-        req.params.id,
-    );
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: 'Watch Video fetched successfully',
-        data: response,
-    });
+  const response = await WatchVideoServices.getWatchVideoByIdFromDB(
+    req.params.id,
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Watch Video fetched successfully',
+    data: response,
+  });
 });
-
 
 const deleteWatchVideoByIdController = catchAsync(async (req, res) => {
-    const response = await WatchVideoServices.deleteWatchVideoByIdFromDB(
-        req.params.id,
-    );
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: 'Watch Video deleted successfully',
-        data: response,
-    });
+  const response = await WatchVideoServices.deleteWatchVideoByIdFromDB(
+    req.params.id,
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Watch Video deleted successfully',
+    data: response,
+  });
 });
-
 
 const updateWatchVideoByIdController = catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const payload = req.body;
-    const response = await WatchVideoServices.updateWatchVideoByIdFromDB(id, payload);
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: 'Watch Video updated successfully',
-        data: response,
-    });
+  const { id } = req.params;
+  const payload = req.body;
+  const response = await WatchVideoServices.updateWatchVideoByIdFromDB(
+    id,
+    payload,
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Watch Video updated successfully',
+    data: response,
+  });
 });
 
-
 const getOnlyActiveVideo = catchAsync(async (req, res) => {
-    const response = await WatchVideoServices.getOnlyActiveVideoFromDB();
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: 'Watch Video fetched successfully',
-        data: response,
-    });
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const response = await WatchVideoServices.getOnlyActiveVideoFromDB(user);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Watch Video fetched successfully',
+    data: response,
+  });
 });
 
 export const WatchVideoController = {
-    createWatchVideoController,
-    getWatchVideoController,
-    getWatchVideoByIdController,
-    deleteWatchVideoByIdController,
-    updateWatchVideoByIdController,
-    getOnlyActiveVideo
+  createWatchVideoController,
+  getWatchVideoController,
+  getWatchVideoByIdController,
+  deleteWatchVideoByIdController,
+  updateWatchVideoByIdController,
+  getOnlyActiveVideo,
 };
