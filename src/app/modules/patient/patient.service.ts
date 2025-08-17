@@ -5,6 +5,7 @@ import { UserType } from '../../context/userType';
 import { JwtPayload } from 'jsonwebtoken';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 import { getDoctorIdForUser } from '../../utils/getDoctorId';
+import { io } from '../../../app';
 
 type User = JwtPayload & { id: string; type: string };
 
@@ -82,6 +83,10 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       chamberId,
     },
   });
+
+  // ✅ Emit event so frontend knows about it
+  io.emit('patient:created', newPatient);
+
   return newPatient;
 };
 
