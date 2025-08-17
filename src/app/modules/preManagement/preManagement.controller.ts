@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import configs from '../../configs';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';

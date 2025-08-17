@@ -4,11 +4,18 @@ import fs from 'fs';
 
 const prisma = new PrismaClient();
 
-async function seedMedicines() {
+export async function seedMedicines() {
+  const count = await prisma.medicineInput.count();
+
+  if (count > 0) {
+    console.log(`⚡ Medicines already exist (${count} records). Skipping seeding...`);
+    return;
+  }
+
+  console.log('🌱 No medicine data found. Seeding...');
+
   const rawMedicines = fs.readFileSync('./medicine.json', 'utf-8');
-
   const data = JSON.parse(rawMedicines);
-
 
   const medicines = data.map((item: any) => ({
     serialNo: item.Serial_NO,
@@ -22,7 +29,6 @@ async function seedMedicines() {
     dar: item.DAR,
   }));
 
-
   const chunkSize = 1000;
   for (let i = 0; i < medicines.length; i += chunkSize) {
     const chunk = medicines.slice(i, i + chunkSize);
@@ -35,7 +41,3 @@ async function seedMedicines() {
 
   console.log('✅ Seeding complete');
 }
-
-seedMedicines()
-  .catch((e) => console.error(e))
-  .finally(() => prisma.$disconnect());

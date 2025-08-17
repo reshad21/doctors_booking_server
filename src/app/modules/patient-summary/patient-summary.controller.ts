@@ -1,9 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PatientSummaryService } from './paitent-summary.service';
 
 export const getPatientSummary = catchAsync(async (req, res) => {
-  const result = await PatientSummaryService.getPatientSummaryFromDB();
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const result = await PatientSummaryService.getPatientSummaryFromDB(user);
 
   sendResponse(res, {
     statusCode: 200,
