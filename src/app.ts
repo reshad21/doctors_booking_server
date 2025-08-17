@@ -8,6 +8,7 @@ import notFoundErrorHandler from './app/middlewares/notFoundErrorHandler';
 import { createDoctor } from './app/SeedUser/SeedUser';
 import http from 'http';
 import { Server } from 'socket.io';
+import { seedMedicines } from './app/seed/seedMedicines';
 
 // Initialize the express application
 const app: Application = express();
@@ -78,7 +79,9 @@ app.use(globalErrorHandler);
 app.use(notFoundErrorHandler);
 
 // Running the server
-server.listen(config.PORT, () => {
+server.listen(config.PORT, async () => {
   console.log(`🚀 Server is running on port ${config.PORT}`);
-  createDoctor();
+
+  await createDoctor();
+  await seedMedicines();
 });
