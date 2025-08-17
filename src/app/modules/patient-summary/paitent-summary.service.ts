@@ -1,4 +1,6 @@
 import prisma from '../../../db/db.config';
+import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const getAmountByStatusAndPeriod = async (from: Date, to: Date) => {
   const statuses = ['NEW', 'OLD', 'REPORT'];
@@ -16,7 +18,9 @@ const getAmountByStatusAndPeriod = async (from: Date, to: Date) => {
   return result;
 };
 
-const getPatientSummaryFromDB = async () => {
+const getPatientSummaryFromDB = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekStart = new Date(today);
@@ -67,25 +71,27 @@ const getPatientSummaryFromDB = async () => {
 
   // Total patients
   const totalPatients = await prisma.patient.count({
-    where: { visitStatus: 'VISITED' },
+    where: { visitStatus: 'VISITED', doctorId },
   });
   // Today's patients
   const todaysPatients = await prisma.patient.count({
     where: {
       createdAt: { gte: today },
       visitStatus: 'VISITED',
+      doctorId,
     },
   });
   // Monthly patients
   const monthlyPatients = await prisma.patient.count({
-    where: { createdAt: { gte: monthStart }, visitStatus: 'VISITED' },
+    where: { createdAt: { gte: monthStart }, visitStatus: 'VISITED', doctorId },
   });
 
   // Today's pending patients
   const todaysPendingPatients = await prisma.patient.count({
     where: {
       createdAt: { gte: today },
-      visitStatus: { not: 'VISITED' }, // patients not yet visited
+      visitStatus: { not: 'VISITED' },
+      doctorId, // patients not yet visited
     },
   });
 
