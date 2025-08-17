@@ -10,7 +10,7 @@ const createPreManagementIntoDB = async (payload: PrescriptionUITable) => {
 const getPreManagementFromDB = async (user: User) => {
   const doctorId = await getDoctorIdForUser(user);
   return await prisma.prescriptionUITable.findMany({
-    where: { doctorId },
+    where: { id:doctorId },
   });
 };
 
