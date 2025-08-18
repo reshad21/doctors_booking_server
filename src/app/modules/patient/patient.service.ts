@@ -149,7 +149,22 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const currentPage = Number(query.page) || 1;
   const totalPages = Math.ceil(totalItems / patientQuery.take);
 
-  const result = await prisma.patient.findMany(patientQuery);
+  const result = await prisma.patient.findMany({
+    ...patientQuery,
+    include: {
+      prescription: {
+        include: {
+          medicines: true,
+          tests: true,
+          chiefComplaint: true,
+          onExaminations: true,
+          diagnosis: true,
+          investigation: true,
+          advice: true,
+        },
+      },
+    },
+  });
 
   return {
     meta: {

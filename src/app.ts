@@ -16,7 +16,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: true,
+    origin: [
+      'http://localhost:5173',
+      'http://62.72.12.193',
+      'http://145.223.23.4',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
@@ -37,12 +41,11 @@ export { io };
 
 app.use(
   cors({
-    origin: true,
-    // origin: [
-    //   'http://localhost:5173',
-    //   'http://62.72.12.193',
-    //   'http://145.223.23.4',
-    // ],
+    origin: [
+      'http://localhost:5173',
+      'http://62.72.12.193',
+      'http://145.223.23.4',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
