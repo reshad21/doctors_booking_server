@@ -44,7 +44,7 @@ export interface PrescriptionData {
   chiefComplaint: string[];
   onExaminations: string[];
   diagnosis: string[];
-  nxVisit: string;
+  nextVisit: string;
   investigation: string[];
   advice: [];
 }
