@@ -11,6 +11,7 @@ const getPrescriptionByPatientId = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const getPrescriptionById = catchAsync(async (req, res) => {
   console.log(req.params.id);
   
@@ -22,6 +23,7 @@ const getPrescriptionById = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const getExceptionalAdvice = catchAsync(async (req, res) => {
   const response = await PrescriptionServices.getExceptionalIntoDB()
   sendResponse(res, {
@@ -31,6 +33,7 @@ const getExceptionalAdvice = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const createPrescription = catchAsync(async (req, res) => {
 
   const response = await PrescriptionServices.createPrescriptionIntoDB(req.body)
@@ -41,6 +44,7 @@ const createPrescription = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const createExtraAdvice = catchAsync(async (req, res) => {
   const {content} = req.body
   const response = await PrescriptionServices.createExceptionalIntoDB(content)
@@ -51,6 +55,7 @@ const createExtraAdvice = catchAsync(async (req, res) => {
     data: response,
   });
 });
+
 const updatePrescription = catchAsync(async (req, res) => { 
   const response = await PrescriptionServices.updatePrescriptionIntoDB(req.body)
   sendResponse(res, {

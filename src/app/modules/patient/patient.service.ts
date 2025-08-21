@@ -188,6 +188,7 @@ const deletePatientFromDB = async (id: string) => {
   return result;
 };
 
+
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Fetch existing patient info
@@ -260,50 +261,22 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         throw new Error('Chamber not found');
       }
 
-      // Use dynamic day threshold (fallback to 30 if not set or invalid)
-      const dayThreshold =
-        chamber.day && !isNaN(Number(chamber.day)) ? Number(chamber.day) : 30;
-
-      // Find the latest visit for this patient
-      const latestVisit = await tx.visit.findFirst({
-        where: { patientId: id },
-        orderBy: { visitDate: 'desc' },
-      });
-
       const visitDate = payload.visitedAt
         ? new Date(payload.visitedAt)
         : new Date();
 
-      let daysSinceLastVisit = Infinity;
-
-      if (latestVisit?.visitDate) {
-        const lastVisitDate = new Date(latestVisit.visitDate);
-        daysSinceLastVisit =
-          (visitDate.getTime() - lastVisitDate.getTime()) /
-          (1000 * 60 * 60 * 24);
-      }
-
+        
       let fee: number | undefined;
       let allowVisit = false;
 
       if (effectiveStatus === PatientStatus.NEW) {
-        if (daysSinceLastVisit > dayThreshold) {
-          fee = parseInt(chamber.newPatientFee);
-          allowVisit = true;
-        } else {
-          throw new Error(
-            `Patient cannot be marked as NEW within ${dayThreshold} days of last visit.`,
-          );
-        }
+        // Removed the day threshold restriction for NEW patients
+        fee = parseInt(chamber.newPatientFee);
+        allowVisit = true;
       } else if (effectiveStatus === PatientStatus.OLD) {
-        if (daysSinceLastVisit <= dayThreshold && daysSinceLastVisit >= 0) {
-          fee = parseInt(chamber.oldPatientFee);
-          allowVisit = true;
-        } else {
-          throw new Error(
-            `Patient can only be marked as OLD within ${dayThreshold} days of last visit.`,
-          );
-        }
+        // Removed the day threshold restriction for OLD patients
+        fee = parseInt(chamber.oldPatientFee);
+        allowVisit = true;
       } else if (effectiveStatus === PatientStatus.REPORT) {
         fee = parseInt(chamber.reportFee);
         allowVisit = true;
@@ -358,6 +331,177 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
     return updatedPatient;
   });
 };
+
+// const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
+//   return await prisma.$transaction(async (tx) => {
+//     // 1. Fetch existing patient info
+//     const existingPatient = await tx.patient.findUnique({
+//       where: { id },
+//       select: {
+//         visitStatus: true,
+//         status: true,
+//         chamberId: true,
+//         doctorId: true,
+//       },
+//     });
+
+//     if (!existingPatient) {
+//       throw new Error(`Patient with ID ${id} not found`);
+//     }
+
+//     // 2. Prepare safe update data
+//     const updateData: any = {
+//       name: payload.name,
+//       phoneNumber: payload.phoneNumber,
+//       age: payload.age,
+//       gender: payload.gender,
+//       doctorId: payload.doctorId,
+//       email: payload.email,
+//       weight: payload.weight,
+//       status: payload.status,
+//       visitedAt: payload.visitedAt,
+//     };
+
+//     if (payload.visitStatus !== undefined) {
+//       updateData.visitStatus = payload.visitStatus;
+//     }
+
+//     // 3. Update patient
+//     const updatedPatient = await tx.patient.update({
+//       where: { id },
+//       data: updateData,
+//     });
+
+//     // 4. Dynamic day logic for Visit creation
+//     if (payload.visitStatus === VisitStatus.VISITED) {
+//       const effectiveStatus = payload.status || existingPatient.status;
+//       const effectiveDoctorId = payload.doctorId || existingPatient.doctorId;
+
+//       if (!effectiveDoctorId) {
+//         throw new Error('Doctor ID is required to create a visit.');
+//       }
+
+//       if (!effectiveStatus) {
+//         throw new Error('Patient status is required to create a visit.');
+//       }
+
+//       // Ensure chamber exists
+//       if (!existingPatient.chamberId) {
+//         throw new Error('Chamber not assigned to patient.');
+//       }
+
+//       const chamber = await tx.chamber.findUnique({
+//         where: { id: existingPatient.chamberId },
+//         select: {
+//           newPatientFee: true,
+//           oldPatientFee: true,
+//           reportFee: true,
+//           day: true,
+//         },
+//       });
+
+//       if (!chamber) {
+//         throw new Error('Chamber not found');
+//       }
+
+//       // Use dynamic day threshold (fallback to 30 if not set or invalid)
+//       const dayThreshold =
+//         chamber.day && !isNaN(Number(chamber.day)) ? Number(chamber.day) : 30;
+
+//       // Find the latest visit for this patient
+//       const latestVisit = await tx.visit.findFirst({
+//         where: { patientId: id },
+//         orderBy: { visitDate: 'desc' },
+//       });
+
+//       const visitDate = payload.visitedAt
+//         ? new Date(payload.visitedAt)
+//         : new Date();
+
+//       let daysSinceLastVisit = Infinity;
+
+//       if (latestVisit?.visitDate) {
+//         const lastVisitDate = new Date(latestVisit.visitDate);
+//         daysSinceLastVisit =
+//           (visitDate.getTime() - lastVisitDate.getTime()) /
+//           (1000 * 60 * 60 * 24);
+//       }
+
+//       let fee: number | undefined;
+//       let allowVisit = false;
+
+//       if (effectiveStatus === PatientStatus.NEW) {
+//         if (daysSinceLastVisit > dayThreshold) {
+//           fee = parseInt(chamber.newPatientFee);
+//           allowVisit = true;
+//         } else {
+//           throw new Error(
+//             `Patient cannot be marked as NEW within ${dayThreshold} days of last visit.`,
+//           );
+//         }
+//       } else if (effectiveStatus === PatientStatus.OLD) {
+//         if (daysSinceLastVisit <= dayThreshold && daysSinceLastVisit >= 0) {
+//           fee = parseInt(chamber.oldPatientFee);
+//           allowVisit = true;
+//         } else {
+//           throw new Error(
+//             `Patient can only be marked as OLD within ${dayThreshold} days of last visit.`,
+//           );
+//         }
+//       } else if (effectiveStatus === PatientStatus.REPORT) {
+//         fee = parseInt(chamber.reportFee);
+//         allowVisit = true;
+//       } else {
+//         throw new Error('Invalid patient status');
+//       }
+
+//       if (fee === undefined || isNaN(fee)) {
+//         throw new Error('Fee is not a valid number');
+//       }
+
+//       // Only create a Visit if not already created for this patient, doctor, status, and date (same day)
+//       const startOfDay = new Date(visitDate);
+//       startOfDay.setHours(0, 0, 0, 0);
+//       const endOfDay = new Date(visitDate);
+//       endOfDay.setHours(23, 59, 59, 999);
+
+//       const existingVisit = await tx.visit.findFirst({
+//         where: {
+//           patientId: id,
+//           doctorId: effectiveDoctorId,
+//           type: effectiveStatus,
+//           visitDate: {
+//             gte: startOfDay,
+//             lte: endOfDay,
+//           },
+//         },
+//       });
+
+//       if (allowVisit && !existingVisit) {
+//         await tx.visit.create({
+//           data: {
+//             patientId: id,
+//             doctorId: effectiveDoctorId,
+//             visitDate: visitDate,
+//             type: effectiveStatus,
+//             fee,
+//           },
+//         });
+//       }
+//     }
+
+//     // If visitStatus is set to NOT_VISITED, delete all Visit records for this patient
+//     if (payload.visitStatus === VisitStatus.NOT_VISITED) {
+//       await tx.visit.deleteMany({
+//         where: {
+//           patientId: id,
+//         },
+//       });
+//     }
+
+//     return updatedPatient;
+//   });
+// };
 
 export const PatientService = {
   createPatientIntoDB,
