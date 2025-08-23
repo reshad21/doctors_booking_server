@@ -15,7 +15,7 @@ const getMedicineInputsFromDB = async (query: Record<string, any>) => {
 
   // Build the Prisma query using builderQuery
   const prismaQuery = builderQuery({
-    searchFields: ['brandName', 'genericName', 'nameManufacturer'],
+    searchFields: ['brandName', 'genericName'],
     searchTerm: query.searchTerm || '',
     filter,
     orderBy: query.orderBy,
