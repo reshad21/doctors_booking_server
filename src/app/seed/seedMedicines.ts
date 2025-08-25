@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
@@ -20,7 +21,7 @@ export async function seedMedicines() {
   const medicines = data.map((item: any) => ({
     serialNo: item.Serial_NO,
     nameManufacturer: item.Name_Manufacturer,
-    brandName: item.Brand_Name,
+    brandName: item.Revised_Brand_Name,
     genericName: item.Generic_Name,
     strength: item.Strength,
     dosageDescription: item.Dosage_Description,
