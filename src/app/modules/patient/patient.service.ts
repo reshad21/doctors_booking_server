@@ -92,6 +92,18 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
 
   return newPatient;
 };
+const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrived:boolean}) => {
+  const response = await prisma.patient.update({
+    where: {
+      id:patientData?.id
+    },
+    data:{
+      isArrived:patientData?.isArrived
+    }
+    
+  });
+  return response
+};
 
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const doctorId = await getDoctorIdForUser(user);
@@ -367,4 +379,5 @@ export const PatientService = {
   getPatientsFromDB,
   deletePatientFromDB,
   updatePatientFromDB,
+  updatePatientArrivedStatusIntoDB,
 };

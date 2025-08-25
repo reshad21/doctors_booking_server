@@ -15,6 +15,13 @@ export const createPatientZodSchema = z.object({
     chamberId: z.string({ required_error: 'Chamber is is required' }),
   }),
 });
+export const updatePatientArrivedStatusZodSchema = z.object({
+  body: z.object({
+    id: z.string({ required_error: 'Patient Id required' }),
+    isArrived: z.boolean({ required_error: 'isArrived is required' }),
+    
+  }),
+});
 
 export const updatePatientZodSchema = z.object({
   body: z.object({
@@ -33,4 +40,5 @@ export const updatePatientZodSchema = z.object({
 export const PatientValidation = {
   createPatientZodSchema,
   updatePatientZodSchema,
+  updatePatientArrivedStatusZodSchema,
 };
