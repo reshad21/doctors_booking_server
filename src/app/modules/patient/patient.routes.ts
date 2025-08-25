@@ -13,6 +13,12 @@ router.post(
   validation(PatientValidation.createPatientZodSchema),
   PatientController.createPatientHandler,
 );
+router.post(
+  '/update-isArrived-status',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  validation(PatientValidation.updatePatientArrivedStatusZodSchema),
+  PatientController.updatePatientArrivedStatus,
+);
 
 router.get(
   '/get-all-patients',
