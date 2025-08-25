@@ -152,6 +152,7 @@ model Patient {
   visitStatus  VisitStatus    @default(NOT_VISITED)
   visitedAt    DateTime?
   doctorId     String
+  isArrived    Boolean        @default(false)
   doctor       Doctor         @relation(fields: [doctorId], references: [id])
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt

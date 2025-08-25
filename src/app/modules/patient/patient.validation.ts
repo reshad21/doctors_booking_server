@@ -11,7 +11,15 @@ export const createPatientZodSchema = z.object({
     weight: z.string().optional(),
     status: z.string().optional(),
     visitStatus: z.string().optional(),
+    createdAt:z.string().optional(),
     chamberId: z.string({ required_error: 'Chamber is is required' }),
+  }),
+});
+export const updatePatientArrivedStatusZodSchema = z.object({
+  body: z.object({
+    id: z.string({ required_error: 'Patient Id required' }),
+    isArrived: z.boolean({ required_error: 'isArrived is required' }),
+    
   }),
 });
 
@@ -32,4 +40,5 @@ export const updatePatientZodSchema = z.object({
 export const PatientValidation = {
   createPatientZodSchema,
   updatePatientZodSchema,
+  updatePatientArrivedStatusZodSchema,
 };

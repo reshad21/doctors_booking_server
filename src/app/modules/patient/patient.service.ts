@@ -32,7 +32,9 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     status = 'NEW',
     visitStatus = 'NOT_VISITED',
     chamberId,
+    createdAt,
   } = patientData;
+  
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
     throw new Error('Missing required patient fields');
@@ -81,6 +83,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       status,
       visitStatus,
       chamberId,
+      createdAt
     },
   });
 
@@ -88,6 +91,18 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
   io.emit('patient:created', newPatient);
 
   return newPatient;
+};
+const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrived:boolean}) => {
+  const response = await prisma.patient.update({
+    where: {
+      id:patientData?.id
+    },
+    data:{
+      isArrived:patientData?.isArrived
+    }
+    
+  });
+  return response
 };
 
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
@@ -508,4 +523,5 @@ export const PatientService = {
   getPatientsFromDB,
   deletePatientFromDB,
   updatePatientFromDB,
+  updatePatientArrivedStatusIntoDB,
 };

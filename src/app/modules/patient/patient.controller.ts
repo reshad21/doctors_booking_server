@@ -19,6 +19,17 @@ const createPatientHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updatePatientArrivedStatus = catchAsync(async (req, res) => {
+ 
+  const result = await PatientService.updatePatientArrivedStatusIntoDB(req.body);
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'Changed the status of IsArrived successfully',
+    data: result,
+  });
+});
 
 const getPatientHandler = catchAsync(async (req, res) => {
   const user = {
@@ -61,4 +72,5 @@ export const PatientController = {
   getPatientHandler,
   deleteChamberHandler,
   updateChamberHandler,
+  updatePatientArrivedStatus
 };
