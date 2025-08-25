@@ -32,7 +32,9 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     status = 'NEW',
     visitStatus = 'NOT_VISITED',
     chamberId,
+    createdAt,
   } = patientData;
+  
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
     throw new Error('Missing required patient fields');
@@ -81,6 +83,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       status,
       visitStatus,
       chamberId,
+      createdAt
     },
   });
 
