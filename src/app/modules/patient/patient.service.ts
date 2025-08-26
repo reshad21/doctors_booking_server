@@ -104,7 +104,6 @@ const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrive
   });
   return response
 };
-
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const doctorId = await getDoctorIdForUser(user);
 
@@ -190,7 +189,6 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
     data: result,
   };
 };
-
 const deletePatientFromDB = async (id: string) => {
   // Step 1: Delete related Visits
   await prisma.visit.deleteMany({ where: { patientId: id } });
@@ -202,8 +200,6 @@ const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
-
-
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Fetch existing patient info
@@ -232,6 +228,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       weight: payload.weight,
       status: payload.status,
       visitedAt: payload.visitedAt,
+      createdAt:payload.createdAt
     };
 
     if (payload.visitStatus !== undefined) {
