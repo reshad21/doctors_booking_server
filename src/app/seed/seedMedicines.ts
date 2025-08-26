@@ -9,7 +9,9 @@ export async function seedMedicines() {
   const count = await prisma.medicineInput.count();
 
   if (count > 0) {
-    console.log(`⚡ Medicines already exist (${count} records). Skipping seeding...`);
+    console.log(
+      `⚡ Medicines already exist (${count} records). Skipping seeding...`,
+    );
     return;
   }
 
