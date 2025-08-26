@@ -79,8 +79,8 @@ const getMedicineInputsFromDB = async (query: Record<string, any>) => {
 
   // Use the builder for non-search queries
   const prismaQuery = builderQuery({
-    searchFields: ['brandName'],
-    searchTerm,
+    searchFields: ['brandName', 'genericName', 'nameManufacturer'],
+    searchTerm: query.searchTerm || '',
     filter,
     orderBy: query.orderBy || { brandName: 'asc' },
     page,

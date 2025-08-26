@@ -11,10 +11,12 @@ router.post(
   validation(authValidations.loginValidation),
   AuthController.login,
 );
+
 router.patch(
   '/update-doctor',
   imageUpload.single('doctorImage'),
   uploadImages,  
  AuthController.updateDoctor
 );
+
 export const AuthRoutes = router;
