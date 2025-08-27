@@ -104,6 +104,92 @@ const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrive
   });
   return response
 };
+// const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
+//   const doctorId = await getDoctorIdForUser(user);
+
+//   if (query.filter) {
+//     const parsedFilter = JSON.parse(query.filter);
+
+//     // Handle date range filtering for createdAt
+//     if (parsedFilter.startDate && parsedFilter.endDate) {
+//       parsedFilter.createdAt = {
+//         gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+//         lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+//       };
+//       delete parsedFilter.startDate;
+//       delete parsedFilter.endDate;
+//     } else if (parsedFilter.startDate) {
+//       parsedFilter.createdAt = {
+//         gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+//       };
+//       delete parsedFilter.startDate;
+//     } else if (parsedFilter.endDate) {
+//       parsedFilter.createdAt = {
+//         lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+//       };
+//       delete parsedFilter.endDate;
+//     } else if (parsedFilter.createdAt) {
+//       // Single date filter (legacy)
+
+//       const dateStr = parsedFilter.createdAt;
+//       parsedFilter.createdAt = {
+//         gte: new Date(`${dateStr}T00:00:00.000Z`),
+//         lt: new Date(`${dateStr}T23:59:59.999Z`),
+//       };
+//     }
+
+//     query.filter = JSON.stringify(parsedFilter);
+//   }
+
+//   const patientQuery = builderQuery({
+//     searchFields: ['name', 'phoneNumber', 'email'],
+//     searchTerm: query.searchTerm,
+//     filter: {
+//       doctorId,
+//       ...(query.filter ? JSON.parse(query.filter) : {}),
+//     },
+//     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
+//     page: query.page,
+//     limit: query.limit,
+//   });
+
+//   const totalItems = (
+//     await prisma.patient.findMany({
+//       where: patientQuery.where,
+//       select: { id: true },
+//     })
+//   ).length;
+
+//   const currentPage = Number(query.page) || 1;
+//   const totalPages = Math.ceil(totalItems / patientQuery.take);
+
+//   const result = await prisma.patient.findMany({
+//     ...patientQuery,
+//     include: {
+//       prescription: {
+//         include: {
+//           medicines: true,
+//           tests: true,
+//           chiefComplaint: true,
+//           onExaminations: true,
+//           diagnosis: true,
+//           investigation: true,
+//           advice: true,
+//         },
+//       },
+//     },
+//   });
+
+//   return {
+//     meta: {
+//       totalItems,
+//       totalPages,
+//       currentPage,
+//     },
+//     data: result,
+//   };
+// };
+
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const doctorId = await getDoctorIdForUser(user);
 
@@ -129,18 +215,31 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
       };
       delete parsedFilter.endDate;
     } else if (parsedFilter.createdAt) {
-      // Single date filter (legacy)
-
+      // Single date filter - FIXED TIMEZONE ISSUE
       const dateStr = parsedFilter.createdAt;
+      const timezoneOffset = parsedFilter.timezoneOffset || 0;
+      
+      // Calculate the start and end of day in UTC for the given date
+      const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
+      const endOfDay = new Date(`${dateStr}T23:59:59.999Z`);
+      
+      // Adjust for timezone offset
+      startOfDay.setMinutes(startOfDay.getMinutes() - timezoneOffset);
+      endOfDay.setMinutes(endOfDay.getMinutes() - timezoneOffset);
+      
       parsedFilter.createdAt = {
-        gte: new Date(`${dateStr}T00:00:00.000Z`),
-        lt: new Date(`${dateStr}T23:59:59.999Z`),
+        gte: startOfDay,
+        lt: endOfDay,
       };
+      
+      // Clean up temporary field
+      delete parsedFilter.timezoneOffset;
     }
 
     query.filter = JSON.stringify(parsedFilter);
   }
 
+  // The rest of your existing code remains unchanged
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
@@ -343,177 +442,6 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
     return updatedPatient;
   });
 };
-
-// const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
-//   return await prisma.$transaction(async (tx) => {
-//     // 1. Fetch existing patient info
-//     const existingPatient = await tx.patient.findUnique({
-//       where: { id },
-//       select: {
-//         visitStatus: true,
-//         status: true,
-//         chamberId: true,
-//         doctorId: true,
-//       },
-//     });
-
-//     if (!existingPatient) {
-//       throw new Error(`Patient with ID ${id} not found`);
-//     }
-
-//     // 2. Prepare safe update data
-//     const updateData: any = {
-//       name: payload.name,
-//       phoneNumber: payload.phoneNumber,
-//       age: payload.age,
-//       gender: payload.gender,
-//       doctorId: payload.doctorId,
-//       email: payload.email,
-//       weight: payload.weight,
-//       status: payload.status,
-//       visitedAt: payload.visitedAt,
-//     };
-
-//     if (payload.visitStatus !== undefined) {
-//       updateData.visitStatus = payload.visitStatus;
-//     }
-
-//     // 3. Update patient
-//     const updatedPatient = await tx.patient.update({
-//       where: { id },
-//       data: updateData,
-//     });
-
-//     // 4. Dynamic day logic for Visit creation
-//     if (payload.visitStatus === VisitStatus.VISITED) {
-//       const effectiveStatus = payload.status || existingPatient.status;
-//       const effectiveDoctorId = payload.doctorId || existingPatient.doctorId;
-
-//       if (!effectiveDoctorId) {
-//         throw new Error('Doctor ID is required to create a visit.');
-//       }
-
-//       if (!effectiveStatus) {
-//         throw new Error('Patient status is required to create a visit.');
-//       }
-
-//       // Ensure chamber exists
-//       if (!existingPatient.chamberId) {
-//         throw new Error('Chamber not assigned to patient.');
-//       }
-
-//       const chamber = await tx.chamber.findUnique({
-//         where: { id: existingPatient.chamberId },
-//         select: {
-//           newPatientFee: true,
-//           oldPatientFee: true,
-//           reportFee: true,
-//           day: true,
-//         },
-//       });
-
-//       if (!chamber) {
-//         throw new Error('Chamber not found');
-//       }
-
-//       // Use dynamic day threshold (fallback to 30 if not set or invalid)
-//       const dayThreshold =
-//         chamber.day && !isNaN(Number(chamber.day)) ? Number(chamber.day) : 30;
-
-//       // Find the latest visit for this patient
-//       const latestVisit = await tx.visit.findFirst({
-//         where: { patientId: id },
-//         orderBy: { visitDate: 'desc' },
-//       });
-
-//       const visitDate = payload.visitedAt
-//         ? new Date(payload.visitedAt)
-//         : new Date();
-
-//       let daysSinceLastVisit = Infinity;
-
-//       if (latestVisit?.visitDate) {
-//         const lastVisitDate = new Date(latestVisit.visitDate);
-//         daysSinceLastVisit =
-//           (visitDate.getTime() - lastVisitDate.getTime()) /
-//           (1000 * 60 * 60 * 24);
-//       }
-
-//       let fee: number | undefined;
-//       let allowVisit = false;
-
-//       if (effectiveStatus === PatientStatus.NEW) {
-//         if (daysSinceLastVisit > dayThreshold) {
-//           fee = parseInt(chamber.newPatientFee);
-//           allowVisit = true;
-//         } else {
-//           throw new Error(
-//             `Patient cannot be marked as NEW within ${dayThreshold} days of last visit.`,
-//           );
-//         }
-//       } else if (effectiveStatus === PatientStatus.OLD) {
-//         if (daysSinceLastVisit <= dayThreshold && daysSinceLastVisit >= 0) {
-//           fee = parseInt(chamber.oldPatientFee);
-//           allowVisit = true;
-//         } else {
-//           throw new Error(
-//             `Patient can only be marked as OLD within ${dayThreshold} days of last visit.`,
-//           );
-//         }
-//       } else if (effectiveStatus === PatientStatus.REPORT) {
-//         fee = parseInt(chamber.reportFee);
-//         allowVisit = true;
-//       } else {
-//         throw new Error('Invalid patient status');
-//       }
-
-//       if (fee === undefined || isNaN(fee)) {
-//         throw new Error('Fee is not a valid number');
-//       }
-
-//       // Only create a Visit if not already created for this patient, doctor, status, and date (same day)
-//       const startOfDay = new Date(visitDate);
-//       startOfDay.setHours(0, 0, 0, 0);
-//       const endOfDay = new Date(visitDate);
-//       endOfDay.setHours(23, 59, 59, 999);
-
-//       const existingVisit = await tx.visit.findFirst({
-//         where: {
-//           patientId: id,
-//           doctorId: effectiveDoctorId,
-//           type: effectiveStatus,
-//           visitDate: {
-//             gte: startOfDay,
-//             lte: endOfDay,
-//           },
-//         },
-//       });
-
-//       if (allowVisit && !existingVisit) {
-//         await tx.visit.create({
-//           data: {
-//             patientId: id,
-//             doctorId: effectiveDoctorId,
-//             visitDate: visitDate,
-//             type: effectiveStatus,
-//             fee,
-//           },
-//         });
-//       }
-//     }
-
-//     // If visitStatus is set to NOT_VISITED, delete all Visit records for this patient
-//     if (payload.visitStatus === VisitStatus.NOT_VISITED) {
-//       await tx.visit.deleteMany({
-//         where: {
-//           patientId: id,
-//         },
-//       });
-//     }
-
-//     return updatedPatient;
-//   });
-// };
 
 export const PatientService = {
   createPatientIntoDB,
