@@ -4,14 +4,14 @@ import sendResponse from '../../utils/sendResponse';
 import { PatientSummaryService } from './paitent-summary.service';
 
 export const getPatientSummary = catchAsync(async (req, res) => {
-  const chamberName = req.query.chamberName as string;
+  const chamberId = req.query.chamberId as string;
   const user = {
     ...req.user,
     id: (req.user as any).id,
     type: (req.user as any).type,
   };
 
-  const result = await PatientSummaryService.getPatientSummaryFromDB(user,chamberName);
+  const result = await PatientSummaryService.getPatientSummaryFromDB(user,chamberId);
 
   sendResponse(res, {
     statusCode: 200,

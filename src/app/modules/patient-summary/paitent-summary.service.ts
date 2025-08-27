@@ -141,19 +141,19 @@ const getAmountByStatusAndPeriod = async (from: Date, to: Date, chamberId?: stri
   return result;
 };
 
-const getPatientSummaryFromDB = async (user: User, chamberName:string) => {
+const getPatientSummaryFromDB = async (user: User, chamberId:string) => {
   
   
   const doctorId = await getDoctorIdForUser(user);
   
   // If chamberName is provided and not "all", get the chamberId
-  let chamberId: string | undefined;
-  if (chamberName && chamberName !== 'all') {
-    const chamber = await prisma.chamber.findFirst({
-      where: { name: chamberName, doctorId },
-    });
-    chamberId = chamber?.id;
-  }
+  // let chamberId: string | undefined;
+  // if (chamberName && chamberName !== 'all') {
+  //   const chamber = await prisma.chamber.findFirst({
+  //     where: { name: chamberName, doctorId },
+  //   });
+  //   chamberId = chamber?.id;
+  // }
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -268,7 +268,7 @@ const getPatientSummaryFromDB = async (user: User, chamberName:string) => {
     yearlyAmount,
     // Include the chamber filter info in response
     filter: {
-      chamber: chamberName || 'all',
+      // chamber: chamberName || 'all',
       chamberId: chamberId || 'all'
     }
   };
