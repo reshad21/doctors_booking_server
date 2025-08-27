@@ -9,6 +9,6 @@ router.get(
   '/get-patient-summary',
   auth([UserType.DOCTOR, UserType.STAFF]),
   PatientSummaryController.getPatientSummary,
-);
+);  
 
 export const PatientSummaryRoutes = router;
