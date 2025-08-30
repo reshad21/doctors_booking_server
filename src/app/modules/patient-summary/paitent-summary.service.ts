@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import prisma from '../../../db/db.config';
 import { User } from '../../types/user.type';
 import { getDoctorIdForUser } from '../../utils/getDoctorId';
