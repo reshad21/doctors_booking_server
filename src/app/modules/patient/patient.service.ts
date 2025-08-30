@@ -104,142 +104,69 @@ const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrive
   });
   return response
 };
-// const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
-//   const doctorId = await getDoctorIdForUser(user);
-
-//   if (query.filter) {
-//     const parsedFilter = JSON.parse(query.filter);
-
-//     // Handle date range filtering for createdAt
-//     if (parsedFilter.startDate && parsedFilter.endDate) {
-//       parsedFilter.createdAt = {
-//         gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
-//         lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
-//       };
-//       delete parsedFilter.startDate;
-//       delete parsedFilter.endDate;
-//     } else if (parsedFilter.startDate) {
-//       parsedFilter.createdAt = {
-//         gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
-//       };
-//       delete parsedFilter.startDate;
-//     } else if (parsedFilter.endDate) {
-//       parsedFilter.createdAt = {
-//         lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
-//       };
-//       delete parsedFilter.endDate;
-//     } else if (parsedFilter.createdAt) {
-//       // Single date filter (legacy)
-
-//       const dateStr = parsedFilter.createdAt;
-//       parsedFilter.createdAt = {
-//         gte: new Date(`${dateStr}T00:00:00.000Z`),
-//         lt: new Date(`${dateStr}T23:59:59.999Z`),
-//       };
-//     }
-
-//     query.filter = JSON.stringify(parsedFilter);
-//   }
-
-//   const patientQuery = builderQuery({
-//     searchFields: ['name', 'phoneNumber', 'email'],
-//     searchTerm: query.searchTerm,
-//     filter: {
-//       doctorId,
-//       ...(query.filter ? JSON.parse(query.filter) : {}),
-//     },
-//     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
-//     page: query.page,
-//     limit: query.limit,
-//   });
-
-//   const totalItems = (
-//     await prisma.patient.findMany({
-//       where: patientQuery.where,
-//       select: { id: true },
-//     })
-//   ).length;
-
-//   const currentPage = Number(query.page) || 1;
-//   const totalPages = Math.ceil(totalItems / patientQuery.take);
-
-//   const result = await prisma.patient.findMany({
-//     ...patientQuery,
-//     include: {
-//       prescription: {
-//         include: {
-//           medicines: true,
-//           tests: true,
-//           chiefComplaint: true,
-//           onExaminations: true,
-//           diagnosis: true,
-//           investigation: true,
-//           advice: true,
-//         },
-//       },
-//     },
-//   });
-
-//   return {
-//     meta: {
-//       totalItems,
-//       totalPages,
-//       currentPage,
-//     },
-//     data: result,
-//   };
-// };
-
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const doctorId = await getDoctorIdForUser(user);
+  let timezoneOffset = 0;
 
   if (query.filter) {
     const parsedFilter = JSON.parse(query.filter);
 
+    // Extract timezoneOffset first if it exists
+    if (parsedFilter.timezoneOffset !== undefined) {
+      timezoneOffset = parsedFilter.timezoneOffset;
+      delete parsedFilter.timezoneOffset;
+    }
+
     // Handle date range filtering for createdAt
     if (parsedFilter.startDate && parsedFilter.endDate) {
+      const startDate = new Date(parsedFilter.startDate);
+      const endDate = new Date(parsedFilter.endDate);
+      
+      // Adjust for timezone offset - convert local dates to UTC
+      const startUTC = new Date(startDate.getTime() + timezoneOffset * 60 * 1000);
+      const endUTC = new Date(endDate.getTime() + timezoneOffset * 60 * 1000 + 86400000); // Add 1 day
+      
       parsedFilter.createdAt = {
-        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
-        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+        gte: startUTC,
+        lt: endUTC,
       };
       delete parsedFilter.startDate;
       delete parsedFilter.endDate;
     } else if (parsedFilter.startDate) {
+      const startDate = new Date(parsedFilter.startDate);
+      const startUTC = new Date(startDate.getTime() + timezoneOffset * 60 * 1000);
+      
       parsedFilter.createdAt = {
-        gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
+        gte: startUTC,
       };
       delete parsedFilter.startDate;
     } else if (parsedFilter.endDate) {
+      const endDate = new Date(parsedFilter.endDate);
+      const endUTC = new Date(endDate.getTime() + timezoneOffset * 60 * 1000 + 86400000);
+      
       parsedFilter.createdAt = {
-        lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
+        lt: endUTC,
       };
       delete parsedFilter.endDate;
     } else if (parsedFilter.createdAt) {
-      // Single date filter - FIXED TIMEZONE ISSUE
+      // Single date filter - handle timezone properly
       const dateStr = parsedFilter.createdAt;
-      const timezoneOffset = parsedFilter.timezoneOffset || 0;
+      const localDate = new Date(dateStr);
       
-      // Calculate the start and end of day in UTC for the given date
-      const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
-      const endOfDay = new Date(`${dateStr}T23:59:59.999Z`);
-      
-      // Adjust for timezone offset
-      startOfDay.setMinutes(startOfDay.getMinutes() - timezoneOffset);
-      endOfDay.setMinutes(endOfDay.getMinutes() - timezoneOffset);
+      // Calculate start and end of day in UTC for the given local date
+      const startOfDayUTC = new Date(localDate.getTime() + timezoneOffset * 60 * 1000);
+      const endOfDayUTC = new Date(startOfDayUTC.getTime() + 86400000); // Add 24 hours
       
       parsedFilter.createdAt = {
-        gte: startOfDay,
-        lt: endOfDay,
+        gte: startOfDayUTC,
+        lt: endOfDayUTC,
       };
-      
-      // Clean up temporary field
-      delete parsedFilter.timezoneOffset;
     }
 
     query.filter = JSON.stringify(parsedFilter);
   }
 
-  // The rest of your existing code remains unchanged
+  // The rest of your code remains unchanged
   const patientQuery = builderQuery({
     searchFields: ['name', 'phoneNumber', 'email'],
     searchTerm: query.searchTerm,
