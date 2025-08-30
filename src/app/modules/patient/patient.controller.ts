@@ -50,7 +50,7 @@ const getPatientHandler = catchAsync(async (req, res) => {
 
 const getSinglePatient = catchAsync(async (req, res) => {
   const { id } = req.params;
-console.log(id)
+
   const patient = await PatientService.getSinglePatientFromDB(id);
 
   sendResponse(res, {
