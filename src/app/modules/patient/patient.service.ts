@@ -34,7 +34,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     chamberId,
     createdAt,
   } = patientData;
-  
+
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
     throw new Error('Missing required patient fields');
@@ -92,15 +92,15 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
 
   return newPatient;
 };
-const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrived:boolean}) => {
+const updatePatientArrivedStatusIntoDB = async (patientData: { id: string, isArrived: boolean }) => {
   const response = await prisma.patient.update({
     where: {
-      id:patientData?.id
+      id: patientData?.id
     },
-    data:{
-      isArrived:patientData?.isArrived
+    data: {
+      isArrived: patientData?.isArrived
     }
-    
+
   });
   return response
 };
@@ -215,6 +215,7 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
     data: result,
   };
 };
+
 const deletePatientFromDB = async (id: string) => {
   // Step 1: Delete related Visits
   await prisma.visit.deleteMany({ where: { patientId: id } });
@@ -226,6 +227,7 @@ const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
+
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Fetch existing patient info
@@ -254,7 +256,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       weight: payload.weight,
       status: payload.status,
       visitedAt: payload.visitedAt,
-      createdAt:payload.createdAt
+      createdAt: payload.createdAt
     };
 
     if (payload.visitStatus !== undefined) {
@@ -303,7 +305,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         ? new Date(payload.visitedAt)
         : new Date();
 
-        
+
       let fee: number | undefined;
       let allowVisit = false;
 
@@ -370,10 +372,19 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   });
 };
 
+const getSinglePatientFromDB = async (id: string) => {
+  const result = await prisma.patient.findUnique({
+    where: { id }
+  })
+
+  return result
+}
+
 export const PatientService = {
   createPatientIntoDB,
   getPatientsFromDB,
   deletePatientFromDB,
   updatePatientFromDB,
   updatePatientArrivedStatusIntoDB,
+  getSinglePatientFromDB
 };
