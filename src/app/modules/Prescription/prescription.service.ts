@@ -102,14 +102,16 @@ const createPrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
     diagnosis = [],
     nextVisit,
     investigation = [],
-    advice = []
+    advice = [],
+    prescriptionNo
   } = prescriptionData;
 
   const prescription = await prisma.prescription.create({
     data: {
       patientId,
       doctorId,
-      nextVisit: nextVisit || null, // ✅ make it safe if frontend skips
+      nextVisit: nextVisit || null,
+      prescriptionNo: prescriptionNo,
       advice: {
         create: (Array.isArray(advice) ? advice : []).map((item: any) => ({
           description: item,
@@ -178,7 +180,6 @@ const updatePrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
     advice = []
   } = prescriptionData;
 
-  console.log(prescriptionData, "prescriptionData")
   const updatedPrescription = await prisma.prescription.update({
     where: { id },
     data: {
@@ -253,8 +254,6 @@ const updatePrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
 
 
   });
-
-  console.log("Updated Prescription Data:", updatedPrescription)
 
   return updatedPrescription;
 };

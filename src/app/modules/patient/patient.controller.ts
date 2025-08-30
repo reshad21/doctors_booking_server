@@ -19,8 +19,9 @@ const createPatientHandler = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const updatePatientArrivedStatus = catchAsync(async (req, res) => {
- 
+
   const result = await PatientService.updatePatientArrivedStatusIntoDB(req.body);
 
   sendResponse(res, {
@@ -47,6 +48,19 @@ const getPatientHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getSinglePatient = catchAsync(async (req, res) => {
+  const { id } = req.params;
+console.log(id)
+  const patient = await PatientService.getSinglePatientFromDB(id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Patients fetched successfully',
+    data: patient,
+  });
+})
+
 const deleteChamberHandler = catchAsync(async (req, res) => {
   const { id } = req.params;
   await PatientService.deletePatientFromDB(id);
@@ -72,5 +86,6 @@ export const PatientController = {
   getPatientHandler,
   deleteChamberHandler,
   updateChamberHandler,
-  updatePatientArrivedStatus
+  updatePatientArrivedStatus,
+  getSinglePatient,
 };

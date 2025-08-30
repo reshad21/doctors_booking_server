@@ -13,6 +13,7 @@ router.post(
   validation(PatientValidation.createPatientZodSchema),
   PatientController.createPatientHandler,
 );
+
 router.post(
   '/update-isArrived-status',
   auth([UserType.DOCTOR, UserType.STAFF]),
@@ -24,6 +25,12 @@ router.get(
   '/get-all-patients',
   auth([UserType.DOCTOR, UserType.STAFF]),
   PatientController.getPatientHandler,
+);
+
+router.get(
+  '/get-patient/:id',
+  // auth([UserType.DOCTOR, UserType.STAFF]),
+  PatientController.getSinglePatient,
 );
 
 router.delete(
