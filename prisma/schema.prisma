@@ -197,6 +197,7 @@ model Chamber {
 
 model Prescription {
   id             String           @id @default(uuid())
+  prescriptionNo String           @default("GENERATING")
   patientId      String
   patient        Patient          @relation(fields: [patientId], references: [id])
   doctorId       String

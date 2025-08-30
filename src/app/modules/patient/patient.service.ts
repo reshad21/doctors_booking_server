@@ -34,7 +34,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
     chamberId,
     createdAt,
   } = patientData;
-  
+
 
   if (!name || !phoneNumber || !age || !gender || !doctorId) {
     throw new Error('Missing required patient fields');
@@ -92,103 +92,18 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
 
   return newPatient;
 };
-const updatePatientArrivedStatusIntoDB = async (patientData: {id:string,isArrived:boolean}) => {
+const updatePatientArrivedStatusIntoDB = async (patientData: { id: string, isArrived: boolean }) => {
   const response = await prisma.patient.update({
     where: {
-      id:patientData?.id
+      id: patientData?.id
     },
-    data:{
-      isArrived:patientData?.isArrived
+    data: {
+      isArrived: patientData?.isArrived
     }
-    
+
   });
   return response
 };
-// const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
-//   const doctorId = await getDoctorIdForUser(user);
-
-//   if (query.filter) {
-//     const parsedFilter = JSON.parse(query.filter);
-
-//     // Handle date range filtering for createdAt
-//     if (parsedFilter.startDate && parsedFilter.endDate) {
-//       parsedFilter.createdAt = {
-//         gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
-//         lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
-//       };
-//       delete parsedFilter.startDate;
-//       delete parsedFilter.endDate;
-//     } else if (parsedFilter.startDate) {
-//       parsedFilter.createdAt = {
-//         gte: new Date(`${parsedFilter.startDate}T00:00:00.000Z`),
-//       };
-//       delete parsedFilter.startDate;
-//     } else if (parsedFilter.endDate) {
-//       parsedFilter.createdAt = {
-//         lt: new Date(`${parsedFilter.endDate}T23:59:59.999Z`),
-//       };
-//       delete parsedFilter.endDate;
-//     } else if (parsedFilter.createdAt) {
-//       // Single date filter (legacy)
-
-//       const dateStr = parsedFilter.createdAt;
-//       parsedFilter.createdAt = {
-//         gte: new Date(`${dateStr}T00:00:00.000Z`),
-//         lt: new Date(`${dateStr}T23:59:59.999Z`),
-//       };
-//     }
-
-//     query.filter = JSON.stringify(parsedFilter);
-//   }
-
-//   const patientQuery = builderQuery({
-//     searchFields: ['name', 'phoneNumber', 'email'],
-//     searchTerm: query.searchTerm,
-//     filter: {
-//       doctorId,
-//       ...(query.filter ? JSON.parse(query.filter) : {}),
-//     },
-//     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
-//     page: query.page,
-//     limit: query.limit,
-//   });
-
-//   const totalItems = (
-//     await prisma.patient.findMany({
-//       where: patientQuery.where,
-//       select: { id: true },
-//     })
-//   ).length;
-
-//   const currentPage = Number(query.page) || 1;
-//   const totalPages = Math.ceil(totalItems / patientQuery.take);
-
-//   const result = await prisma.patient.findMany({
-//     ...patientQuery,
-//     include: {
-//       prescription: {
-//         include: {
-//           medicines: true,
-//           tests: true,
-//           chiefComplaint: true,
-//           onExaminations: true,
-//           diagnosis: true,
-//           investigation: true,
-//           advice: true,
-//         },
-//       },
-//     },
-//   });
-
-//   return {
-//     meta: {
-//       totalItems,
-//       totalPages,
-//       currentPage,
-//     },
-//     data: result,
-//   };
-// };
 
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const doctorId = await getDoctorIdForUser(user);
@@ -218,20 +133,20 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
       // Single date filter - FIXED TIMEZONE ISSUE
       const dateStr = parsedFilter.createdAt;
       const timezoneOffset = parsedFilter.timezoneOffset || 0;
-      
+
       // Calculate the start and end of day in UTC for the given date
       const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
       const endOfDay = new Date(`${dateStr}T23:59:59.999Z`);
-      
+
       // Adjust for timezone offset
       startOfDay.setMinutes(startOfDay.getMinutes() - timezoneOffset);
       endOfDay.setMinutes(endOfDay.getMinutes() - timezoneOffset);
-      
+
       parsedFilter.createdAt = {
         gte: startOfDay,
         lt: endOfDay,
       };
-      
+
       // Clean up temporary field
       delete parsedFilter.timezoneOffset;
     }
@@ -288,6 +203,7 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
     data: result,
   };
 };
+
 const deletePatientFromDB = async (id: string) => {
   // Step 1: Delete related Visits
   await prisma.visit.deleteMany({ where: { patientId: id } });
@@ -299,6 +215,7 @@ const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
+
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Fetch existing patient info
@@ -327,7 +244,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       weight: payload.weight,
       status: payload.status,
       visitedAt: payload.visitedAt,
-      createdAt:payload.createdAt
+      createdAt: payload.createdAt
     };
 
     if (payload.visitStatus !== undefined) {
@@ -376,7 +293,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
         ? new Date(payload.visitedAt)
         : new Date();
 
-        
+
       let fee: number | undefined;
       let allowVisit = false;
 
@@ -443,10 +360,19 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   });
 };
 
+const getSinglePatientFromDB = async (id: string) => {
+  const result = await prisma.patient.findUnique({
+    where: { id }
+  })
+
+  return result
+}
+
 export const PatientService = {
   createPatientIntoDB,
   getPatientsFromDB,
   deletePatientFromDB,
   updatePatientFromDB,
   updatePatientArrivedStatusIntoDB,
+  getSinglePatientFromDB
 };
