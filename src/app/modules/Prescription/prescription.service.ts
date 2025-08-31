@@ -8,7 +8,6 @@ const getExceptionalIntoDB = async () => {
   return response;
 };
 
-
 const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
   const response = await prisma.prescription.findMany({
     where: {
@@ -48,7 +47,6 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
   });
   return response;
 };
-
 
 const getPrescriptionByIdIntoDB = async (id: string) => {
 
@@ -90,7 +88,6 @@ const getPrescriptionByIdIntoDB = async (id: string) => {
   });
   return response;
 };
-
 
 const createPrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
   const {

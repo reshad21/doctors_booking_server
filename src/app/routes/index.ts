@@ -18,6 +18,8 @@ import { InvestigationRoutes } from '../modules/investigation/investigation.rout
 import { ChiefComplaintRoutes } from '../modules/chiefComplaint/chiefComplaint.routes';
 import { DiagnosisRoutes } from '../modules/diagnosis/diagnosis.routes';
 import { MedicinesRoutes } from '../modules/medicinesList/medicinesList.routes';
+import { MedicineTimeInputRoutes } from '../modules/medicineTimeInput/medicineTimeInput.routes';
+import { MedicineDosagesInputRoutes } from '../modules/medicineDosagesInput/medicineDosagesInput.routes';
 
 const router = Router();
 
@@ -93,6 +95,14 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/medicines',
     route: MedicinesRoutes,
+  },
+  {
+    path: '/medicine-time',
+    route: MedicineTimeInputRoutes,
+  },
+  {
+    path: '/medicine-dosages',
+    route: MedicineDosagesInputRoutes,
   },
 ];
 
