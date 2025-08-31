@@ -18,6 +18,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://62.72.12.193',
   'http://145.223.23.4',
+  "http://72.60.107.44"
 ];
 
 const io = new Server(server, {
