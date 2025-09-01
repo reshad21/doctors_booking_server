@@ -29,7 +29,7 @@ router.get(
 
 router.get(
   '/get-patient/:id',
-  // auth([UserType.DOCTOR, UserType.STAFF]),
+  auth([UserType.DOCTOR, UserType.STAFF]),
   PatientController.getSinglePatient,
 );
 

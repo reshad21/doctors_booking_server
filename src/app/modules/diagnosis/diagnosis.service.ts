@@ -39,4 +39,3 @@ export const DiagnosisService = {
   updateDiagnosis,
   deleteDiagnosis,
 };
-// ... existing code ...

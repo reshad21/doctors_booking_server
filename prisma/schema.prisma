@@ -157,6 +157,7 @@ model Patient {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   chamberId    String?
+  time         String?
   chamber      Chamber?       @relation(fields: [chamberId], references: [id])
   prescription Prescription[]
   visit        Visit[]
@@ -171,7 +172,7 @@ model Visit {
   updatedAt DateTime @updatedAt
 
   type PatientStatus
-  fee  Int // 👈 Use Int instead of Decimal
+  fee  Int
 
   patient Patient @relation(fields: [patientId], references: [id])
   doctor  Doctor  @relation(fields: [doctorId], references: [id])
@@ -241,6 +242,20 @@ model DosageSchedule {
   comment    String?
   medicineId String
   medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+}
+
+model MedicineTimeInput {
+  id        String   @id @default(uuid())
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicineDosagesInput {
+  id        String   @id @default(uuid())
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model DiagnosisInput {
