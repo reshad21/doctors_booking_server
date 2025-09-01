@@ -34,6 +34,7 @@ export const updatePatientZodSchema = z.object({
     weight: z.string().optional(),
     status: z.string().optional(),
     visitStatus: z.string().optional(),
+    isArrived:z.boolean().optional(),
   }),
 });
 

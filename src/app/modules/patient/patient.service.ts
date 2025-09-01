@@ -257,11 +257,15 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
       weight: payload.weight,
       status: payload.status,
       visitedAt: payload.visitedAt,
-      createdAt: payload.createdAt
+      createdAt: payload.createdAt,
+      isArrived: payload.isArrived,
     };
 
     if (payload.visitStatus !== undefined) {
       updateData.visitStatus = payload.visitStatus;
+      if (payload.isArrived !== undefined) {
+        updateData.isArrived = payload.isArrived
+      }
     }
 
     // 3. Update patient
