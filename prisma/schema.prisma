@@ -157,6 +157,7 @@ model Patient {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   chamberId    String?
+  time         String?
   chamber      Chamber?       @relation(fields: [chamberId], references: [id])
   prescription Prescription[]
   visit        Visit[]

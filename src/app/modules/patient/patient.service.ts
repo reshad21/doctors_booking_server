@@ -69,7 +69,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       throw new Error('This patient already exists');
     }
   }
-
+const now = new Date();
   // Create new patient
   const newPatient = await prisma.patient.create({
     data: {
@@ -81,6 +81,7 @@ const createPatientIntoDB = async (patientData: Patient, user: User) => {
       email,
       weight,
       status,
+      time:(now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds())?.toString(),
       visitStatus,
       chamberId,
       createdAt
