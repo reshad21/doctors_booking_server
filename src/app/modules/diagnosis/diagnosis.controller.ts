@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ... existing code ...
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,12 @@ import { DiagnosisService } from './diagnosis.service';
 
 const createDiagnosis = catchAsync(async (req, res) => {
   const payload = req.body;
-  const diagnosis = await DiagnosisService.createDiagnosis(payload);
+    const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const diagnosis = await DiagnosisService.createDiagnosis(payload, user);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -15,7 +21,12 @@ const createDiagnosis = catchAsync(async (req, res) => {
 });
 
 const getAllDiagnoses = catchAsync(async (req, res) => {
-  const diagnoses = await DiagnosisService.getAllDiagnoses(req.query);
+    const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const diagnoses = await DiagnosisService.getAllDiagnoses(req.query, user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
