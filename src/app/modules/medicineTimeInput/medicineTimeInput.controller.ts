@@ -1,10 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { MedicineTimeInputService } from './medicineTimeInput.service';
 
 const createMedicineTimeInput = catchAsync(async (req, res) => {
   const payload = req.body;
-  const medicineTimeInput = await MedicineTimeInputService.createMedicineTimeInput(payload);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const medicineTimeInput =
+    await MedicineTimeInputService.createMedicineTimeInput(payload, user);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -14,7 +21,13 @@ const createMedicineTimeInput = catchAsync(async (req, res) => {
 });
 
 const getAllMedicineTimeInputs = catchAsync(async (req, res) => {
-  const medicineTimeInputs = await MedicineTimeInputService.getAllMedicineTimeInputs(req.query);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const medicineTimeInputs =
+    await MedicineTimeInputService.getAllMedicineTimeInputs(req.query, user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -25,7 +38,8 @@ const getAllMedicineTimeInputs = catchAsync(async (req, res) => {
 
 const getMedicineTimeInputById = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const medicineTimeInput = await MedicineTimeInputService.getMedicineTimeInputById(id);
+  const medicineTimeInput =
+    await MedicineTimeInputService.getMedicineTimeInputById(id);
   if (!medicineTimeInput) {
     return sendResponse(res, {
       statusCode: 404,
@@ -44,7 +58,8 @@ const getMedicineTimeInputById = catchAsync(async (req, res) => {
 const updateMedicineTimeInput = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const medicineTimeInput = await MedicineTimeInputService.updateMedicineTimeInput(id, payload);
+  const medicineTimeInput =
+    await MedicineTimeInputService.updateMedicineTimeInput(id, payload);
   sendResponse(res, {
     statusCode: 200,
     success: true,

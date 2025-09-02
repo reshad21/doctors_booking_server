@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ... existing code ...
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,16 @@ import { InvestigationService } from './investigation.service';
 
 const createInvestigation = catchAsync(async (req, res) => {
   const payload = req.body;
-  const investigation = await InvestigationService.createInvestigation(payload);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const investigation = await InvestigationService.createInvestigation(
+    payload,
+    user,
+  );
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -15,7 +25,16 @@ const createInvestigation = catchAsync(async (req, res) => {
 });
 
 const getAllInvestigations = catchAsync(async (req, res) => {
-  const investigations = await InvestigationService.getAllInvestigations(req.query);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const investigations = await InvestigationService.getAllInvestigations(
+    req.query,
+    user
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -45,7 +64,10 @@ const getInvestigationById = catchAsync(async (req, res) => {
 const updateInvestigation = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const investigation = await InvestigationService.updateInvestigation(id, payload);
+  const investigation = await InvestigationService.updateInvestigation(
+    id,
+    payload,
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,
