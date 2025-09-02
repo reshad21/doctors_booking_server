@@ -1,10 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { OnExaminationService } from './onExamination.service';
 
 const createOnExamination = catchAsync(async (req, res) => {
   const payload = req.body;
-  const onExamination = await OnExaminationService.createOnExamination(payload);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const onExamination = await OnExaminationService.createOnExamination(
+    payload,
+    user,
+  );
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -14,7 +24,15 @@ const createOnExamination = catchAsync(async (req, res) => {
 });
 
 const getAllOnExaminations = catchAsync(async (req, res) => {
-  const onExaminations = await OnExaminationService.getAllOnExaminations(req.query);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const onExaminations = await OnExaminationService.getAllOnExaminations(
+    req.query,
+    user,
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -44,7 +62,10 @@ const getOnExaminationById = catchAsync(async (req, res) => {
 const updateOnExamination = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const onExamination = await OnExaminationService.updateOnExamination(id, payload);
+  const onExamination = await OnExaminationService.updateOnExamination(
+    id,
+    payload,
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,

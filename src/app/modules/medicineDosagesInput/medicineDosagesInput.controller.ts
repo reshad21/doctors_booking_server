@@ -1,10 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { MedicineDosagesInputService } from './medicineDosagesInput.service';
 
 const createMedicineDosagesInput = catchAsync(async (req, res) => {
   const payload = req.body;
-  const medicineDosagesInput = await MedicineDosagesInputService.createMedicineDosagesInput(payload);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const medicineDosagesInput =
+    await MedicineDosagesInputService.createMedicineDosagesInput(payload, user);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -14,7 +22,14 @@ const createMedicineDosagesInput = catchAsync(async (req, res) => {
 });
 
 const getAllMedicineDosagesInputs = catchAsync(async (req, res) => {
-  const medicineDosagesInputs = await MedicineDosagesInputService.getAllMedicineDosagesInputs(req.query);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  
+  const medicineDosagesInputs =
+    await MedicineDosagesInputService.getAllMedicineDosagesInputs(req.query, user);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -25,7 +40,8 @@ const getAllMedicineDosagesInputs = catchAsync(async (req, res) => {
 
 const getMedicineDosagesInputById = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const medicineDosagesInput = await MedicineDosagesInputService.getMedicineDosagesInputById(id);
+  const medicineDosagesInput =
+    await MedicineDosagesInputService.getMedicineDosagesInputById(id);
   if (!medicineDosagesInput) {
     return sendResponse(res, {
       statusCode: 404,
@@ -44,7 +60,8 @@ const getMedicineDosagesInputById = catchAsync(async (req, res) => {
 const updateMedicineDosagesInput = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const medicineDosagesInput = await MedicineDosagesInputService.updateMedicineDosagesInput(id, payload);
+  const medicineDosagesInput =
+    await MedicineDosagesInputService.updateMedicineDosagesInput(id, payload);
   sendResponse(res, {
     statusCode: 200,
     success: true,
