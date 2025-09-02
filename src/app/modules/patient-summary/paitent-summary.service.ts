@@ -182,15 +182,19 @@ const getAmountByStatusAndPeriod = async (from: Date, to: Date, chamberId?: stri
   return result;
 };
 
-const getPatientSummaryFromDB = async (user: User, chamberId:string) => {
+const getPatientSummaryFromDB = async (user: User, chamberId: string, timezoneOffset?: number) => {
   const doctorId = await getDoctorIdForUser(user);
+  
+  // Use the provided timezone offset or default to server's timezone
   const now = new Date();
+  let baseDate = now;
   
-  // Adjust for timezone offset to ensure consistent dates
-  const timezoneOffset = now.getTimezoneOffset() * 60000; // offset in milliseconds
-  const localDate = new Date(now.getTime() - timezoneOffset);
+  // Adjust for timezone offset if provided (convert to UTC+0)
+  if (timezoneOffset !== undefined) {
+    baseDate = new Date(now.getTime() + (timezoneOffset * 60000));
+  }
   
-  const today = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+  const today = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
   const weekStart = new Date(today);
   weekStart.setDate(today.getDate() - today.getDay());
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -302,8 +306,14 @@ const getPatientSummaryFromDB = async (user: User, chamberId:string) => {
     yearlyAmount,
     // Include the chamber filter info in response
     filter: {
-      // chamber: chamberName || 'all',
       chamberId: chamberId || 'all'
+    },
+    // For debugging - you can remove this later
+    debug: {
+      timezoneOffset,
+      serverTime: now,
+      adjustedTime: baseDate,
+      todayRange: { from: today, to: tomorrow }
     }
   };
 };
