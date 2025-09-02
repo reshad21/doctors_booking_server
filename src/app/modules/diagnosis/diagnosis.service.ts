@@ -1,16 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DiagnosisInput } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
+import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
-const createDiagnosis = async (payload: {title: string,value:string}) => {
-  return prisma.diagnosisInput.create({ data: payload });
+const createDiagnosis = async (payload: DiagnosisInput, user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+  const diagnosisPayload = { ...payload, doctorId };
+  return prisma.diagnosisInput.create({ data: diagnosisPayload });
 };
 
-const getAllDiagnoses = async (query: Record<string, any>) => {
+const getAllDiagnoses = async (query: Record<string, any>, user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
   const diagnosisQuery = builderQuery({
     searchFields: ['description'],
     searchTerm: query.searchTerm,
-    filter: query.filter ? JSON.parse(query.filter) : {},
+    filter: {
+      doctorId,
+      ...(query.filter ? JSON.parse(query.filter) : {}),
+    },
     orderBy: query.orderBy ? JSON.parse(query.orderBy) : {},
     page: query.page,
     limit: query.limit,
@@ -24,7 +33,10 @@ const getDiagnosisById = async (id: string) => {
   return prisma.diagnosisInput.findUnique({ where: { id } });
 };
 
-const updateDiagnosis = async (id: string, payload: {title: string,value:string}) => {
+const updateDiagnosis = async (
+  id: string,
+  payload: { title: string; value: string },
+) => {
   return prisma.diagnosisInput.update({ where: { id }, data: payload });
 };
 
