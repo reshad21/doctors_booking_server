@@ -26,6 +26,7 @@ const getAllDiagnoses = catchAsync(async (req, res) => {
     id: (req.user as any).id,
     type: (req.user as any).type,
   };
+  
   const diagnoses = await DiagnosisService.getAllDiagnoses(req.query, user);
   sendResponse(res, {
     statusCode: 200,
