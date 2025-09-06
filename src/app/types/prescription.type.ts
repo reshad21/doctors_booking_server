@@ -1,16 +1,26 @@
-// types/prescription.types.ts
+export type TDosageNote = {
+  qty: string;
+  unit: string;
+  freq: string;
+  freqUnit: string;
+};
+
+// --- DosageSchedule ---
 export type TDosageSchedule = {
-  dosage: string;
+  dosage?: string;
   day: string;
   time: string;
   comment?: string;
+  dosageNotes?: TDosageNote[];
 };
 
+// --- Medicine ---
 export type TMedicine = {
   medicineName: string;
   DosageSchedule: TDosageSchedule[];
 };
 
+// --- Prescription (for API/UI shape) ---
 export type TPrescription = {
   patientId: string;
   doctorId: string;
@@ -24,11 +34,20 @@ export type TPrescription = {
   investigation: { description: string }[];
 };
 
+// --- Interfaces for internal usage ---
+export interface DosageNoteData {
+  qty: string;
+  unit: string;
+  freq: string;
+  freqUnit: string;
+}
+
 export interface DosageScheduleData {
-  dosage: string;
+  dosage?: string;
   day: string;
   time: string;
   comment?: string;
+  dosageNotes?: DosageNoteData[]; // NEW
 }
 
 export interface MedicineData {
@@ -46,6 +65,6 @@ export interface PrescriptionData {
   diagnosis: string[];
   nextVisit: string;
   investigation: string[];
-  advice: [];
+  advice: string[]; // changed from [] → string[]
   prescriptionNo: string;
 }

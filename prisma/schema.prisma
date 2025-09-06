@@ -244,12 +244,25 @@ model Medicine {
 
 model DosageSchedule {
   id         String   @id @default(uuid())
-  dosage     String
-  day        String
-  time       String
+  dosage     String?
+  day        String?
+  time       String?
   comment    String?
   medicineId String
   medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  dosageNotes DosageNote[]
+}
+
+model DosageNote {
+  id       String @id @default(uuid())
+  qty      String
+  unit     String
+  freq     String
+  freqUnit String
+
+  dosageScheduleId String
+  dosageSchedule   DosageSchedule @relation(fields: [dosageScheduleId], references: [id], onDelete: Cascade)
 }
 
 model MedicineTimeInput {
