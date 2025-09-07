@@ -85,23 +85,25 @@ model Doctor {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  staff                Staff[]
-  patients             Patient[]
-  chamber              Chamber[]
-  prescription         Prescription[]
-  featureToggle        FeatureToggle[]
-  routeAccess          RouteAccess[]
-  visit                Visit[]
-  DisplayNoticeTable   DisplayNoticeTable[]
-  PrescriptionUITable  PrescriptionUITable[]
-  WatchVideo           WatchVideo[]
-  AdviceTable          AdviceTable[]
-  OnExaminationsInput  OnExaminationsInput[]
-  ChiefComplaintInput  ChiefComplaintInput[]
-  InvestigationInput   InvestigationInput[]
-  DiagnosisInput       DiagnosisInput[]
-  MedicineDosagesInput MedicineDosagesInput[]
-  MedicineTimeInput    MedicineTimeInput[]
+  staff                             Staff[]
+  patients                          Patient[]
+  chamber                           Chamber[]
+  prescription                      Prescription[]
+  featureToggle                     FeatureToggle[]
+  routeAccess                       RouteAccess[]
+  visit                             Visit[]
+  DisplayNoticeTable                DisplayNoticeTable[]
+  PrescriptionUITable               PrescriptionUITable[]
+  WatchVideo                        WatchVideo[]
+  AdviceTable                       AdviceTable[]
+  OnExaminationsInput               OnExaminationsInput[]
+  ChiefComplaintInput               ChiefComplaintInput[]
+  InvestigationInput                InvestigationInput[]
+  DiagnosisInput                    DiagnosisInput[]
+  MedicineDosagesInput              MedicineDosagesInput[]
+  MedicineTimeInput                 MedicineTimeInput[]
+  MedicineDosagesFrequencyNameInput MedicineDosagesFrequencyNameInput[]
+  MedicineDosagesFrequencyDayInput  MedicineDosagesFrequencyDayInput[]
 }
 
 model Organization {
@@ -242,12 +244,25 @@ model Medicine {
 
 model DosageSchedule {
   id         String   @id @default(uuid())
-  dosage     String
-  day        String
-  time       String
+  dosage     String?
+  day        String?
+  time       String?
   comment    String?
   medicineId String
   medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  dosageNotes DosageNote[]
+}
+
+model DosageNote {
+  id       String @id @default(uuid())
+  qty      String
+  unit     String
+  freq     String
+  freqUnit String
+
+  dosageScheduleId String
+  dosageSchedule   DosageSchedule @relation(fields: [dosageScheduleId], references: [id], onDelete: Cascade)
 }
 
 model MedicineTimeInput {
@@ -260,6 +275,24 @@ model MedicineTimeInput {
 }
 
 model MedicineDosagesInput {
+  id        String   @id @default(uuid())
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model MedicineDosagesFrequencyNameInput {
+  id        String   @id @default(uuid())
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model MedicineDosagesFrequencyDayInput {
   id        String   @id @default(uuid())
   value     String?
   createdAt DateTime @default(now())
