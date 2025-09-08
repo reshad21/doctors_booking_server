@@ -38,6 +38,11 @@ router.delete(
   auth([UserType.DOCTOR, UserType.STAFF]),
   PatientController.deleteChamberHandler,
 );
+router.patch(
+  '/amount/:id',
+  auth([UserType.DOCTOR]),
+  PatientController.updatePatientAmountHandler,
+);
 
 router.put(
   '/:id',

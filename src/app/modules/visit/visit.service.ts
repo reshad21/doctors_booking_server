@@ -78,7 +78,19 @@ const getAllVisits = async (query: Record<string, any>, user: User) => {
   });
 
   // Fetch visits
-  return prisma.visit.findMany(visitQuery);
+  // return prisma.visit.findMany(visitQuery);
+  return prisma.visit.findMany({
+    where: {
+      ...visitQuery.where
+    },
+    include: {
+      patient:{
+        select:{
+          discountAmount:true
+        }
+      }  
+    }
+  });
 };
 
 const getVisitById = async (id: string) => {
