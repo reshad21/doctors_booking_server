@@ -149,26 +149,27 @@ enum VisitStatus {
 }
 
 model Patient {
-  id           String         @id @default(uuid())
-  name         String
-  phoneNumber  String
-  email        String?
-  age          String
-  gender       String
-  weight       String
-  status       PatientStatus
-  visitStatus  VisitStatus    @default(NOT_VISITED)
-  visitedAt    DateTime?
-  doctorId     String
-  isArrived    Boolean        @default(false)
-  doctor       Doctor         @relation(fields: [doctorId], references: [id])
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  chamberId    String?
-  time         String?
-  chamber      Chamber?       @relation(fields: [chamberId], references: [id])
-  prescription Prescription[]
-  visit        Visit[]
+  id             String         @id @default(uuid())
+  name           String
+  phoneNumber    String
+  email          String?
+  age            String
+  gender         String
+  weight         String
+  discountAmount Float          @default(0)
+  status         PatientStatus
+  visitStatus    VisitStatus    @default(NOT_VISITED)
+  visitedAt      DateTime?
+  doctorId       String
+  isArrived      Boolean        @default(false)
+  doctor         Doctor         @relation(fields: [doctorId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  chamberId      String?
+  time           String?
+  chamber        Chamber?       @relation(fields: [chamberId], references: [id])
+  prescription   Prescription[]
+  visit          Visit[]
 }
 
 model Visit {

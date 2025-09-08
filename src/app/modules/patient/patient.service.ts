@@ -228,6 +228,16 @@ const deletePatientFromDB = async (id: string) => {
   const result = await prisma.patient.delete({ where: { id } });
   return result;
 };
+const updatePatientAmountFromDB = async (payload: any) => {
+  const result = await prisma.patient.update({
+    where:{id:payload?.id},
+    data:{
+      discountAmount:payload?.discountAmount
+    }
+  })
+
+  return result
+};
 
 const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
   return await prisma.$transaction(async (tx) => {
@@ -391,5 +401,6 @@ export const PatientService = {
   deletePatientFromDB,
   updatePatientFromDB,
   updatePatientArrivedStatusIntoDB,
-  getSinglePatientFromDB
+  getSinglePatientFromDB,
+  updatePatientAmountFromDB
 };
