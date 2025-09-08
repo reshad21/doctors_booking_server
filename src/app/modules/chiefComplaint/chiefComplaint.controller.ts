@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ... existing code ...
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -5,7 +6,16 @@ import { ChiefComplaintService } from './chiefComplaint.service';
 
 const createChiefComplaint = catchAsync(async (req, res) => {
   const payload = req.body;
-  const chiefComplaint = await ChiefComplaintService.createChiefComplaint(payload);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const chiefComplaint = await ChiefComplaintService.createChiefComplaint(
+    payload,
+    user,
+  );
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -15,7 +25,17 @@ const createChiefComplaint = catchAsync(async (req, res) => {
 });
 
 const getAllChiefComplaints = catchAsync(async (req, res) => {
-  const chiefComplaints = await ChiefComplaintService.getAllChiefComplaints(req.query);
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
+  const chiefComplaints = await ChiefComplaintService.getAllChiefComplaints(
+    req.query,
+    user
+  );
+
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -45,7 +65,10 @@ const getChiefComplaintById = catchAsync(async (req, res) => {
 const updateChiefComplaint = catchAsync(async (req, res) => {
   const { id } = req.params;
   const payload = req.body;
-  const chiefComplaint = await ChiefComplaintService.updateChiefComplaint(id, payload);
+  const chiefComplaint = await ChiefComplaintService.updateChiefComplaint(
+    id,
+    payload,
+  );
   sendResponse(res, {
     statusCode: 200,
     success: true,
