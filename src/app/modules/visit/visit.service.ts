@@ -86,7 +86,8 @@ const getAllVisits = async (query: Record<string, any>, user: User) => {
     include: {
       patient:{
         select:{
-          discountAmount:true
+          discountAmount:true,
+          chamberId:true,
         }
       }  
     }
