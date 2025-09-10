@@ -176,6 +176,7 @@ model Visit {
   id        String   @id @default(uuid())
   patientId String
   doctorId  String
+  chamberId String?
   visitDate DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -185,6 +186,7 @@ model Visit {
 
   patient Patient @relation(fields: [patientId], references: [id])
   doctor  Doctor  @relation(fields: [doctorId], references: [id])
+  chamber Chamber? @relation(fields: [chamberId], references: [id])
 }
 
 model Chamber {
@@ -203,6 +205,7 @@ model Chamber {
   patients      Patient[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  visit         Visit[]
 }
 
 model Prescription {

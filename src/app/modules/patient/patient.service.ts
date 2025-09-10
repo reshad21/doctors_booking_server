@@ -369,6 +369,7 @@ const updatePatientFromDB = async (id: string, payload: Partial<Patient>) => {
             visitDate: visitDate,
             type: effectiveStatus,
             fee,
+            chamberId: existingPatient.chamberId,
           },
         });
       }
