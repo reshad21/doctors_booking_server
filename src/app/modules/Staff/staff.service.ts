@@ -146,6 +146,8 @@ const loginIntoDB = async (payload: TLogin) => {
     configs.jwtSecret as string,
     configs.jwtExpiresIn as string,
   );
+  console.log(accessToken,"accessToken");
+  
   return {
     accessToken,
   };
