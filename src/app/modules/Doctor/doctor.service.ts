@@ -43,8 +43,8 @@ const loginIntoDB = async (payload: TLogin) => {
 
   const accessToken = generateToken(
     jwtPayload,
-    configs.jwtSecret as string || "b7e2d1f8c9a3e6d4f5b8a1c2e9d7f3b0c4a6e8d9f1b2c3a5",
-    configs.jwtExpiresIn as string || "10d",
+    // configs.jwtSecret as string || "b7e2d1f8c9a3e6d4f5b8a1c2e9d7f3b0c4a6e8d9f1b2c3a5",
+    // configs.jwtExpiresIn as string || "10d",
   );
   return {
     accessToken,
