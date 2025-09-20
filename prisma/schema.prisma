@@ -104,6 +104,8 @@ model Doctor {
   MedicineTimeInput                 MedicineTimeInput[]
   MedicineDosagesFrequencyNameInput MedicineDosagesFrequencyNameInput[]
   MedicineDosagesFrequencyDayInput  MedicineDosagesFrequencyDayInput[]
+  prescriptionHeader                PrescriptionHeader[]
+  prescriptionFooter                PrescriptionFooter[]
 }
 
 model Organization {
@@ -184,8 +186,8 @@ model Visit {
   type PatientStatus
   fee  Int
 
-  patient Patient @relation(fields: [patientId], references: [id])
-  doctor  Doctor  @relation(fields: [doctorId], references: [id])
+  patient Patient  @relation(fields: [patientId], references: [id])
+  doctor  Doctor   @relation(fields: [doctorId], references: [id])
   chamber Chamber? @relation(fields: [chamberId], references: [id])
 }
 
@@ -454,4 +456,34 @@ model ExceptionalTable {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PrescriptionHeader {
+  id                     String   @id @default(uuid())
+  headerLogo             String
+  bnDescription          String   @db.LongText
+  engDescription         String   @db.LongText
+  showHeaderLogo         Boolean  @default(true)
+  showPrescriptionHeader Boolean  @default(true)
+  showBn                 Boolean  @default(true)
+  showEng                Boolean  @default(true)
+  doctorId               String
+  doctor                 Doctor   @relation(fields: [doctorId], references: [id])
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model PrescriptionFooter {
+  id                     String   @id @default(uuid())
+  footerLogo             String
+  bnDescription          String   @db.LongText
+  engDescription         String   @db.LongText
+  showFooterLogo         Boolean  @default(true)
+  showPrescriptionFooter Boolean  @default(true)
+  showBn                 Boolean  @default(true)
+  showEng                Boolean  @default(true)
+  doctorId               String
+  doctor                 Doctor   @relation(fields: [doctorId], references: [id])
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }
