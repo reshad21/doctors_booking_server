@@ -53,6 +53,20 @@ const getStaff = catchAsync(async (req, res) => {
     data: response,
   });
 });
+const staffsDoctor = catchAsync(async (req, res) => {
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+  const response = await StaffServices.getStaffsDoctorIntoDB(user);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Get Staff's doctor Successful",
+    data: response,
+  });
+});
 
 const getDelete = catchAsync(async (req, res) => {
   const response = await StaffServices.deleteStaffIntoDB(req.params.id);
@@ -89,6 +103,7 @@ export const StaffController = {
   createStaff,
   updateStaff,
   getStaff,
+  staffsDoctor,
   getDelete,
   login,
   allowDisallowPermissionForStaff,
