@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrescriptionHeader } from '@prisma/client';
 import prisma from '../../../db/db.config';
