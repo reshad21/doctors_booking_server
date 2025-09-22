@@ -37,6 +37,11 @@ router.get(
   auth([UserType.DOCTOR, UserType.STAFF]),
   StaffController.getStaff,
 );
+router.get(
+  '/get-staffs-doctor',
+  auth([UserType.STAFF]),
+  StaffController.staffsDoctor,
+);
 
 router.delete(
   '/:id',

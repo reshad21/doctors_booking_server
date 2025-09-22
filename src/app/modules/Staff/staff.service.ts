@@ -7,7 +7,6 @@ import { TStaff } from '../../types/staff.type';
 import bcrypt from 'bcryptjs';
 import { UserType } from '../../context/userType';
 import { generateToken } from '../../utils/tokenGenerator';
-import configs from '../../configs';
 import bcryptjs from 'bcryptjs';
 import { TPermissionUpdate } from './staff.type';
 import { User } from '../../types/user.type';
@@ -107,6 +106,23 @@ const getStaffIntoDB = async (user: User) => {
   });
   return response;
 };
+const getStaffsDoctorIntoDB = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
+
+  const response = await prisma.doctor.findFirst({
+    where:{
+      id:doctorId
+    },
+    select:{
+      id:true,
+      name:true,
+      email:true,
+      phone:true,
+      image:true,
+    }
+  });
+  return response;
+};
 
 const loginIntoDB = async (payload: TLogin) => {
   const existingStaff = await prisma.staff.findFirst({
@@ -188,6 +204,7 @@ export const StaffServices = {
   createStaffIntoDB,
   updateStaffIntoDB,
   getStaffIntoDB,
+  getStaffsDoctorIntoDB,
   deleteStaffIntoDB,
   loginIntoDB,
   allowAndDisallowPermissionForStaffInDB,

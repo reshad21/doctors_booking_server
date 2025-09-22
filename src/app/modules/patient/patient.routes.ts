@@ -40,7 +40,7 @@ router.delete(
 );
 router.patch(
   '/amount/:id',
-  auth([UserType.DOCTOR]),
+  auth([UserType.DOCTOR,UserType.STAFF]),
   PatientController.updatePatientAmountHandler,
 );
 
