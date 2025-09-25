@@ -192,22 +192,23 @@ model Visit {
 }
 
 model Chamber {
-  id            String    @id @default(uuid())
-  name          String
-  address       String
-  oldPatientFee String
-  newPatientFee String
-  reportFee     String
-  status        Status    @default(ACTIVE)
-  startTime     String?
-  endTime       String?
-  day           String?
-  doctorId      String
-  doctor        Doctor    @relation(fields: [doctorId], references: [id])
-  patients      Patient[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  visit         Visit[]
+  id                    String                  @id @default(uuid())
+  name                  String
+  address               String
+  oldPatientFee         String
+  newPatientFee         String
+  reportFee             String
+  status                Status                  @default(ACTIVE)
+  startTime             String?
+  endTime               String?
+  day                   String?
+  doctorId              String
+  doctor                Doctor                  @relation(fields: [doctorId], references: [id])
+  patients              Patient[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  visit                 Visit[]
+  PrescriptionPageSetup PrescriptionPageSetup[]
 }
 
 model Prescription {
@@ -487,3 +488,25 @@ model PrescriptionFooter {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 }
+
+enum PrescriptionPageSetupStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model PrescriptionPageSetup {
+  id                 String                      @id @default(uuid())
+  totalHeightInches  String
+  totalWidthInches   String
+  marginTopInches    String
+  marginBottomInches String
+  marginLeftInches   String
+  marginRightInches  String
+  chamberId          String
+  chamber            Chamber                     @relation(fields: [chamberId], references: [id], onDelete: Cascade)
+  status             PrescriptionPageSetupStatus @default(ACTIVE)
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+}
+
+
