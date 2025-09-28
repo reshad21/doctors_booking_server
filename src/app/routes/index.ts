@@ -22,6 +22,7 @@ import { MedicineTimeInputRoutes } from '../modules/medicineTimeInput/medicineTi
 import { MedicineDosagesInputRoutes } from '../modules/medicineDosagesInput/medicineDosagesInput.routes';
 import { MedicineDosagesFrequencyDayInputRoutes } from '../modules/medicineDosagesFrequencyDayInput/medicineDosagesFrequencyDayInput.routes';
 import { MedicineDosagesFrequencyNameInputRoutes } from '../modules/medicineDosagesFrequencyNameInput/medicineDosagesFrequencyNameInput.routes';
+import { PrescriptionPageSetupRoutes } from '../modules/prescriptionPageSetup/prescriptionPageSetup.routes';
 
 const router = Router();
 
@@ -113,6 +114,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/medicine-dosages-frequency-name',
     route: MedicineDosagesFrequencyNameInputRoutes
+  },
+  {
+    path: "/prescription-page-setup",
+    route: PrescriptionPageSetupRoutes
   }
 ];
 
