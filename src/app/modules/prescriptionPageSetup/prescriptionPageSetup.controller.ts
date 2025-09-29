@@ -42,6 +42,21 @@ const createPrescriptionPageSetup = catchAsync(async (req, res) => {
   });
 });
 
+const getPrescriptionPageSetupAll = catchAsync(async (req, res) => {
+  const response =
+    await PrescriptionPageSetupService.getPrescriptionPageSetupAll(
+      req.params.doctorId,
+    );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Prescription Page Setup fetched successfully',
+    data: response,
+  });
+});
+
 export const PrescriptionPageSetupController = {
   createPrescriptionPageSetup,
+  getPrescriptionPageSetupAll,
 };

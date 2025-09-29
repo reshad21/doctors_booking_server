@@ -14,4 +14,9 @@ router.post(
   PrescriptionPageSetupController.createPrescriptionPageSetup,
 );
 
+router.get(
+  '/:doctorId',
+  PrescriptionPageSetupController.getPrescriptionPageSetupAll,
+);
+
 export const PrescriptionPageSetupRoutes = router;
