@@ -104,12 +104,8 @@ model Doctor {
   MedicineTimeInput                 MedicineTimeInput[]
   MedicineDosagesFrequencyNameInput MedicineDosagesFrequencyNameInput[]
   MedicineDosagesFrequencyDayInput  MedicineDosagesFrequencyDayInput[]
-  prescriptionHeader                PrescriptionHeader[]
-  prescriptionFooter                PrescriptionFooter[]
-  PrescriptionPageSetup             PrescriptionPageSetup[]
-  PrescriptionPatientSetup          PrescriptionPatientSetup[]
-  PrescriptionPatientSetupFormField PrescriptionPatientSetupFormField[]
-  PrescriptionBodySetup             PrescriptionBodySetup[]
+  PrescriptionSetup                 PrescriptionSetup[]
+  PrescriptionFooter                PrescriptionFooter[]
 }
 
 model Organization {
@@ -196,28 +192,24 @@ model Visit {
 }
 
 model Chamber {
-  id                                String                              @id @default(uuid())
-  name                              String
-  address                           String
-  oldPatientFee                     String
-  newPatientFee                     String
-  reportFee                         String
-  status                            Status                              @default(ACTIVE)
-  startTime                         String?
-  endTime                           String?
-  day                               String?
-  doctorId                          String
-  doctor                            Doctor                              @relation(fields: [doctorId], references: [id])
-  patients                          Patient[]
-  createdAt                         DateTime                            @default(now())
-  updatedAt                         DateTime                            @updatedAt
-  visit                             Visit[]
-  PrescriptionPageSetup             PrescriptionPageSetup[]
-  PrescriptionHeader                PrescriptionHeader[]
-  PrescriptionFooter                PrescriptionFooter[]
-  PrescriptionPatientSetup          PrescriptionPatientSetup[]
-  PrescriptionPatientSetupFormField PrescriptionPatientSetupFormField[]
-  PrescriptionBodySetup             PrescriptionBodySetup[]
+  id                 String               @id @default(uuid())
+  name               String
+  address            String
+  oldPatientFee      String
+  newPatientFee      String
+  reportFee          String
+  status             Status               @default(ACTIVE)
+  startTime          String?
+  endTime            String?
+  day                String?
+  doctorId           String
+  doctor             Doctor               @relation(fields: [doctorId], references: [id])
+  patients           Patient[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  visit              Visit[]
+  PrescriptionSetup  PrescriptionSetup[]
+  PrescriptionFooter PrescriptionFooter[]
 }
 
 model Prescription {
@@ -468,38 +460,54 @@ model ExceptionalTable {
   updatedAt DateTime @updatedAt
 }
 
+model PrescriptionSetup {
+  id                       String                     @id @default(uuid())
+  doctorId                 String
+  doctor                   Doctor                     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  chamberId                String
+  chamber                  Chamber                    @relation(fields: [chamberId], references: [id], onDelete: Cascade)
+  isActive                 Boolean                    @default(false)
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  PrescriptionHeader       PrescriptionHeader[]
+  PrescriptionPageSetup    PrescriptionPageSetup[]
+  PrescriptionPatientSetup PrescriptionPatientSetup[]
+  PrescriptionBodySetup    PrescriptionBodySetup[]
+  PrescriptionFooter       PrescriptionFooter[]
+}
+
 model PrescriptionHeader {
-  id                        String   @id @default(uuid())
-  doctorInfoBangla          String   @db.LongText
-  doctorInfoEnglish         String   @db.LongText
-  logo                      String?  @db.LongText
-  showLogo                  Boolean  @default(true)
-  showPrescriptionHeader    Boolean  @default(true)
-  showPrescriptionInBangla  Boolean  @default(true)
-  showPrescriptionInEnglish Boolean  @default(true)
-  chamberId                 String
-  chamber                   Chamber  @relation(fields: [chamberId], references: [id], onDelete: Cascade)
-  doctorId                  String
-  doctor                    Doctor   @relation(fields: [doctorId], references: [id])
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
+  id                        String            @id @default(uuid())
+  doctorInfoBangla          String            @db.LongText
+  doctorInfoEnglish         String            @db.LongText
+  logo                      String?           @db.LongText
+  showLogo                  Boolean           @default(true)
+  showPrescriptionHeader    Boolean           @default(true)
+  showPrescriptionInBangla  Boolean           @default(true)
+  showPrescriptionInEnglish Boolean           @default(true)
+  prescriptionSetupId       String
+  prescriptionSetup         PrescriptionSetup @relation(fields: [prescriptionSetupId], references: [id], onDelete: Cascade)
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
 }
 
 model PrescriptionFooter {
-  id                        String   @id @default(uuid())
-  doctorInfoBangla          String   @db.LongText
-  doctorInfoEnglish         String   @db.LongText
-  logo                      String?  @db.LongText
-  showLogo                  Boolean  @default(true)
-  showPrescriptionFooter    Boolean  @default(true)
-  showPrescriptionInBangla  Boolean  @default(true)
-  showPrescriptionInEnglish Boolean  @default(true)
-  chamberId                 String
-  chamber                   Chamber  @relation(fields: [chamberId], references: [id], onDelete: Cascade)
-  doctorId                  String
-  doctor                    Doctor   @relation(fields: [doctorId], references: [id])
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
+  id                        String            @id @default(uuid())
+  doctorInfoBangla          String            @db.LongText
+  doctorInfoEnglish         String            @db.LongText
+  logo                      String?           @db.LongText
+  showLogo                  Boolean           @default(true)
+  showPrescriptionFooter    Boolean           @default(true)
+  showPrescriptionInBangla  Boolean           @default(true)
+  showPrescriptionInEnglish Boolean           @default(true)
+  prescriptionSetupId       String
+  prescriptionSetup         PrescriptionSetup @relation(fields: [prescriptionSetupId], references: [id], onDelete: Cascade)
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+  Doctor                    Doctor?           @relation(fields: [doctorId], references: [id])
+  doctorId                  String?
+  Chamber                   Chamber?          @relation(fields: [chamberId], references: [id])
+  chamberId                 String?
 }
 
 enum PrescriptionPageSetupStatus {
@@ -508,20 +516,18 @@ enum PrescriptionPageSetupStatus {
 }
 
 model PrescriptionPageSetup {
-  id           String                      @id @default(uuid())
-  totalHeight  String
-  totalWidth   String
-  topMargin    String
-  bottomMargin String
-  leftMargin   String
-  rightMargin  String
-  doctorId     String
-  doctor       Doctor                      @relation(fields: [doctorId], references: [id])
-  chamberId    String
-  chamber      Chamber                     @relation(fields: [chamberId], references: [id], onDelete: Cascade)
-  status       PrescriptionPageSetupStatus @default(custom)
-  createdAt    DateTime                    @default(now())
-  updatedAt    DateTime                    @updatedAt
+  id                  String                      @id @default(uuid())
+  totalHeight         String
+  totalWidth          String
+  topMargin           String
+  bottomMargin        String
+  leftMargin          String
+  rightMargin         String
+  prescriptionSetupId String
+  prescriptionSetup   PrescriptionSetup           @relation(fields: [prescriptionSetupId], references: [id], onDelete: Cascade)
+  status              PrescriptionPageSetupStatus @default(custom)
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
 }
 
 model PrescriptionPatientSetup {
@@ -531,10 +537,8 @@ model PrescriptionPatientSetup {
   showContactInfo                   Boolean                             @default(false)
   showGender                        Boolean                             @default(false)
   showPatientInfo                   Boolean                             @default(true)
-  chamberId                         String
-  chamber                           Chamber                             @relation(fields: [chamberId], references: [id], onDelete: Cascade)
-  doctorId                          String
-  doctor                            Doctor                              @relation(fields: [doctorId], references: [id])
+  prescriptionSetupId               String
+  prescriptionSetup                 PrescriptionSetup                   @relation(fields: [prescriptionSetupId], references: [id], onDelete: Cascade)
   createdAt                         DateTime                            @default(now())
   updatedAt                         DateTime                            @updatedAt
   prescriptionPatientSetupFormField PrescriptionPatientSetupFormField[]
@@ -550,31 +554,25 @@ model PrescriptionPatientSetupFormField {
   row                        String
   type                       String
   widthInches                String
-  doctorId                   String
-  doctor                     Doctor                   @relation(fields: [doctorId], references: [id])
   prescriptionPatientSetupId String
   prescriptionPatientSetup   PrescriptionPatientSetup @relation(fields: [prescriptionPatientSetupId], references: [id], onDelete: Cascade)
   createdAt                  DateTime                 @default(now())
   updatedAt                  DateTime                 @updatedAt
-  Chamber                    Chamber?                 @relation(fields: [chamberId], references: [id])
-  chamberId                  String?
 }
 
 model PrescriptionBodySetup {
-  id                     String   @id @default(uuid())
+  id                     String            @id @default(uuid())
   bodyLeftSideTopMargin  String
   bodyLeftSideWidth      String
   bodyRightSideTopMargin String
   bodyRightSideWidth     String
-  chamberId              String
-  chamber                Chamber  @relation(fields: [chamberId], references: [id], onDelete: Cascade)
-  doctorId               String
-  doctor                 Doctor   @relation(fields: [doctorId], references: [id])
-  showBottomLine         Boolean  @default(false)
-  showLeftLine           Boolean  @default(true)
-  showMiddleLine         Boolean  @default(true)
-  showRightLine          Boolean  @default(false)
-  showTopLine            Boolean  @default(true)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  prescriptionSetupId    String
+  prescriptionSetup      PrescriptionSetup @relation(fields: [prescriptionSetupId], references: [id], onDelete: Cascade)
+  showBottomLine         Boolean           @default(false)
+  showLeftLine           Boolean           @default(true)
+  showMiddleLine         Boolean           @default(true)
+  showRightLine          Boolean           @default(false)
+  showTopLine            Boolean           @default(true)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
 }

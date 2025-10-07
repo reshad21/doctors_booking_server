@@ -15,7 +15,7 @@ router.post(
 );
 
 router.get(
-  '/:doctorId',
+  '/',
   PrescriptionPageSetupController.getPrescriptionPageSetupAll,
 );
 

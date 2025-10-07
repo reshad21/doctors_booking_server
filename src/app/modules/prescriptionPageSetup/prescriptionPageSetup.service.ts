@@ -8,6 +8,8 @@ import {
   PrescriptionPatientSetupFormField,
 } from '@prisma/client';
 import prisma from '../../../db/db.config';
+import AppError from '../../errors/AppError';
+import { JwtPayload } from 'jsonwebtoken';
 
 interface IPrescriptionPageSetup {
   pageSetup: PrescriptionPageSetup;
@@ -17,6 +19,8 @@ interface IPrescriptionPageSetup {
   bodySection: PrescriptionBodySetup;
   footerSection: PrescriptionFooter;
   headerSection: PrescriptionHeader;
+  doctorId: string;
+  chamberId: string;
 }
 
 const createPrescriptionPageSetupIntoDB = async (
@@ -25,22 +29,46 @@ const createPrescriptionPageSetupIntoDB = async (
   console.log('payload', payload);
 
   const response = await prisma.$transaction(async (prisma) => {
+    const prescriptionSetup = await prisma.prescriptionSetup.findFirst({
+      where: {
+        doctorId: payload.doctorId,
+        chamberId: payload.chamberId,
+      },
+    });
+
+    if (prescriptionSetup) {
+      throw new AppError(
+        404,
+        'Already have a prescription setup for this chamber',
+      );
+    }
+
+    const newPrescriptionSetup = await prisma.prescriptionSetup.create({
+      data: {
+        doctorId: payload.doctorId,
+        chamberId: payload.chamberId,
+      },
+    });
+
     const pageSetup = await prisma.prescriptionPageSetup.create({
       data: {
-        ...payload.pageSetup,
         totalHeight: String(payload.pageSetup.totalHeight),
         totalWidth: String(payload.pageSetup.totalWidth),
         leftMargin: String(payload.pageSetup.leftMargin),
         rightMargin: String(payload.pageSetup.rightMargin),
         topMargin: String(payload.pageSetup.topMargin),
         bottomMargin: String(payload.pageSetup.bottomMargin),
+        prescriptionSetupId: newPrescriptionSetup.id,
       },
     });
     const patientSection = await prisma.prescriptionPatientSetup.create({
       data: {
         ...(() => {
           const { formFields, ...rest } = payload.patientSection;
-          return rest;
+          return {
+            ...rest,
+            prescriptionSetupId: newPrescriptionSetup.id,
+          };
         })(),
         prescriptionPatientSetupFormField: {
           create: payload?.patientSection?.formFields?.map((field) => ({
@@ -52,7 +80,6 @@ const createPrescriptionPageSetupIntoDB = async (
             row: String(field.row),
             type: field.type,
             widthInches: String(field.widthInches),
-            doctorId: payload.patientSection.doctorId,
           })),
         },
       },
@@ -60,6 +87,7 @@ const createPrescriptionPageSetupIntoDB = async (
     const bodySection = await prisma.prescriptionBodySetup.create({
       data: {
         ...payload.bodySection,
+        prescriptionSetupId: newPrescriptionSetup.id,
         bodyLeftSideTopMargin: String(
           payload.bodySection.bodyLeftSideTopMargin,
         ),
@@ -71,10 +99,16 @@ const createPrescriptionPageSetupIntoDB = async (
       },
     });
     const footerSection = await prisma.prescriptionFooter.create({
-      data: payload.footerSection,
+      data: {
+        ...payload.footerSection,
+        prescriptionSetupId: newPrescriptionSetup.id,
+      },
     });
     const headerSection = await prisma.prescriptionHeader.create({
-      data: payload.headerSection,
+      data: {
+        ...payload.headerSection,
+        prescriptionSetupId: newPrescriptionSetup.id,
+      },
     });
     return {
       pageSetup,
@@ -89,32 +123,25 @@ const createPrescriptionPageSetupIntoDB = async (
 };
 
 const getPrescriptionPageSetupAll = async (doctorId: string) => {
-  const response = await prisma.$transaction(async (prisma) => {
-    const pageSetup = await prisma.prescriptionPageSetup.findMany({
-      where: { doctorId },
-    });
-    const patientSection = await prisma.prescriptionPatientSetup.findMany({
-      where: { doctorId },
-      include: { prescriptionPatientSetupFormField: true },
-    });
-    const bodySection = await prisma.prescriptionBodySetup.findMany({
-      where: { doctorId },
-    });
-    const footerSection = await prisma.prescriptionFooter.findMany({
-      where: { doctorId },
-    });
-    const headerSection = await prisma.prescriptionHeader.findMany({
-      where: { doctorId },
-    });
-
-    return {
-      pageSetup,
-      patientSection,
-      bodySection,
-      footerSection,
-      headerSection,
-    };
+  const response = await prisma.prescriptionSetup.findMany({
+    where: {
+      doctorId: doctorId,
+    },
+    include: {
+      chamber: true,
+      doctor: true,
+      PrescriptionBodySetup: true,
+      PrescriptionHeader: true,
+      PrescriptionPageSetup: true,
+      PrescriptionPatientSetup: {
+        include: {
+          prescriptionPatientSetupFormField: true,
+        },
+      },
+      PrescriptionFooter: true,
+    },
   });
+
   return response;
 };
 
