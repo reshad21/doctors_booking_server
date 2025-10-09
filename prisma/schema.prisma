@@ -393,7 +393,7 @@ model MedicineInput {
   dosageDescription String
   price             Float
   useFor            String
-  dar               String
+  dar               String?
 }
 
 model Diagnosis {
