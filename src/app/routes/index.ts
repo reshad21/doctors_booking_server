@@ -23,6 +23,14 @@ import { MedicineDosagesInputRoutes } from '../modules/medicineDosagesInput/medi
 import { MedicineDosagesFrequencyDayInputRoutes } from '../modules/medicineDosagesFrequencyDayInput/medicineDosagesFrequencyDayInput.routes';
 import { MedicineDosagesFrequencyNameInputRoutes } from '../modules/medicineDosagesFrequencyNameInput/medicineDosagesFrequencyNameInput.routes';
 import { PrescriptionPageSetupRoutes } from '../modules/prescriptionPageSetup/prescriptionPageSetup.routes';
+import { ChiefComplaintInputRoutes } from '../modules/ChiefComplaintInput/ChiefComplaintInput.routes';
+
+import { DiagnosisInputRoutes } from '../modules/DiagnosisInput/DiagnosisInput.routes';
+import { InvestigationInputRoutes } from '../modules/InvestigationInput/InvestigationInput.routes';
+import { HistoryInputRoutes } from '../modules/HistoryInput/HistoryInput.routes';
+import { AdviceInputRoutes } from '../modules/AdviceInput/AdviceInput.routes';
+import { NextVisitInputRoutes } from '../modules/NextVisitInput/NextVisitInput.routes';
+import { OnExaminationsInputRoutes } from '../modules/OnExaminationsInput/OnExaminationsInput.routes';
 
 const router = Router();
 
@@ -109,16 +117,44 @@ const moduleRoutes: TModuleRoute[] = [
   },
   {
     path: '/medicine-dosages-frequency-day',
-    route: MedicineDosagesFrequencyDayInputRoutes
+    route: MedicineDosagesFrequencyDayInputRoutes,
   },
   {
     path: '/medicine-dosages-frequency-name',
-    route: MedicineDosagesFrequencyNameInputRoutes
+    route: MedicineDosagesFrequencyNameInputRoutes,
   },
   {
-    path: "/prescription-page-setup",
-    route: PrescriptionPageSetupRoutes
-  }
+    path: '/prescription-page-setup',
+    route: PrescriptionPageSetupRoutes,
+  },
+  {
+    path: '/chief-complaint-input',
+    route: ChiefComplaintInputRoutes,
+  },
+  {
+    path: '/diagnosis-input',
+    route: DiagnosisInputRoutes,
+  },
+  {
+    path: '/investigation-input',
+    route: InvestigationInputRoutes,
+  },
+  {
+    path: '/history-input',
+    route: HistoryInputRoutes,
+  },
+  {
+    path: '/advice-input',
+    route: AdviceInputRoutes,
+  },
+  {
+    path: '/next-visit-input',
+    route: NextVisitInputRoutes,
+  },
+  {
+    path: '/on-examinations-input',
+    route: OnExaminationsInputRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => {
