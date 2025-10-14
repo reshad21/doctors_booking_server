@@ -109,6 +109,7 @@ model Doctor {
   HistoryInput                      HistoryInput[]
   AdviceInput                       AdviceInput[]
   NextVisitInput                    NextVisitInput[]
+  ClinicalNotesTemplate             ClinicalNotesTemplate[]
 }
 
 model Organization {
@@ -605,4 +606,22 @@ model PrescriptionBodySetup {
   showTopLine            Boolean           @default(true)
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
+}
+
+model ClinicalNotesTemplate {
+  id        String         @id @default(cuid())
+  doctorId  String
+  doctor    Doctor         @relation(fields: [doctorId], references: [id])
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  notes     ClinicalNote[]
+}
+
+model ClinicalNote {
+  id         String                @id @default(cuid())
+  title      String
+  category   String
+  order      Int
+  templateId String
+  template   ClinicalNotesTemplate @relation(fields: [templateId], references: [id])
 }

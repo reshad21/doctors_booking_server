@@ -9,7 +9,6 @@ import {
 } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
-import { JwtPayload } from 'jsonwebtoken';
 
 interface IPrescriptionPageSetup {
   pageSetup: PrescriptionPageSetup;
@@ -26,8 +25,6 @@ interface IPrescriptionPageSetup {
 const createPrescriptionPageSetupIntoDB = async (
   payload: IPrescriptionPageSetup,
 ) => {
-  console.log('payload', payload);
-
   const response = await prisma.$transaction(async (prisma) => {
     const prescriptionSetup = await prisma.prescriptionSetup.findFirst({
       where: {
@@ -122,6 +119,133 @@ const createPrescriptionPageSetupIntoDB = async (
   return response;
 };
 
+const updatePrescriptionPageSetupInDB = async (
+  id: string,
+  payload: Partial<IPrescriptionPageSetup>,
+) => {
+  const prescriptionSetup = await prisma.prescriptionSetup.findUnique({
+    where: { id },
+    include: {
+      PrescriptionFooter: true,
+      PrescriptionHeader: true,
+    },
+  });
+
+  if (!prescriptionSetup) {
+    throw new AppError(404, 'Prescription setup not found');
+  }
+
+  return await prisma.$transaction(async (prisma) => {
+    let updatedPageSetup,
+      updatedPatientSection,
+      updatedBodySection,
+      updatedFooterSection,
+      updatedHeaderSection;
+
+    if (payload.pageSetup) {
+      updatedPageSetup = await prisma.prescriptionPageSetup.updateMany({
+        where: { prescriptionSetupId: id },
+        data: {
+          totalHeight: String(payload.pageSetup.totalHeight),
+          totalWidth: String(payload.pageSetup.totalWidth),
+          leftMargin: String(payload.pageSetup.leftMargin),
+          rightMargin: String(payload.pageSetup.rightMargin),
+          topMargin: String(payload.pageSetup.topMargin),
+          bottomMargin: String(payload.pageSetup.bottomMargin),
+        },
+      });
+    }
+
+    if (payload.patientSection) {
+      const { formFields, ...rest } = payload.patientSection;
+      updatedPatientSection = await prisma.prescriptionPatientSetup.updateMany({
+        where: { prescriptionSetupId: id },
+        data: { ...rest },
+      });
+
+      if (formFields) {
+        // Remove old fields
+        await prisma.prescriptionPatientSetupFormField.deleteMany({
+          where: {
+            prescriptionPatientSetup: {
+              prescriptionSetupId: id,
+            },
+          },
+        });
+        // Add new fields
+        const patientSectionRecord =
+          await prisma.prescriptionPatientSetup.findFirst({
+            where: { prescriptionSetupId: id },
+          });
+        if (patientSectionRecord) {
+          await prisma.prescriptionPatientSetupFormField.createMany({
+            data: formFields.map((field) => ({
+              prescriptionPatientSetupId: patientSectionRecord.id,
+              defaultValue: field.defaultValue,
+              label: field.label,
+              order: String(field.order),
+              placeholder: field.placeholder,
+              required: field.required,
+              row: String(field.row),
+              type: field.type,
+              widthInches: String(field.widthInches),
+            })),
+          });
+        }
+      }
+    }
+
+    if (payload.bodySection) {
+      updatedBodySection = await prisma.prescriptionBodySetup.updateMany({
+        where: { prescriptionSetupId: id },
+        data: {
+          ...payload.bodySection,
+          bodyLeftSideTopMargin: String(
+            payload.bodySection.bodyLeftSideTopMargin,
+          ),
+          bodyLeftSideWidth: String(payload.bodySection.bodyLeftSideWidth),
+          bodyRightSideTopMargin: String(
+            payload.bodySection.bodyRightSideTopMargin,
+          ),
+          bodyRightSideWidth: String(payload.bodySection.bodyRightSideWidth),
+        },
+      });
+    }
+
+    if (payload.footerSection) {
+      updatedFooterSection = await prisma.prescriptionFooter.updateMany({
+        where: { prescriptionSetupId: id },
+        data: {
+          ...payload.footerSection,
+          logo: payload.footerSection.logo
+            ? payload.footerSection.logo
+            : prescriptionSetup.PrescriptionFooter[0].logo,
+        },
+      });
+    }
+
+    if (payload.headerSection) {
+      updatedHeaderSection = await prisma.prescriptionHeader.updateMany({
+        where: { prescriptionSetupId: id },
+        data: {
+          ...payload.headerSection,
+          logo: payload.headerSection.logo
+            ? payload.headerSection.logo
+            : prescriptionSetup.PrescriptionHeader[0].logo,
+        },
+      });
+    }
+
+    return {
+      pageSetup: updatedPageSetup,
+      patientSection: updatedPatientSection,
+      bodySection: updatedBodySection,
+      footerSection: updatedFooterSection,
+      headerSection: updatedHeaderSection,
+    };
+  });
+};
+
 const getPrescriptionPageSetupAll = async (doctorId: string) => {
   const response = await prisma.prescriptionSetup.findMany({
     where: {
@@ -145,7 +269,30 @@ const getPrescriptionPageSetupAll = async (doctorId: string) => {
   return response;
 };
 
+const getPrescriptionPageSetup = async (id: string) => {
+  const response = await prisma.prescriptionSetup.findUniqueOrThrow({
+    where: { id },
+    include: {
+      chamber: true,
+      doctor: true,
+      PrescriptionBodySetup: true,
+      PrescriptionHeader: true,
+      PrescriptionFooter: true,
+      PrescriptionPageSetup: true,
+      PrescriptionPatientSetup: {
+        include: {
+          prescriptionPatientSetupFormField: true,
+        },
+      },
+    },
+  });
+
+  return response;
+};
+
 export const PrescriptionPageSetupService = {
   createPrescriptionPageSetupIntoDB,
+  updatePrescriptionPageSetupInDB,
   getPrescriptionPageSetupAll,
+  getPrescriptionPageSetup,
 };

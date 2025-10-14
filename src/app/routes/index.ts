@@ -31,6 +31,7 @@ import { HistoryInputRoutes } from '../modules/HistoryInput/HistoryInput.routes'
 import { AdviceInputRoutes } from '../modules/AdviceInput/AdviceInput.routes';
 import { NextVisitInputRoutes } from '../modules/NextVisitInput/NextVisitInput.routes';
 import { OnExaminationsInputRoutes } from '../modules/OnExaminationsInput/OnExaminationsInput.routes';
+import { ClinicalTemplateRoutes } from '../modules/ClinicalNote/clinicalNote.routes';
 
 const router = Router();
 
@@ -154,6 +155,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/on-examinations-input',
     route: OnExaminationsInputRoutes,
+  },
+  {
+    path: '/clinical-template',
+    route: ClinicalTemplateRoutes,
   },
 ];
 
