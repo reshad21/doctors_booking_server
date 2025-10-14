@@ -290,9 +290,34 @@ const getPrescriptionPageSetup = async (id: string) => {
   return response;
 };
 
+const deletePrescriptionPageSetup = async (id: string) => {
+  const response = await prisma.prescriptionSetup.delete({ where: { id } });
+
+  return response;
+};
+
+const updateStatus = async (id: string) => {
+  const existingStatus = await prisma.prescriptionSetup.findUniqueOrThrow({
+    where: { id },
+  });
+
+  const newStatus = !(existingStatus.isActive ?? false);
+
+  const response = await prisma.prescriptionSetup.update({
+    where: { id },
+    data: {
+      isActive: newStatus,
+    },
+  });
+
+  return response;
+};
+
 export const PrescriptionPageSetupService = {
   createPrescriptionPageSetupIntoDB,
   updatePrescriptionPageSetupInDB,
   getPrescriptionPageSetupAll,
   getPrescriptionPageSetup,
+  deletePrescriptionPageSetup,
+  updateStatus,
 };

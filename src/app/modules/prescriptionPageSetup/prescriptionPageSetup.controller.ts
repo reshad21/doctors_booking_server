@@ -78,8 +78,6 @@ const updatePrescriptionPageSetup = catchAsync(async (req, res) => {
     },
   };
 
-  console.log(payload, "this is payload", req.files );
-
   const response =
     await PrescriptionPageSetupService.updatePrescriptionPageSetupInDB(
       req.params.id,
@@ -121,9 +119,38 @@ const getPrescriptionPageSetup = catchAsync(async (req, res) => {
   });
 });
 
+const deletePrescriptionPageSetup = catchAsync(async (req, res) => {
+  const response =
+    await PrescriptionPageSetupService.deletePrescriptionPageSetup(
+      req.params.id,
+    );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Delete Successfully',
+    data: response,
+  });
+});
+
+const updateStatus = catchAsync(async (req, res) => {
+  const response = await PrescriptionPageSetupService.updateStatus(
+    req.params.id,
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Update Status Successfully',
+    data: response,
+  });
+});
+
 export const PrescriptionPageSetupController = {
   createPrescriptionPageSetup,
   updatePrescriptionPageSetup,
   getPrescriptionPageSetupAll,
   getPrescriptionPageSetup,
+  deletePrescriptionPageSetup,
+  updateStatus,
 };
