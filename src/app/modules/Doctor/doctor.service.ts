@@ -2,11 +2,11 @@
 import prisma from '../../../db/db.config';
 import bcrypt from 'bcryptjs';
 import AppError from '../../errors/AppError';
-import configs from '../../configs';
-import { Status } from '@prisma/client';
+import { Doctor, Status } from '@prisma/client';
 import { generateToken } from '../../utils/tokenGenerator';
 import { TLogin } from '../../types/auth.type';
 import { UserType } from '../../context/userType';
+import { routeAccess } from '../../context/routeAccess';
 
 const loginIntoDB = async (payload: TLogin) => {
   const existingDoctor = await prisma.doctor.findFirst({
@@ -77,7 +77,39 @@ const updateDoctorDB = async (payload: any) => {
   return res;
 };
 
+const createDoctorIntoDB = async (data: Doctor) => {
+  const existing = await prisma.doctor.findUnique({
+    where: { email: data.email },
+  });
+
+  if (existing) {
+    throw new Error("Doctor already exists with this email");
+  }
+
+  const hashedPass = await bcrypt.hash(data.password, 10);
+
+  const newDoctor = await prisma.doctor.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      image: data.image ?? "N/A",
+      password: hashedPass,
+      routeAccess: {
+        create: routeAccess.map((route) => ({
+          path: route.path,
+          name: route.name,
+          allowed: route.allowed ?? true,
+        })),
+      },
+    },
+  });
+
+  return newDoctor;
+}
+
 export const AuthServices = {
   loginIntoDB,
   updateDoctorDB,
+  createDoctorIntoDB,
 };
