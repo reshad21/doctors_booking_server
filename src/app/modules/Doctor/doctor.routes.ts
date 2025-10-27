@@ -15,8 +15,16 @@ router.post(
 router.patch(
   '/update-doctor',
   imageUpload.single('doctorImage'),
-  uploadImages,  
- AuthController.updateDoctor
+  uploadImages,
+  AuthController.updateDoctor
+);
+
+router.post(
+  "/create-doctor",
+  // validation(authValidations.createDoctorSchema),
+  imageUpload.single('doctorImage'),
+  uploadImages,
+  AuthController.createDoctor
 );
 
 export const AuthRoutes = router;

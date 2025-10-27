@@ -32,7 +32,19 @@ const updateDoctor = catchAsync(async (req, res) => {
   });
 });
 
+const createDoctor = catchAsync(async (req, res) => {
+  const doctor = await AuthServices.createDoctorIntoDB(req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Doctor Creation Successful',
+    data: doctor,
+  });
+})
+
 export const AuthController = {
   login,
   updateDoctor,
+  createDoctor
 };
