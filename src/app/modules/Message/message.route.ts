@@ -10,6 +10,7 @@ router.post(
   validation(MessageValidation.singleMessageZodSchema),
  MessageController.sendMessageHandler
 );
+
 router.post(
   '/message',
   validation(MessageValidation.messageZodSchema),
