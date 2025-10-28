@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
+import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 import { IPrescriptionPageSetup } from './prescription.types';
 
 const createPrescriptionPageSetupIntoDB = async (
@@ -227,7 +229,8 @@ const updatePrescriptionPageSetupInDB = async (
   });
 };
 
-const getPrescriptionPageSetupAll = async (doctorId: string) => {
+const getPrescriptionPageSetupAll = async (user: User) => {
+  const doctorId = await getDoctorIdForUser(user);
   const response = await prisma.prescriptionSetup.findMany({
     where: {
       doctorId: doctorId,

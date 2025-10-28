@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import catchAsync from '../../utils/catchAsync';
 import { getSingleImageUrl } from '../../utils/getImageUrl';
 import sendResponse from '../../utils/sendResponse';
@@ -93,10 +94,14 @@ const updatePrescriptionPageSetup = catchAsync(async (req, res) => {
 });
 
 const getPrescriptionPageSetupAll = catchAsync(async (req, res) => {
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
+
   const response =
-    await PrescriptionPageSetupService.getPrescriptionPageSetupAll(
-      req.query.doctorId as string,
-    );
+    await PrescriptionPageSetupService.getPrescriptionPageSetupAll(user);
 
   sendResponse(res, {
     statusCode: 200,

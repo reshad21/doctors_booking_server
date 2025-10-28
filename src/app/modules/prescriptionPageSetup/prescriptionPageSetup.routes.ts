@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { imageUpload, uploadImages } from '../../middlewares/multer';
 import { PrescriptionPageSetupController } from './prescriptionPageSetup.controller';
+import { UserType } from '../../context/userType';
+import auth from '../../middlewares/authorization';
 
 const router = Router();
 
@@ -26,7 +28,11 @@ router.put(
 
 router.put('/status/:id', PrescriptionPageSetupController.updateStatus);
 
-router.get('/', PrescriptionPageSetupController.getPrescriptionPageSetupAll);
+router.get(
+  '/',
+  auth([UserType.DOCTOR, UserType.STAFF]),
+  PrescriptionPageSetupController.getPrescriptionPageSetupAll,
+);
 
 router.get('/:id', PrescriptionPageSetupController.getPrescriptionPageSetup);
 
