@@ -12,6 +12,18 @@ const loginValidation = z.object({
 });
 
 
+const createDoctorSchema = z.object({
+  body: z.object({
+    name: z.string().min(2, "Name is required"),
+    email: z.string().email("Invalid email format"),
+    password: z.string(),
+    phone: z.string().min(10, "Phone number is too short"),
+    image: z.string().optional(),
+  })
+});
+
+
 export const authValidations = {
   loginValidation,
+  createDoctorSchema
 };

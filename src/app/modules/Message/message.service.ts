@@ -8,12 +8,17 @@ const sendSingleMsgFromDB = async (payload: {
   number: string;
 }) => {
   const { message, number } = payload;
-  const apiKey = configs.API_KEY;
-  const senderId = configs.SENDER_ID;
+  const apiKey = "0tDEflz7wAvD9gQgSii0";
+  const senderId = "8809617625538";
+  // const apiKey = configs.API_KEY;
+  // const senderId = configs.SENDER_ID;
+
   const url = `http://bulksmsbd.net/api/smsapi?api_key=${apiKey}&type=text&number=${encodeURIComponent(number)}&senderid=${senderId}&message=${encodeURIComponent(message)}`;
+
   const result = await fetch(url, {
     method: 'GET',
   });
+  console.log(result, "result")
 
   if (!result.ok) {
     throw new AppError(500, 'Failed to send SMS');
@@ -21,6 +26,7 @@ const sendSingleMsgFromDB = async (payload: {
   const data = await result.json();
   return data;
 };
+
 const sendMsgFromDB = async (payload: { message: string }) => {
   const { message } = payload;
   const apiKey = configs.API_KEY;
@@ -57,5 +63,6 @@ const sendMsgFromDB = async (payload: { message: string }) => {
   const data = await result.json();
   return data;
 };
+
 
 export const MessageService = { sendSingleMsgFromDB, sendMsgFromDB };
