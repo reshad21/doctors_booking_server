@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { MedicineInput } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 
@@ -99,6 +100,45 @@ const getMedicineInputsFromDB = async (query: Record<string, any>) => {
   };
 };
 
+const createMedicineInputIntoDB = async (payload: MedicineInput) => {
+  const lastMedicineSerialNumber = await prisma.medicineInput.findFirst({
+    orderBy: { serialNo: 'desc' },
+  });
+  const response = await prisma.medicineInput.create({
+    data: {
+      ...payload,
+      serialNo: lastMedicineSerialNumber
+        ? lastMedicineSerialNumber.serialNo + 1
+        : 1,
+    },
+  });
+
+  return response;
+};
+
+const updateMedicineInputInDB = async (
+  id: string,
+  payload: Partial<MedicineInput>,
+) => {
+  const response = await prisma.medicineInput.update({
+    where: { id },
+    data: payload,
+  });
+
+  return response;
+};
+
+const deleteMedicineInputFromDB = async (id: string) => {
+  const response = await prisma.medicineInput.delete({
+    where: { id },
+  });
+
+  return response;
+};
+
 export const MedicalInputService = {
   getMedicineInputsFromDB,
+  createMedicineInputIntoDB,
+  updateMedicineInputInDB,
+  deleteMedicineInputFromDB,
 };
