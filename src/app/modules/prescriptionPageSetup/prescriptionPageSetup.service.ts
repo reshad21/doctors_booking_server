@@ -1,26 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  PrescriptionBodySetup,
-  PrescriptionFooter,
-  PrescriptionHeader,
-  PrescriptionPageSetup,
-  PrescriptionPatientSetup,
-  PrescriptionPatientSetupFormField,
-} from '@prisma/client';
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
-
-interface IPrescriptionPageSetup {
-  pageSetup: PrescriptionPageSetup;
-  patientSection: PrescriptionPatientSetup & {
-    formFields: PrescriptionPatientSetupFormField[];
-  };
-  bodySection: PrescriptionBodySetup;
-  footerSection: PrescriptionFooter;
-  headerSection: PrescriptionHeader;
-  doctorId: string;
-  chamberId: string;
-}
+import { IPrescriptionPageSetup } from './prescription.types';
 
 const createPrescriptionPageSetupIntoDB = async (
   payload: IPrescriptionPageSetup,
