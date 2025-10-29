@@ -23,8 +23,8 @@ const createPrescriptionPageSetup = catchAsync(async (req, res) => {
     chamberId,
     footerSection: {
       ...footerSection,
-      logo: files?.headerLogo[0]
-        ? getSingleImageUrl(req, files?.headerLogo[0])
+      logo: files?.footerLogo[0]
+        ? getSingleImageUrl(req, files?.footerLogo[0])
         : null,
     },
     headerSection: {
