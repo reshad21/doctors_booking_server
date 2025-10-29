@@ -28,7 +28,6 @@ const getAllChiefComplaintInputsFromDB = async (query: Record<string, any>) => {
 
   const data = await prisma.chiefComplaintInput.findMany({
     ...chiefComplaintInputQuery,
-    include: { doctor: true },
   });
 
   return {

@@ -25,7 +25,6 @@ const getAllAdviceInputsFromDB = async (query: Record<string, any>) => {
 
   const data = await prisma.adviceInput.findMany({
     ...adviceInputQuery,
-    include: { doctor: true },
   });
 
   return {

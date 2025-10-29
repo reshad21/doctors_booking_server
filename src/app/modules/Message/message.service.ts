@@ -8,6 +8,7 @@ const sendSingleMsgFromDB = async (payload: {
   number: string;
 }) => {
   const { message, number } = payload;
+  // TODO: Have to use configs after testing / or deployment
   const apiKey = "0tDEflz7wAvD9gQgSii0";
   const senderId = "8809617625538";
   // const apiKey = configs.API_KEY;
@@ -18,7 +19,7 @@ const sendSingleMsgFromDB = async (payload: {
   const result = await fetch(url, {
     method: 'GET',
   });
-  console.log(result, "result")
+  
 
   if (!result.ok) {
     throw new AppError(500, 'Failed to send SMS');

@@ -48,9 +48,11 @@ const getAllChiefComplaints = async (
     page: query.page,
     limit: query.limit,
   });
+
   return prisma.chiefComplaintInput.findMany({
     where: chiefComplaintQuery.where,
   });
+  
 };
 
 const getChiefComplaintById = async (id: string) => {
