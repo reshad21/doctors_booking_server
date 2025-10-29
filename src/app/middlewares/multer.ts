@@ -6,7 +6,6 @@ import { NextFunction } from 'express';
 import fs from 'fs'
 import { ACCEPTED_FILE_TYPES, ACCEPTED_IMAGE_TYPES } from '../utils/constant';
 
-// ✅ Ensure upload directories exist
 const ensureUploadDirs = () => {
   const imageDir = path.join(process.cwd(), 'public', 'images');
   const fileDir = path.join(process.cwd(), 'public', 'files');
