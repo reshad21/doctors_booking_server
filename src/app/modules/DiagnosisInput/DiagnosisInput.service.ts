@@ -25,7 +25,6 @@ const getAllDiagnosisInputsFromDB = async (query: Record<string, any>) => {
 
   const data = await prisma.diagnosisInput.findMany({
     ...diagnosisInputQuery,
-    include: { doctor: true },
   });
 
   return {

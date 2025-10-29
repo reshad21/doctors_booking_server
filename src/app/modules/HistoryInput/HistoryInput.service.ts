@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HistoryInput } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
@@ -25,7 +26,6 @@ const getAllHistoryInputsFromDB = async (query: Record<string, any>) => {
 
   const data = await prisma.historyInput.findMany({
     ...historyInputQuery,
-    include: { doctor: true },
   });
 
   return {
