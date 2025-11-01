@@ -54,10 +54,10 @@ model Feature {
 
 model RouteAccess {
   id             String   @id @default(uuid())
-  path           String // e.g. "/dashboard", "/patients", "/billing"
-  name           String // e.g. "Dashboard"
-  doctorId       String? // specific to doctor
-  organizationId String? // specific to organization
+  path           String   // e.g. "/dashboard", "/patients", "/billing"
+  name           String   // e.g. "Dashboard"
+  doctorId       String?  // specific to doctor
+  organizationId String?  // specific to organization
   allowed        Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -80,7 +80,7 @@ model Doctor {
   password       String
   type           DoctorType    @default(INDIVIDUAL)
   status         Status        @default(ACTIVE)
-  organizationId String? // nullable for phase 1
+  organizationId String?       // nullable for phase 1
   organization   Organization? @relation(fields: [organizationId], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -110,6 +110,8 @@ model Doctor {
   AdviceInput                       AdviceInput[]
   NextVisitInput                    NextVisitInput[]
   ClinicalNotesTemplate             ClinicalNotesTemplate[]
+  TreatmentPlanInput                TreatmentPlanInput[]
+  CoMorbiditiesInput                CoMorbiditiesInput[]
 }
 
 model Organization {
@@ -223,7 +225,6 @@ model Prescription {
   patient        Patient          @relation(fields: [patientId], references: [id])
   doctorId       String
   doctor         Doctor           @relation(fields: [doctorId], references: [id])
-  nextVisit      String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   medicines      Medicine[]
@@ -233,48 +234,10 @@ model Prescription {
   diagnosis      Diagnosis[]
   investigation  Investigation[]
   advice         Advice[]
-}
-
-model Advice {
-  id             String       @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  description    String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-}
-
-model Medicine {
-  id             String           @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription     @relation(fields: [prescriptionId], references: [id])
-  medicineName   String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  DosageSchedule DosageSchedule[]
-}
-
-model DosageSchedule {
-  id         String   @id @default(uuid())
-  dosage     String?
-  day        String?
-  time       String?
-  comment    String?
-  medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-
-  dosageNotes DosageNote[]
-}
-
-model DosageNote {
-  id       String @id @default(uuid())
-  qty      String
-  unit     String
-  freq     String
-  freqUnit String
-
-  dosageScheduleId String
-  dosageSchedule   DosageSchedule @relation(fields: [dosageScheduleId], references: [id], onDelete: Cascade)
+  history        History[]
+  nextVisit      NextVisit[]
+  treatmentPlan  TreatmentPlan[]
+  coMorbidities  CoMorbidities[]
 }
 
 model MedicineTimeInput {
@@ -376,13 +339,40 @@ model ChiefComplaintInput {
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
 }
 
-model WatchVideo {
+model TreatmentPlanInput {
   id        String   @id @default(uuid())
-  title     String
-  videoFile String?
-  status    Status   @default(ACTIVE)
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   doctorId  String
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model CoMorbiditiesInput {
+  id        String   @id @default(uuid())
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model MedicineInput {
+  id                String  @id @default(uuid())
+  serialNo          Int
+  nameManufacturer  String
+  brandName         String?
+  genericName       String
+  strength          String
+  dosageDescription String
+  price             Float
+  useFor            String
+  dar               String?
+}
+
+model ExceptionalTable {
+  id        String   @id @default(uuid())
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -394,6 +384,39 @@ model Test {
   description    String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+}
+
+model Medicine {
+  id             String           @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription     @relation(fields: [prescriptionId], references: [id])
+  medicineName   String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  DosageSchedule DosageSchedule[]
+}
+
+model DosageSchedule {
+  id         String   @id @default(uuid())
+  dosage     String?
+  day        String?
+  time       String?
+  comment    String?
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  dosageNotes DosageNote[]
+}
+
+model DosageNote {
+  id       String @id @default(uuid())
+  qty      String
+  unit     String
+  freq     String
+  freqUnit String
+
+  dosageScheduleId String
+  dosageSchedule   DosageSchedule @relation(fields: [dosageScheduleId], references: [id], onDelete: Cascade)
 }
 
 model ChiefComplaint {
@@ -414,19 +437,6 @@ model OnExaminations {
   updatedAt      DateTime     @updatedAt
 }
 
-model MedicineInput {
-  id                String  @id @default(uuid())
-  serialNo          Int
-  nameManufacturer  String
-  brandName         String?
-  genericName       String
-  strength          String
-  dosageDescription String
-  price             Float
-  useFor            String
-  dar               String?
-}
-
 model Diagnosis {
   id             String       @id @default(uuid())
   prescriptionId String
@@ -440,6 +450,51 @@ model Investigation {
   id             String       @id @default(uuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model History {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Advice {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model NextVisit {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model TreatmentPlan {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  description    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model CoMorbidities {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
   description    String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -480,13 +535,6 @@ model AdviceTable {
   doctorId  String
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
   status    Status   @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ExceptionalTable {
-  id        String   @id @default(uuid())
-  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -623,5 +671,17 @@ model ClinicalNote {
   category   String
   order      Int
   templateId String
+  isShow     Boolean               @default(true)
   template   ClinicalNotesTemplate @relation(fields: [templateId], references: [id])
+}
+
+model WatchVideo {
+  id        String   @id @default(uuid())
+  title     String
+  videoFile String?
+  status    Status   @default(ACTIVE)
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
