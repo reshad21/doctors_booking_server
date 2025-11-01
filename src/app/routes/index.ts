@@ -31,6 +31,8 @@ import { HistoryInputRoutes } from '../modules/HistoryInput/HistoryInput.routes'
 import { AdviceInputRoutes } from '../modules/AdviceInput/AdviceInput.routes';
 import { NextVisitInputRoutes } from '../modules/NextVisitInput/NextVisitInput.routes';
 import { OnExaminationsInputRoutes } from '../modules/OnExaminationsInput/OnExaminationsInput.routes';
+import { TreatmentPlanInputRoutes } from '../modules/TreatmentPlanInput/TreatmentPlanInput.routes';
+import { CoMorbiditiesInputRoutes } from '../modules/CoMorbiditiesInput/CoMorbiditiesInput.routes';
 import { ClinicalTemplateRoutes } from '../modules/ClinicalNote/clinicalNote.routes';
 
 const router = Router();
@@ -155,6 +157,14 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: '/on-examinations-input',
     route: OnExaminationsInputRoutes,
+  },
+  {
+    path: '/treatment-plan-input',
+    route: TreatmentPlanInputRoutes,
+  },
+  {
+    path: '/co-morbidities-input',
+    route: CoMorbiditiesInputRoutes,
   },
   {
     path: '/clinical-template',
