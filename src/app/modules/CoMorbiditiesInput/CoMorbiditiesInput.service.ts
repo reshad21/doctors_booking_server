@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CoMorbiditiesInput } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
