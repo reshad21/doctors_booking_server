@@ -105,6 +105,7 @@ const updatePatientArrivedStatusIntoDB = async (patientData: { id: string, isArr
   });
   return response
 };
+
 const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
   const doctorId = await getDoctorIdForUser(user);
   let timezoneOffset = 0;
@@ -196,7 +197,6 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
       prescription: {
         include: {
           medicines: true,
-          tests: true,
           chiefComplaint: true,
           onExaminations: true,
           diagnosis: true,

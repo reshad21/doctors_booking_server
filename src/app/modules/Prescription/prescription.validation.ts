@@ -7,15 +7,6 @@ export const prescriptionValidationSchema = z.object({
     // name: z.string().min(1, 'Name is required'),
     advice: z.string().optional(),
     nextVisit: z.string().optional(),
-
-    tests: z
-      .array(
-        z.object({
-          description: z.string().min(1, 'Test description is required'),
-        }),
-      )
-      .optional(),
-
     medicines: z
       .array(
         z.object({
@@ -41,15 +32,6 @@ export const prescriptionUpdateValidationSchema = z.object({
     name: z.string().min(1, 'Name is required').optional(),
     advice: z.string().optional(),
     nextVisit: z.string().optional(),
-
-    tests: z
-      .array(
-        z.object({
-          description: z.string().min(1, 'Test description is required'),
-        }),
-      )
-      .optional(),
-
     medicines: z
       .array(
         z.object({

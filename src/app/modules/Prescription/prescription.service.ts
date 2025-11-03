@@ -23,12 +23,6 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
           },
         },
       },
-      tests: {
-        select: {
-          id: true,
-          description: true,
-        },
-      },
       chiefComplaint: true,
       diagnosis: true,
       investigation: true,
@@ -63,12 +57,6 @@ const getPrescriptionByIdIntoDB = async (id: string) => {
           DosageSchedule: {
             include: { dosageNotes: true },
           },
-        },
-      },
-      tests: {
-        select: {
-          id: true,
-          description: true,
         },
       },
       chiefComplaint: true,

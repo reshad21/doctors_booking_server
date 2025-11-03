@@ -27,7 +27,6 @@ export type TPrescription = {
   advice: string;
   nextVisit?: string;
   medicines: TMedicine[];
-  tests: { description: string }[];
   chiefComplaint: { description: string }[];
   onExaminations: { description: string }[];
   diagnosis: { description: string }[];
