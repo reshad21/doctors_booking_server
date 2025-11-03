@@ -1,5 +1,8 @@
+import { Prescription } from '@prisma/client';
 import prisma from '../../../db/db.config';
 import AppError from '../../errors/AppError';
+import { User } from '../../types/user.type';
+import { getDoctorIdForUser } from '../../utils/getDoctorId';
 
 const getExceptionalIntoDB = async () => {
   const response = await prisma.exceptionalTable.findMany();
@@ -15,12 +18,9 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
       createdAt: 'desc',
     },
     include: {
-      medicines: {
+      medication: {
         select: {
-          medicineName: true,
-          DosageSchedule: {
-            include: { dosageNotes: true },
-          },
+          instructionNotes: true
         },
       },
       chiefComplaint: true,
@@ -28,6 +28,11 @@ const getPrescriptionByPatientIdIntoDB = async (patientId: string) => {
       investigation: true,
       onExaminations: true,
       advice: true,
+      coMorbidities: true,
+      treatmentPlan: true,
+      doctor: true,
+      history: true,
+      nextVisit: true,
       patient: {
         select: {
           id: true,
@@ -51,19 +56,21 @@ const getPrescriptionByIdIntoDB = async (id: string) => {
       createdAt: 'desc',
     },
     include: {
-      medicines: {
+      medication: {
         select: {
-          medicineName: true,
-          DosageSchedule: {
-            include: { dosageNotes: true },
-          },
+          instructionNotes: true
         },
       },
       chiefComplaint: true,
       diagnosis: true,
       investigation: true,
-      advice: true,
       onExaminations: true,
+      advice: true,
+      coMorbidities: true,
+      treatmentPlan: true,
+      doctor: true,
+      history: true,
+      nextVisit: true,
       patient: {
         select: {
           id: true,
@@ -78,92 +85,49 @@ const getPrescriptionByIdIntoDB = async (id: string) => {
   return response;
 };
 
+const createPrescriptionIntoDB = async (data: Prescription, user: User) => {
 
-// const createPrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
-//   const {
-//     doctorId,
-//     patientId,
-//     medicines = [],
-//     chiefComplaint = [],
-//     onExaminations = [],
-//     diagnosis = [],
-//     nextVisit,
-//     investigation = [],
-//     advice = [],
-//     prescriptionNo,
-//   } = prescriptionData;
+  const {} = data;
+  const doctorId = await getDoctorIdForUser(user);
 
-//   const prescription = await prisma.prescription.create({
-//     data: {
-//       patientId,
-//       doctorId,
-//       prescriptionNo,
+  const formattedData = {
+    patientId: data.patientId,
+    doctorId,
+    history: {
+      create: {
+        general: { createMany: { data: data.historyGeneral || [] } },
+        drug: { createMany: { data: data.historyDrug || [] } },
+        personal: { createMany: { data: data.historyPersonal || [] } },
+        family: { createMany: { data: data.historyFamily || [] } },
+      },
+    },
+    medication: {
+      create: data.medications.map((m: any) => ({
+        ...m,
+        instructionNotes: { create: m.instructionNotes || [] },
+      })),
+    },
+    diagnosis: { createMany: { data: data.diagnosis || [] } },
+  };
 
-//       advice: {
-//         create: (advice ?? []).map((d) => ({ description: d })),
-//       },
-//       chiefComplaint: {
-//         create: (chiefComplaint ?? []).map((d) => ({ description: d })),
-//       },
-//       onExaminations: {
-//         create: (onExaminations ?? []).map((d) => ({ description: d })),
-//       },
-//       diagnosis: {
-//         create: (diagnosis ?? []).map((d) => ({ description: d })),
-//       },
-//       investigation: {
-//         create: (investigation ?? []).map((d) => ({ description: d })),
-//       },
+  const prescription = await prisma.prescription.create({
+    data: formattedData,
+    include: {
+      medication: { include: { instructionNotes: true } },
+      history: {
+        include: {
+          general: true,
+          drug: true,
+          personal: true,
+          family: true,
+        },
+      },
+      diagnosis: true,
+    },
+  });
 
-//       medicines: {
-//         create: (medicines ?? []).map((med) => ({
-//           // Extract medicine name from object or use string directly
-//           medicineName:
-//             typeof med.medicineName === 'object'
-//               ? med.medicineName.value || med.medicineName.label
-//               : med.medicineName,
-//           DosageSchedule: {
-//             create: (med.DosageSchedule ?? []).map((dosage) => ({
-//               dosage: dosage.dosage ?? null,
-//               day: dosage.day ?? null,
-//               time: dosage.time ?? null,
-//               comment: dosage.comment ?? null,
-//               // NEW nested create for dosageNotes (if provided)
-//               ...(Array.isArray(dosage.dosageNotes) && dosage.dosageNotes.length
-//                 ? {
-//                     dosageNotes: {
-//                       create: dosage.dosageNotes.map((n) => ({
-//                         qty: n.qty,
-//                         unit: n.unit,
-//                         freq: n.freq,
-//                         freqUnit: n.freqUnit,
-//                       })),
-//                     },
-//                   }
-//                 : {}),
-//             })),
-//           },
-//         })),
-//       },
-//     },
-//     include: {
-//       medicines: {
-//         include: {
-//           DosageSchedule: {
-//             include: { dosageNotes: true }, // NEW
-//           },
-//         },
-//       },
-//       chiefComplaint: true,
-//       onExaminations: true,
-//       diagnosis: true,
-//       investigation: true,
-//       advice: true,
-//     },
-//   });
-
-//   return prescription;
-// };
+  return prescription;
+};
 
 // const updatePrescriptionIntoDB = async (prescriptionData: PrescriptionData) => {
 //   const {
@@ -276,7 +240,7 @@ const createExceptionalIntoDB = async (content: string) => {
 };
 
 export const PrescriptionServices = {
-  // createPrescriptionIntoDB,
+  createPrescriptionIntoDB,
   // updatePrescriptionIntoDB,
   getPrescriptionByPatientIdIntoDB,
   getPrescriptionByIdIntoDB,
