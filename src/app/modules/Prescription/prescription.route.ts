@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { PrescriptionController } from './prescription.controller';
-// import { prescriptionValidations } from './prescription.validation';
-// import validation from '../../middlewares/validation';
+import auth from '../../middlewares/authorization';
+import { UserType } from '../../context/userType';
 
 const router = Router();
 
@@ -10,18 +10,16 @@ router.get('/:patientId', PrescriptionController.getPrescriptionByPatientId);
 router.get('/single/:id', PrescriptionController.getPrescriptionById);
 router.post(
   '/create-prescription',
+  auth([UserType.DOCTOR, UserType.STAFF]),
   // validation(prescriptionValidations.prescriptionValidationSchema),
   PrescriptionController.createPrescription,
 );
-router.post(
-  '/create-createExtraAdvice',
-  // validation(prescriptionValidations.prescriptionValidationSchema),
-  PrescriptionController.createExtraAdvice,
-);
-router.patch(
-  '/update-prescription',
-  // validation(prescriptionValidations.prescriptionUpdateValidationSchema),
-  PrescriptionController.updatePrescription,
-);
+
+
+// router.patch(
+//   '/update-prescription',
+//   // validation(prescriptionValidations.prescriptionUpdateValidationSchema),
+//   PrescriptionController.updatePrescription,
+// );
 
 export const PrescriptionRoutes = router;

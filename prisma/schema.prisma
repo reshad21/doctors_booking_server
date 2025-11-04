@@ -45,8 +45,8 @@ model FeatureToggle {
 
 model Feature {
   id        String          @id @default(uuid())
-  key       String          @unique // e.g. CREATE_PRESCRIPTION
-  name      String // Human-readable label
+  key       String          @unique
+  name      String
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   toggles   FeatureToggle[]
@@ -54,17 +54,17 @@ model Feature {
 
 model RouteAccess {
   id             String   @id @default(uuid())
-  path           String // e.g. "/dashboard", "/patients", "/billing"
-  name           String // e.g. "Dashboard"
-  doctorId       String? // specific to doctor
-  organizationId String? // specific to organization
+  path           String 
+  name           String 
+  doctorId       String?
+  organizationId String?
   allowed        Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  doctor       Doctor?       @relation(fields: [doctorId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  Staff        Staff?        @relation(fields: [staffId], references: [id])
+  doctor       Doctor?       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  Staff        Staff?        @relation(fields: [staffId], references: [id], onDelete: Cascade)
   staffId      String?
 
   @@unique([path, doctorId])
@@ -110,6 +110,8 @@ model Doctor {
   AdviceInput                       AdviceInput[]
   NextVisitInput                    NextVisitInput[]
   ClinicalNotesTemplate             ClinicalNotesTemplate[]
+  TreatmentPlanInput                TreatmentPlanInput[]
+  CoMorbiditiesInput                CoMorbiditiesInput[]
 }
 
 model Organization {
@@ -191,8 +193,8 @@ model Visit {
   fee  Int
 
   patient Patient  @relation(fields: [patientId], references: [id])
-  doctor  Doctor   @relation(fields: [doctorId], references: [id])
-  chamber Chamber? @relation(fields: [chamberId], references: [id])
+  doctor  Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  chamber Chamber? @relation(fields: [chamberId], references: [id], onDelete: Cascade)
 }
 
 model Chamber {
@@ -207,7 +209,7 @@ model Chamber {
   endTime            String?
   day                String?
   doctorId           String
-  doctor             Doctor               @relation(fields: [doctorId], references: [id])
+  doctor             Doctor               @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   patients           Patient[]
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
@@ -220,61 +222,201 @@ model Prescription {
   id             String           @id @default(uuid())
   prescriptionNo String           @default("GENERATING")
   patientId      String
-  patient        Patient          @relation(fields: [patientId], references: [id])
   doctorId       String
-  doctor         Doctor           @relation(fields: [doctorId], references: [id])
-  nextVisit      String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  medicines      Medicine[]
-  tests          Test[]
+  patient        Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor         Doctor           @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  medication     Medication[]
   chiefComplaint ChiefComplaint[]
   onExaminations OnExaminations[]
   diagnosis      Diagnosis[]
   investigation  Investigation[]
   advice         Advice[]
+  history        History[]
+  treatmentPlan  TreatmentPlan[]
+  coMorbidities  CoMorbidities[]
+  nextVisit      NextVisit?
+}
+
+model Medication {
+  id                 String                 @id @default(uuid())
+  name               String
+  dosage             String?
+  frequency          String?
+  duration           String?
+  beforeEating       Boolean                @default(false)
+  afterEating        Boolean                @default(false)
+  showInPrescription Boolean                @default(true)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  prescriptionId     String
+  instructionNotes   MedicationInstruction?
+  prescription       Prescription           @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+}
+
+model MedicationInstruction {
+  id           String     @id @default(uuid())
+  beforeEating Boolean    @default(false)
+  afterEating  Boolean    @default(false)
+  notes        String?
+  medicationId String     @unique
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  medication   Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+}
+
+model ChiefComplaint {
+  id             String       @id @default(uuid())
+  label          String
+  duration       String?
+  unit           String?
+  notes          String?
+  prescriptionId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+}
+
+model OnExaminations {
+  id             String       @id @default(uuid())
+  label          String
+  notes          String?
+  prescriptionId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+}
+
+model Diagnosis {
+  id             String       @id @default(uuid())
+  label          String
+  notes          String?
+  prescriptionId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+}
+
+model Investigation {
+  id             String       @id @default(uuid())
+  label          String
+  notes          String?
+  prescriptionId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+}
+
+model History {
+  id             String       @id @default(uuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescriptionId String       @unique
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  // One-to-many relationships to each history section
+  general       HistoryGeneral[]
+  drug          HistoryDrug[]
+  investigation HistoryInvestigation[]
+  personal      HistoryPersonal[]
+  family        HistoryFamily[]
+}
+
+model HistoryGeneral {
+  id        String   @id @default(uuid())
+  label     String
+  notes     String?
+  duration  String?
+  unit      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  historyId String
+  history   History  @relation(fields: [historyId], references: [id], onDelete: Cascade)
+}
+
+model HistoryDrug {
+  id        String   @id @default(uuid())
+  drugName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  historyId String
+  history   History  @relation(fields: [historyId], references: [id], onDelete: Cascade)
+}
+
+model HistoryInvestigation {
+  id        String   @id @default(uuid())
+  label     String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  historyId String
+  history   History  @relation(fields: [historyId], references: [id], onDelete: Cascade)
+}
+
+model HistoryPersonal {
+  id        String   @id @default(uuid())
+  label     String
+  duration  String?
+  unit      String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  historyId String
+  history   History  @relation(fields: [historyId], references: [id], onDelete: Cascade)
+}
+
+model HistoryFamily {
+  id        String   @id @default(uuid())
+  label     String
+  duration  String?
+  unit      String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  historyId String
+  history   History  @relation(fields: [historyId], references: [id], onDelete: Cascade)
 }
 
 model Advice {
   id             String       @id @default(uuid())
+  label          String
+  notes          String?
   prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
-  description    String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
 }
 
-model Medicine {
-  id             String           @id @default(uuid())
+model TreatmentPlan {
+  id             String       @id @default(uuid())
   prescriptionId String
-  prescription   Prescription     @relation(fields: [prescriptionId], references: [id])
-  medicineName   String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  DosageSchedule DosageSchedule[]
+  label          String
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
 }
 
-model DosageSchedule {
-  id         String   @id @default(uuid())
-  dosage     String?
-  day        String?
-  time       String?
-  comment    String?
-  medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-
-  dosageNotes DosageNote[]
+model CoMorbidities {
+  id             String       @id @default(uuid())
+  prescriptionId String
+  label          String
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
 }
 
-model DosageNote {
-  id       String @id @default(uuid())
-  qty      String
-  unit     String
-  freq     String
-  freqUnit String
-
-  dosageScheduleId String
-  dosageSchedule   DosageSchedule @relation(fields: [dosageScheduleId], references: [id], onDelete: Cascade)
+model NextVisit {
+  id             String       @id @default(uuid())
+  durationType   String?
+  durationValue  String?
+  notes          String?
+  showInReport   Boolean      @default(true)
+  withPatient    Boolean      @default(true)
+  prescriptionId String       @unique
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
 }
 
 model MedicineTimeInput {
@@ -376,42 +518,22 @@ model ChiefComplaintInput {
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
 }
 
-model WatchVideo {
+model TreatmentPlanInput {
   id        String   @id @default(uuid())
-  title     String
-  videoFile String?
-  status    Status   @default(ACTIVE)
-  doctorId  String
-  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  value     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
 }
 
-model Test {
-  id             String       @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  description    String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-}
-
-model ChiefComplaint {
-  id             String       @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  description    String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-}
-
-model OnExaminations {
-  id             String       @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  description    String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+model CoMorbiditiesInput {
+  id        String   @id @default(uuid())
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
 }
 
 model MedicineInput {
@@ -427,22 +549,11 @@ model MedicineInput {
   dar               String?
 }
 
-model Diagnosis {
-  id             String       @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  description    String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-}
-
-model Investigation {
-  id             String       @id @default(uuid())
-  prescriptionId String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  description    String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+model ExceptionalTable {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PrescriptionUITable {
@@ -480,13 +591,6 @@ model AdviceTable {
   doctorId  String
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
   status    Status   @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ExceptionalTable {
-  id        String   @id @default(uuid())
-  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -623,5 +727,17 @@ model ClinicalNote {
   category   String
   order      Int
   templateId String
+  isShow     Boolean               @default(true)
   template   ClinicalNotesTemplate @relation(fields: [templateId], references: [id])
+}
+
+model WatchVideo {
+  id        String   @id @default(uuid())
+  title     String
+  videoFile String?
+  status    Status   @default(ACTIVE)
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

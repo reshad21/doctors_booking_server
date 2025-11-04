@@ -3,7 +3,23 @@ import multer from 'multer';
 import path from 'path';
 import sharp from 'sharp';
 import { NextFunction } from 'express';
+import fs from 'fs'
 import { ACCEPTED_FILE_TYPES, ACCEPTED_IMAGE_TYPES } from '../utils/constant';
+
+const ensureUploadDirs = () => {
+  const imageDir = path.join(process.cwd(), 'public', 'images');
+  const fileDir = path.join(process.cwd(), 'public', 'files');
+
+  if (!fs.existsSync(imageDir)) {
+    fs.mkdirSync(imageDir, { recursive: true });
+  }
+  if (!fs.existsSync(fileDir)) {
+    fs.mkdirSync(fileDir, { recursive: true });
+  }
+};
+
+// ✅ Call it once when this file is imported
+ensureUploadDirs();
 
 const fileStorage = multer.diskStorage({
   destination: function (req, file, cb) {

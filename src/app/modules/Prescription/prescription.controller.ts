@@ -13,8 +13,6 @@ const getPrescriptionByPatientId = catchAsync(async (req, res) => {
 });
 
 const getPrescriptionById = catchAsync(async (req, res) => {
-  console.log(req.params.id);
-  
   const response = await PrescriptionServices.getPrescriptionByIdIntoDB(req.params.id)
   sendResponse(res, {
     statusCode: 200,
@@ -35,8 +33,13 @@ const getExceptionalAdvice = catchAsync(async (req, res) => {
 });
 
 const createPrescription = catchAsync(async (req, res) => {
+  const user = {
+    ...req.user,
+    id: (req.user as any).id,
+    type: (req.user as any).type,
+  };
 
-  const response = await PrescriptionServices.createPrescriptionIntoDB(req.body)
+  const response = await PrescriptionServices.createPrescriptionIntoDB(req.body, user)
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -46,7 +49,7 @@ const createPrescription = catchAsync(async (req, res) => {
 });
 
 const createExtraAdvice = catchAsync(async (req, res) => {
-  const {content} = req.body
+  const { content } = req.body
   const response = await PrescriptionServices.createExceptionalIntoDB(content)
   sendResponse(res, {
     statusCode: 200,
@@ -56,22 +59,22 @@ const createExtraAdvice = catchAsync(async (req, res) => {
   });
 });
 
-const updatePrescription = catchAsync(async (req, res) => { 
-  const response = await PrescriptionServices.updatePrescriptionIntoDB(req.body)
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Update Prescription Successful',
-    data: response,
-  });
-});
+// const updatePrescription = catchAsync(async (req, res) => { 
+//   const response = await PrescriptionServices.updatePrescriptionIntoDB(req.body)
+//   sendResponse(res, {
+//     statusCode: 200,
+//     success: true,
+//     message: 'Update Prescription Successful',
+//     data: response,
+//   });
+// });
 
 
 export const PrescriptionController = {
   createPrescription,
   getPrescriptionByPatientId,
   getPrescriptionById,
-  updatePrescription,
+  // updatePrescription,
   createExtraAdvice,
   getExceptionalAdvice
 };
