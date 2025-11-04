@@ -196,7 +196,7 @@ const getPatientsFromDB = async (query: Record<string, any>, user: User) => {
     include: {
       prescription: {
         include: {
-          medicines: true,
+          medication: true,
           chiefComplaint: true,
           onExaminations: true,
           diagnosis: true,
