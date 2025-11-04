@@ -58,7 +58,18 @@ const getPrescriptionByIdIntoDB = async (id: string) => {
     include: {
       medication: {
         select: {
-          instructionNotes: true
+          instructionNotes: true,
+          afterEating: true,
+          beforeEating: true,
+          updatedAt: true,
+          createdAt: true,
+          duration: true,
+          frequency: true,
+          id: true,
+          name: true,
+          showInPrescription: true,
+          dosage: true,
+          prescriptionId: true,
         },
       },
       chiefComplaint: true,
@@ -69,7 +80,15 @@ const getPrescriptionByIdIntoDB = async (id: string) => {
       coMorbidities: true,
       treatmentPlan: true,
       doctor: true,
-      history: true,
+      history: {
+        include: {
+          general: true,
+          drug: true,
+          investigation: true,
+          personal: true,
+          family: true,
+        }
+      },
       nextVisit: true,
       patient: {
         select: {
@@ -91,7 +110,7 @@ const createPrescriptionIntoDB = async (rawData: any, user: User) => {
   const formattedData = {
     patientId: rawData.patientId,
     doctorId,
-    
+
     // Chief Complaints
     chiefComplaint: {
       create: rawData.chiefComplaint?.complaints?.map((c: any) => ({
@@ -228,8 +247,8 @@ const createPrescriptionIntoDB = async (rawData: any, user: User) => {
   const prescription = await prisma.prescription.create({
     data: formattedData,
     include: {
-      medication: { 
-        include: { instructionNotes: true } 
+      medication: {
+        include: { instructionNotes: true }
       },
       chiefComplaint: true,
       onExaminations: true,
