@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../db/db.config';
 import fs from 'fs';
-
-const prisma = new PrismaClient();
 
 export async function seedMedicines() {
   const count = await prisma.medicineInput.count();

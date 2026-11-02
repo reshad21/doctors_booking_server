@@ -5,7 +5,7 @@ import { UserType } from '../../context/userType';
 import { JwtPayload } from 'jsonwebtoken';
 import { builderQuery } from '../../builders/prismaBuilderQuery';
 import { getDoctorIdForUser } from '../../utils/getDoctorId';
-import { io } from '../../../app';
+import { io } from '../../../socket';
 
 type User = JwtPayload & { id: string; type: string };
 
@@ -88,8 +88,8 @@ const now = new Date();
     },
   });
 
-  // ✅ Emit event so frontend knows about it
-  io.emit('patient:created', newPatient);
+  // ✅ Emit event so frontend knows about it (local dev only)
+  io?.emit('patient:created', newPatient);
 
   return newPatient;
 };

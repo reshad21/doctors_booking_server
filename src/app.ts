@@ -1,58 +1,27 @@
 /* eslint-disable no-console */
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import config from './app/configs';
 import router from './app/routes';
 import { globalErrorHandler } from './app/middlewares/globalErrorHandler';
 import notFoundErrorHandler from './app/middlewares/notFoundErrorHandler';
-import { createDoctor } from './app/SeedUser/SeedUser';
-import http from 'http';
-import { Server } from 'socket.io';
-import { seedMedicines } from './app/seed/seedMedicines';
 
 // Initialize the express application
 const app: Application = express();
-const server = http.createServer(app);
+
+app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://62.72.12.193',
-  'http://145.223.23.4',
-  "http://72.60.107.44"
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map((origin) => origin.trim())
+    : []),
 ];
-
-const io = new Server(server, {
-  cors: {
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin);
-      } else {
-        callback(new Error('Not allowed by CORS (Socket.IO)'));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-  },
-});
-
-// Socket.IO connection handler
-io.on('connection', (socket) => {
-  console.log('✅ Client connected:', socket.id);
-
-  socket.on('disconnect', () => {
-    console.log('❌ Client disconnected:', socket.id);
-  });
-});
-
-// Export io so services (like PatientService) can emit events
-export { io };
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin);
+        callback(null, origin || true);
       } else {
         callback(new Error('Not allowed by CORS (Express)'));
       }
@@ -73,12 +42,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Home route
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Welcome to the Backend in Doctors portal!',
-  });
+// Health check
+app.get('/', (req: Request, res: Response) => {
+  res.json({ status: 'ok' });
 });
 
 // Importing routes
@@ -90,10 +56,4 @@ app.use(globalErrorHandler);
 // 404 Not Found middleware
 app.use(notFoundErrorHandler);
 
-// Running the server
-server.listen(config.PORT, async () => {
-  console.log(`🚀 Server is running on port ${config.PORT}`);
-
-  await createDoctor();
-  await seedMedicines();
-});
+export default app;

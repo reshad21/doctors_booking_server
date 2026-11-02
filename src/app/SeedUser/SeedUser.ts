@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../db/db.config';
 import bcryptjs from 'bcryptjs';
 import { routeAccess } from '../context/routeAccess';
-
-const prisma = new PrismaClient();
 
 const doctors = [
   {
@@ -74,6 +72,4 @@ export const createDoctor = async () => {
       console.log('ℹ️  Doctor already exists, skipping creation.');
     }
   }
-
-  await prisma.$disconnect();
 };
